@@ -1,10 +1,16 @@
 import React from 'react'
-
-function App() {
+import{BrowserRouter, Routes, Route} from 'react-router-dom'
+import SideBar from './components/Locker Mnagement/SideBar'
+import LockerMap from './components/Locker Mnagement/LockerMap'
+const App = () => {
   return (
-    <div>
+    <BrowserRouter>
+      <Routes>
+        {/*<Route path="/" element={<SideBar />} /> */}
+        <Route path="/" element={<LockerMap />} />
       
-    </div>
+      </Routes>
+    </BrowserRouter>
   )
 }
 
