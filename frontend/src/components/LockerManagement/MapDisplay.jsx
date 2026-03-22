@@ -85,12 +85,15 @@ const MapDisplay = ({ map }) => {
 
   return (
     <div className="mb-10 w-full flex flex-col items-center overflow-x-auto mt-10 relative">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">{locationName}</h2>
-      <div className="bg-white p-7 rounded-2xl shadow-xl w-max">
-        <div
-          className="grid gap-4"
-          style={{ gridTemplateColumns: `repeat(${lockersPerRow}, minmax(0, 1fr))` }}
-        >
+      <div className="flex flex-col items-stretch w-max">
+        <h2 className="text-2xl font-bold mb-6 text-white bg-blue-600 px-8 py-3 rounded-xl shadow-md tracking-wide text-center">
+          {locationName}
+        </h2>
+        <div className="bg-blue-100 border-2 border-blue-300 p-7 rounded-2xl shadow-xl w-full">
+          <div
+            className="grid gap-4 mx-auto w-max"
+            style={{ gridTemplateColumns: `repeat(${lockersPerRow}, minmax(0, 1fr))` }}
+          >
           {lockers.map((locker) => (
             <button
               key={locker.id}
@@ -106,6 +109,7 @@ const MapDisplay = ({ map }) => {
               )}
             </button>
           ))}
+        </div>
         </div>
       </div>
 

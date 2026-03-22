@@ -49,7 +49,7 @@ const LockerMap = () => {
           <span className="text-2xl font-extrabold text-white tracking-tight hidden sm:block">UniSpot</span>
         </div>
         
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-3xl md:text-4xl font-extrabold text-white tracking-widest uppercase drop-shadow-md whitespace-nowrap">
+        <h1 className="absolute left-1/2 -translate-x-1/2 text-2xl md:text-3xl font-extrabold text-blue-800 bg-blue-100 px-8 py-2 border-2 border-blue-300 rounded-xl shadow-md tracking-widest uppercase whitespace-nowrap">
           LOCKER MAPS
         </h1>
 
