@@ -1,17 +1,16 @@
 import express from "express";
 import mongoose from "mongoose";
-import cors from "cors";
 import dotenv from 'dotenv';
+import { applyMiddleware } from "./middleware/appMiddleware.js";
 import lockerRoutes from "./routes/lockerRoutes.js";
-import { errorHandler } from "./middleware/errorMiddleware.js";
+import { applyErrorMiddleware } from "./middleware/errorMiddleware.js";
 
 dotenv.config();
 
 const app = express();
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+applyMiddleware(app);
 
 // Routes
 app.use("/", lockerRoutes);
@@ -22,7 +21,7 @@ app.get("/", (req, res) => {
 });
 
 // Error Handling Middleware
-app.use(errorHandler);
+applyErrorMiddleware(app);
 
 // Connect Database
 mongoose.connect(process.env.MONGO_URI)

@@ -150,7 +150,7 @@ const AdminLockerMap = () => {
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen p-8 flex flex-col relative bg-cover bg-center bg-fixed"
       style={{ backgroundImage: `url(${lockerBg})` }}
     >
@@ -162,7 +162,7 @@ const AdminLockerMap = () => {
       <div className="flex flex-col md:flex-row gap-8 max-w-7xl mx-auto w-full">
 
         {/* Left Side: Table View with Scroll */}
-        <div className="flex-1 bg-white shadow-xl rounded-xl border-2 border-blue-500 p-6 flex flex-col h-[75vh]">
+        <div className="flex-1 bg-white shadow-xl rounded-xl p-6 flex flex-col h-[75vh]">
           <h2 className="text-xl font-bold mb-4 text-gray-700 border-b pb-3">Configured Maps (Table View)</h2>
 
           <div className="overflow-y-auto flex-1 pr-2">
@@ -209,7 +209,7 @@ const AdminLockerMap = () => {
         </div>
 
         {/* Right Side: Create / Update Form */}
-        <div className="w-full md:w-80 bg-white shadow-xl rounded-xl border-2 border-blue-500 p-6 h-fit sticky top-8">
+        <div className="w-full md:w-80 bg-white shadow-xl rounded-xl p-6 h-fit sticky top-8">
           {editingMapId ? (
             <>
               <h2 className="text-xl font-bold mb-6 text-black border-b pb-3 text-center">Update Map</h2>
@@ -234,7 +234,7 @@ const AdminLockerMap = () => {
                       type="number"
                       min="1"
                       max="10"
-                      onKeyDown={(e) => { if(['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
+                      onKeyDown={(e) => { if (['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
                       value={updateForm.rows}
                       placeholder="e.g. 5"
                       onChange={handleUpdateChange}
@@ -252,7 +252,7 @@ const AdminLockerMap = () => {
                       type="number"
                       min="1"
                       max="10"
-                      onKeyDown={(e) => { if(['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
+                      onKeyDown={(e) => { if (['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
                       value={updateForm.lockersPerRow}
                       placeholder="e.g. 10"
                       onChange={handleUpdateChange}
@@ -304,7 +304,7 @@ const AdminLockerMap = () => {
                       type="number"
                       min="1"
                       max="10"
-                      onKeyDown={(e) => { if(['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
+                      onKeyDown={(e) => { if (['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
                       value={form.rows}
                       placeholder="e.g. 5"
                       onChange={handleChange}
@@ -322,7 +322,7 @@ const AdminLockerMap = () => {
                       type="number"
                       min="1"
                       max="10"
-                      onKeyDown={(e) => { if(['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
+                      onKeyDown={(e) => { if (['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
                       value={form.lockersPerRow}
                       placeholder="e.g. 10"
                       onChange={handleChange}
