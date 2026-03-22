@@ -1,19 +1,15 @@
 import { Routes, Route } from "react-router-dom";
-import SideBar from "./components/Locker Mnagement/SideBar";
-import LockerMap from "./components/Locker Mnagement/LockerMap";
-import AdminLockerMap from "./components/Locker Mnagement/AdminLockerMap";
+import AdminLockerMap from "./components/LockerManagement/AdminLockerMap";
+import LockerMap from "./components/LockerManagement/LockerMap";
 
 const App = () => {
   return (
-    <div className="flex min-h-screen bg-gray-200">
-      <SideBar />
-      <div className="flex-1 p-10">
-        <Routes>
-          {/*  <Route path="/lockers" element={<LockerMap />} />  */}
-
-          
-        </Routes>
-      </div>
+    <div className="min-h-screen bg-gray-200">
+      <Routes>
+        <Route path="/" element={<AdminLockerMap />} />
+        <Route path="/AdminLockerMap" element={<AdminLockerMap />} />
+        <Route path="/lockers" element={<LockerMap />} />
+      </Routes>
     </div>
   );
 };
