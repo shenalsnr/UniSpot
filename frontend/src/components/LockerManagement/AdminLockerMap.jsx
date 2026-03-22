@@ -151,47 +151,60 @@ const AdminLockerMap = () => {
 
   return (
     <div
-      className="min-h-screen p-8 flex flex-col relative bg-cover bg-center bg-fixed"
+      className="min-h-screen pb-10 flex flex-col relative bg-cover bg-center bg-fixed w-full"
       style={{ backgroundImage: `url(${lockerBg})` }}
     >
+      {/* Navigation Bar */}
+      <nav className="sticky top-0 z-[80] w-full bg-blue-600 backdrop-blur-md shadow-lg border-b border-blue-800 px-8 py-6 mb-10 flex justify-between items-center transition-all">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-inner text-blue-600 font-black text-2xl">U</div>
+          <span className="text-2xl font-extrabold text-white tracking-tight hidden sm:block">UniSpot</span>
+        </div>
+        
+        <h1 className="absolute left-1/2 -translate-x-1/2 text-2xl md:text-3xl font-extrabold text-blue-800 bg-blue-100 px-8 py-2 border-2 border-blue-300 rounded-xl shadow-md tracking-widest uppercase whitespace-nowrap">
+          ADMIN LOCKER MAP
+        </h1>
 
-      <h1 className="text-3xl font-bold mb-8 text-center text-gray-800 tracking-wide uppercase bg-white/80 py-3 border-2 border-blue-500 rounded-xl mx-auto w-max px-10 shadow-sm backdrop-blur-md">
-        ADMIN LOCKER MAP
-      </h1>
+        <div className="flex gap-4 items-center">
+          <a href="/lockermap" className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition border border-white/20 backdrop-blur-sm">
+            View Map
+          </a>
+        </div>
+      </nav>
 
-      <div className="flex flex-col md:flex-row gap-8 max-w-7xl mx-auto w-full">
+      <div className="flex flex-col md:flex-row gap-8 max-w-[95%] 2xl:max-w-[1600px] mx-auto w-full px-8">
 
-        {/* Left Side: Table View with Scroll */}
-        <div className="flex-1 bg-white shadow-xl rounded-xl p-6 flex flex-col h-[75vh]">
-          <h2 className="text-xl font-bold mb-4 text-gray-700 border-b pb-3">Configured Maps (Table View)</h2>
+        {/* Left Side: Table View */}
+        <div className="flex-1 bg-blue-100 border-2 border-blue-300 shadow-xl rounded-xl p-6 flex flex-col">
+          <h2 className="text-2xl font-bold mb-4 text-gray-700 border-b border-gray-300 pb-3 text-center">Configured Maps (Table View)</h2>
 
-          <div className="overflow-y-auto flex-1 pr-2">
+          <div className="flex-1 overflow-x-auto">
             {maps.length > 0 ? (
-              <table className="w-full text-left border-collapse min-w-max">
-                <thead className="sticky top-0 bg-white shadow-sm z-10 text-gray-600">
+              <table className="w-full text-left border-collapse min-w-max text-lg">
+                <thead className="sticky top-0 bg-blue-100 shadow-sm z-10 text-gray-600">
                   <tr>
-                    <th className="p-4 border-b-2 font-semibold w-1/3">Location Name</th>
-                    <th className="p-4 border-b-2 font-semibold w-1/5">Rows</th>
-                    <th className="p-4 border-b-2 font-semibold w-1/5">Lockers/Row</th>
-                    <th className="p-4 border-b-2 font-semibold text-center w-auto">Actions</th>
+                    <th className="p-4 border-b-2 font-bold w-1/3">Location Name</th>
+                    <th className="p-4 border-b-2 font-bold w-1/5">Rows</th>
+                    <th className="p-4 border-b-2 font-bold w-1/5">Lockers/Row</th>
+                    <th className="p-4 border-b-2 font-bold text-center w-auto">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {maps.map((map) => (
                     <tr key={map._id} className={`transition border-b ${editingMapId === map._id ? 'bg-blue-50' : 'hover:bg-gray-50'}`}>
-                      <td className="p-4 text-gray-800 font-medium">{map.locationName}</td>
-                      <td className="p-4 text-gray-600">{map.rows}</td>
-                      <td className="p-4 text-gray-600">{map.lockersPerRow}</td>
-                      <td className="p-4 text-center space-x-2 whitespace-nowrap">
+                      <td className="p-4 text-gray-800 font-bold">{map.locationName}</td>
+                      <td className="p-4 text-gray-600 font-medium">{map.rows}</td>
+                      <td className="p-4 text-gray-600 font-medium">{map.lockersPerRow}</td>
+                      <td className="p-4 text-center space-x-3 whitespace-nowrap">
                         <button
                           onClick={() => startEditing(map)}
-                          className="text-blue-500 hover:text-blue-700 font-semibold px-4 py-2 bg-blue-50 hover:bg-blue-100 rounded transition"
+                          className="text-blue-600 hover:text-blue-800 font-extrabold px-5 py-2 bg-blue-50 hover:bg-blue-100 rounded-lg transition"
                         >
                           Update
                         </button>
                         <button
                           onClick={() => handleDelete(map._id)}
-                          className="text-red-500 hover:text-red-700 font-semibold px-4 py-2 bg-red-50 hover:bg-red-100 rounded transition"
+                          className="bg-red-100 text-red-600 hover:text-red-700 font-extrabold px-5 py-2 hover:bg-red-200 rounded-lg transition"
                         >
                           Delete
                         </button>
@@ -209,10 +222,10 @@ const AdminLockerMap = () => {
         </div>
 
         {/* Right Side: Create / Update Form */}
-        <div className="w-full md:w-80 bg-white shadow-xl rounded-xl p-6 h-fit sticky top-8">
+        <div className="w-full md:w-96 flex-none bg-blue-100 border-2 border-blue-300 shadow-xl rounded-xl p-6 h-fit sticky top-32 mb-10">
           {editingMapId ? (
             <>
-              <h2 className="text-xl font-bold mb-6 text-black border-b pb-3 text-center">Update Map</h2>
+              <h2 className="text-xl font-bold mb-6 text-black border-b border-gray-300 pb-3 text-center">Update Map</h2>
 
               <div className="flex flex-col gap-5">
                 <div className="flex flex-col gap-1">
@@ -222,7 +235,7 @@ const AdminLockerMap = () => {
                     value={updateForm.locationName}
                     placeholder="e.g. Main Hall"
                     onChange={handleUpdateChange}
-                    className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm"
+                    className="w-full bg-white border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm"
                   />
                 </div>
 
@@ -238,7 +251,7 @@ const AdminLockerMap = () => {
                       value={updateForm.rows}
                       placeholder="e.g. 5"
                       onChange={handleUpdateChange}
-                      className="border border-gray-300 p-3 pr-24 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm w-full"
+                      className="w-full bg-white border border-gray-300 p-3 pr-24 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm"
                     />
                     <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none">Max: 10</span>
                   </div>
@@ -256,7 +269,7 @@ const AdminLockerMap = () => {
                       value={updateForm.lockersPerRow}
                       placeholder="e.g. 10"
                       onChange={handleUpdateChange}
-                      className="border border-gray-300 p-3 pr-24 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm w-full"
+                      className="w-full bg-white border border-gray-300 p-3 pr-24 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm"
                     />
                     <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none">Max: 10</span>
                   </div>
@@ -273,7 +286,7 @@ const AdminLockerMap = () => {
                   <button
                     onClick={() => setEditingMapId(null)}
                     disabled={loading}
-                    className="bg-gray-300 text-gray-800 p-3 rounded-lg hover:bg-gray-400 transition font-bold text-lg shadow hover:shadow-lg disabled:opacity-50"
+                    className="bg-red-100 text-red-600 p-3 rounded-lg hover:bg-red-200 hover:text-red-700 transition font-bold text-lg shadow hover:shadow-lg disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -282,7 +295,7 @@ const AdminLockerMap = () => {
             </>
           ) : (
             <>
-              <h2 className="text-xl font-bold mb-6 text-black border-b pb-3 text-center">Create New Map</h2>
+              <h2 className="text-xl font-bold mb-6 text-black border-b border-gray-300 pb-3 text-center">Create New Map</h2>
 
               <div className="flex flex-col gap-5">
                 <div className="flex flex-col gap-1">
@@ -292,7 +305,7 @@ const AdminLockerMap = () => {
                     value={form.locationName}
                     placeholder="e.g. Main Hall"
                     onChange={handleChange}
-                    className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm"
+                    className="w-full bg-white border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm"
                   />
                 </div>
 
@@ -308,7 +321,7 @@ const AdminLockerMap = () => {
                       value={form.rows}
                       placeholder="e.g. 5"
                       onChange={handleChange}
-                      className="border border-gray-300 p-3 pr-24 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm w-full"
+                      className="w-full bg-white border border-gray-300 p-3 pr-24 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm"
                     />
                     <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none">Max: 10</span>
                   </div>
@@ -326,7 +339,7 @@ const AdminLockerMap = () => {
                       value={form.lockersPerRow}
                       placeholder="e.g. 10"
                       onChange={handleChange}
-                      className="border border-gray-300 p-3 pr-24 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm w-full"
+                      className="w-full bg-white border border-gray-300 p-3 pr-24 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm"
                     />
                     <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none">Max: 10</span>
                   </div>
