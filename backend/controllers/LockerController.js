@@ -27,7 +27,7 @@ export const updateMap = async (req, res, next) => {
     const updated = await LockerMap.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true }
+      { returnDocument: 'after' }
     );
     res.json(updated);
   } catch (error) {
