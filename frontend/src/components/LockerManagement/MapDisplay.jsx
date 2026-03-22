@@ -61,8 +61,8 @@ const MapDisplay = ({ map }) => {
       alert("You cannot book a locker for a past date.");
       return;
     }
-    if (bookingStartTime < "08:00" || bookingEndTime > "22:00" || bookingStartTime > "22:00" || bookingEndTime < "08:00") {
-      alert("Booking time must be between 08:00 AM and 10:00 PM.");
+    if (bookingStartTime < "06:00" || bookingEndTime > "22:00" || bookingStartTime > "22:00" || bookingEndTime < "06:00") {
+      alert("Booking time must be between 06:00 AM and 10:00 PM.");
       return;
     }
     if (bookingStartTime >= bookingEndTime) {
@@ -134,7 +134,7 @@ const MapDisplay = ({ map }) => {
                   <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Start Time</label>
                   <input 
                     type="time" 
-                    min="08:00"
+                    min="06:00"
                     max="22:00"
                     value={bookingStartTime}
                     onChange={(e) => setBookingStartTime(e.target.value)}
@@ -146,7 +146,7 @@ const MapDisplay = ({ map }) => {
                   <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide">End Time</label>
                   <input 
                     type="time" 
-                    min="08:00"
+                    min="06:00"
                     max="22:00"
                     value={bookingEndTime}
                     onChange={(e) => setBookingEndTime(e.target.value)}
