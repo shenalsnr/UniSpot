@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import MapDisplay from "./MapDisplay";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import lockerBg from "../../assets/locker.png";
 
 const LockerMap = () => {
   const [maps, setMaps] = useState([]);
@@ -23,35 +24,39 @@ const LockerMap = () => {
   }, []);
 
   const handleNext = () => {
-    if (maps.length > 0) {
-      setCurrentIndex((prev) => (prev === maps.length - 1 ? 0 : prev + 1));
+    if (maps.length > 0 && currentIndex < maps.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
     }
   };
 
   const handlePrev = () => {
-    if (maps.length > 0) {
-      setCurrentIndex((prev) => (prev === 0 ? maps.length - 1 : prev - 1));
+    if (maps.length > 0 && currentIndex > 0) {
+      setCurrentIndex((prev) => prev - 1);
     }
   };
 
   if (loading) return <div className="p-10 text-center font-semibold text-gray-500">Loading maps...</div>;
 
   return (
-    <div className="flex flex-col items-center p-10 min-h-screen bg-gray-50">
-      <h1 className="text-3xl font-bold mb-8 text-gray-800 tracking-wide uppercase">LOCKER MAPS</h1>
+    <div 
+      className="flex flex-col items-center p-10 min-h-screen bg-cover bg-center bg-fixed"
+      style={{ backgroundImage: `url(${lockerBg})` }}
+    >
+      <h1 className="text-3xl font-bold mb-8 text-gray-800 tracking-wide uppercase bg-white/80 py-3 px-10 rounded-xl shadow-sm backdrop-blur-md">LOCKER MAPS</h1>
       
       {maps.length > 0 ? (
-        <div className="flex items-center gap-6 w-full max-w-7xl justify-center relative">
+        <div className="flex items-center justify-center w-full max-w-7xl relative mx-auto">
           
           <button 
             onClick={handlePrev} 
-            className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-100 hover:scale-110 transition flex-shrink-0 z-10"
+            disabled={currentIndex === 0}
+            className={`absolute left-0 md:left-4 top-1/2 -translate-y-1/2 p-3 bg-gray-200 rounded-full shadow-lg transition z-10 ${currentIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300 hover:scale-110'}`}
             aria-label="Previous Map"
           >
-            <ChevronLeft size={32} className="text-gray-700" />
+            <ChevronLeft size={32} className="text-blue-600" />
           </button>
           
-          <div className="flex-1 flex justify-center w-full overflow-hidden px-4">
+          <div className="w-full flex justify-center overflow-x-auto px-20 py-4 min-h-[400px] items-center">
              {/* MapDisplay is rendered with a key to completely remount the map component when index changes,
                  this ensures that individual locker selection states remain separate between maps if necessary */}
              <MapDisplay key={maps[currentIndex]._id} map={maps[currentIndex]} />
@@ -59,10 +64,11 @@ const LockerMap = () => {
 
           <button 
             onClick={handleNext} 
-            className="p-3 bg-white rounded-full shadow-lg hover:bg-gray-100 hover:scale-110 transition flex-shrink-0 z-10"
+            disabled={currentIndex === maps.length - 1}
+            className={`absolute right-0 md:right-4 top-1/2 -translate-y-1/2 p-3 bg-gray-200 rounded-full shadow-lg transition z-10 ${currentIndex === maps.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300 hover:scale-110'}`}
             aria-label="Next Map"
           >
-            <ChevronRight size={32} className="text-gray-700" />
+            <ChevronRight size={32} className="text-blue-600" />
           </button>
           
         </div>
@@ -72,7 +78,7 @@ const LockerMap = () => {
 
       {/* Pagination indicator */}
       {maps.length > 0 && (
-        <div className="mt-8 text-gray-500 font-medium">
+        <div className="mt-8 text-gray-500 font-medium tracking-wide">
           Map {currentIndex + 1} of {maps.length}
         </div>
       )}
