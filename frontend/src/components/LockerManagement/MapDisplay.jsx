@@ -46,7 +46,7 @@ const MapDisplay = ({ map }) => {
               key={locker.id}
               onClick={() => handleSelect(locker.id)}
               className={`w-16 h-16 rounded text-white font-semibold transition duration-200 hover:scale-110 flex items-center justify-center shadow-sm
-                ${locker.selected ? "bg-green-700" : "bg-gray-500"}
+                ${locker.selected ? "bg-blue-600 ring-2 ring-blue-300 ring-offset-1" : "bg-gray-500 hover:bg-gray-400"}
               `}
             >
               {locker.id}
