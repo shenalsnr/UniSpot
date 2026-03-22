@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 
 # Node modules
 
@@ -34,7 +34,12 @@ frontend/.eslintcache
 .DS_Store
 Thumbs.db
 npm-debug.log*
->>>>>>> 013651464f45160303702bf5e56f48a9d4ec19c9
+
+# ---env---
+.env
+.env.local
+.env.*.local
+
 
 
 

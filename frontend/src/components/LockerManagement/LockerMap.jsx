@@ -50,10 +50,10 @@ const LockerMap = () => {
           <button 
             onClick={handlePrev} 
             disabled={currentIndex === 0}
-            className={`absolute left-0 md:left-4 top-1/2 -translate-y-1/2 p-3 bg-gray-200 rounded-full shadow-lg transition z-10 ${currentIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300 hover:scale-110'}`}
+            className={`absolute left-0 md:left-4 top-1/2 -translate-y-1/2 p-3 bg-gray-500 rounded-full shadow-lg transition z-10 ${currentIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-400 hover:scale-110'}`}
             aria-label="Previous Map"
           >
-            <ChevronLeft size={32} className="text-blue-600" />
+            <ChevronLeft size={32} className="text-white" />
           </button>
           
           <div className="w-full flex justify-center overflow-x-auto px-20 py-4 min-h-[400px] items-center">
@@ -65,10 +65,10 @@ const LockerMap = () => {
           <button 
             onClick={handleNext} 
             disabled={currentIndex === maps.length - 1}
-            className={`absolute right-0 md:right-4 top-1/2 -translate-y-1/2 p-3 bg-gray-200 rounded-full shadow-lg transition z-10 ${currentIndex === maps.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300 hover:scale-110'}`}
+            className={`absolute right-0 md:right-4 top-1/2 -translate-y-1/2 p-3 bg-gray-500 rounded-full shadow-lg transition z-10 ${currentIndex === maps.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-400 hover:scale-110'}`}
             aria-label="Next Map"
           >
-            <ChevronRight size={32} className="text-blue-600" />
+            <ChevronRight size={32} className="text-white" />
           </button>
           
         </div>

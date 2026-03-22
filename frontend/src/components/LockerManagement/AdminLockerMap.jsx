@@ -40,6 +40,9 @@ const AdminLockerMap = () => {
     if (name === "locationName") {
       value = value.replace(/[^a-zA-Z\s]/g, "");
     }
+    if ((name === "rows" || name === "lockersPerRow") && Number(value) > 10) {
+      value = "10";
+    }
     setForm({
       ...form,
       [name]: value
@@ -51,6 +54,9 @@ const AdminLockerMap = () => {
     let { name, value } = e.target;
     if (name === "locationName") {
       value = value.replace(/[^a-zA-Z\s]/g, "");
+    }
+    if ((name === "rows" || name === "lockersPerRow") && Number(value) > 10) {
+      value = "10";
     }
     setUpdateForm({
       ...updateForm,
@@ -149,14 +155,14 @@ const AdminLockerMap = () => {
       style={{ backgroundImage: `url(${lockerBg})` }}
     >
 
-      <h1 className="text-3xl font-bold mb-8 text-center text-gray-800 tracking-wide uppercase bg-white/80 py-3 rounded-xl mx-auto w-max px-10 shadow-sm backdrop-blur-md">
+      <h1 className="text-3xl font-bold mb-8 text-center text-gray-800 tracking-wide uppercase bg-white/80 py-3 border-2 border-blue-500 rounded-xl mx-auto w-max px-10 shadow-sm backdrop-blur-md">
         ADMIN LOCKER MAP
       </h1>
 
       <div className="flex flex-col md:flex-row gap-8 max-w-7xl mx-auto w-full">
 
         {/* Left Side: Table View with Scroll */}
-        <div className="flex-1 bg-white shadow-xl rounded-xl p-6 flex flex-col h-[75vh]">
+        <div className="flex-1 bg-white shadow-xl rounded-xl border-2 border-blue-500 p-6 flex flex-col h-[75vh]">
           <h2 className="text-xl font-bold mb-4 text-gray-700 border-b pb-3">Configured Maps (Table View)</h2>
 
           <div className="overflow-y-auto flex-1 pr-2">
@@ -203,7 +209,7 @@ const AdminLockerMap = () => {
         </div>
 
         {/* Right Side: Create / Update Form */}
-        <div className="w-full md:w-80 bg-white shadow-xl rounded-xl p-6 h-fit sticky top-8">
+        <div className="w-full md:w-80 bg-white shadow-xl rounded-xl border-2 border-blue-500 p-6 h-fit sticky top-8">
           {editingMapId ? (
             <>
               <h2 className="text-xl font-bold mb-6 text-black border-b pb-3 text-center">Update Map</h2>
@@ -222,30 +228,38 @@ const AdminLockerMap = () => {
 
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Number of Rows</label>
-                  <input
-                    name="rows"
-                    type="number"
-                    min="1"
-                    onKeyDown={(e) => { if(['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
-                    value={updateForm.rows}
-                    placeholder="e.g. 5"
-                    onChange={handleUpdateChange}
-                    className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm"
-                  />
+                  <div className="relative">
+                    <input
+                      name="rows"
+                      type="number"
+                      min="1"
+                      max="10"
+                      onKeyDown={(e) => { if(['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
+                      value={updateForm.rows}
+                      placeholder="e.g. 5"
+                      onChange={handleUpdateChange}
+                      className="border border-gray-300 p-3 pr-24 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm w-full"
+                    />
+                    <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none">Max: 10</span>
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Lockers Per Row</label>
-                  <input
-                    name="lockersPerRow"
-                    type="number"
-                    min="1"
-                    onKeyDown={(e) => { if(['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
-                    value={updateForm.lockersPerRow}
-                    placeholder="e.g. 10"
-                    onChange={handleUpdateChange}
-                    className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm"
-                  />
+                  <div className="relative">
+                    <input
+                      name="lockersPerRow"
+                      type="number"
+                      min="1"
+                      max="10"
+                      onKeyDown={(e) => { if(['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
+                      value={updateForm.lockersPerRow}
+                      placeholder="e.g. 10"
+                      onChange={handleUpdateChange}
+                      className="border border-gray-300 p-3 pr-24 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm w-full"
+                    />
+                    <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none">Max: 10</span>
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-3 mt-4">
@@ -284,30 +298,38 @@ const AdminLockerMap = () => {
 
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Number of Rows</label>
-                  <input
-                    name="rows"
-                    type="number"
-                    min="1"
-                    onKeyDown={(e) => { if(['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
-                    value={form.rows}
-                    placeholder="e.g. 5"
-                    onChange={handleChange}
-                    className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm"
-                  />
+                  <div className="relative">
+                    <input
+                      name="rows"
+                      type="number"
+                      min="1"
+                      max="10"
+                      onKeyDown={(e) => { if(['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
+                      value={form.rows}
+                      placeholder="e.g. 5"
+                      onChange={handleChange}
+                      className="border border-gray-300 p-3 pr-24 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm w-full"
+                    />
+                    <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none">Max: 10</span>
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Lockers Per Row</label>
-                  <input
-                    name="lockersPerRow"
-                    type="number"
-                    min="1"
-                    onKeyDown={(e) => { if(['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
-                    value={form.lockersPerRow}
-                    placeholder="e.g. 10"
-                    onChange={handleChange}
-                    className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm"
-                  />
+                  <div className="relative">
+                    <input
+                      name="lockersPerRow"
+                      type="number"
+                      min="1"
+                      max="10"
+                      onKeyDown={(e) => { if(['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
+                      value={form.lockersPerRow}
+                      placeholder="e.g. 10"
+                      onChange={handleChange}
+                      className="border border-gray-300 p-3 pr-24 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm w-full"
+                    />
+                    <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium pointer-events-none">Max: 10</span>
+                  </div>
                 </div>
 
                 <button
