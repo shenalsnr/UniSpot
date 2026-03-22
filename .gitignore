@@ -1,25 +1,22 @@
-# Node modules
-node_modules/
+# --- Backend ---
+backend/node_modules/
+backend/.env
 
-# Environment variables
-.env
-.env.*
+# --- Frontend (Vite defaults) ---
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.eslintcache
 
-# Logs
-logs
-*.log
-npm-debug.log*
-
-# Build folders
-dist/
-build/
-
-# OS files
+# --- General System Files ---
 .DS_Store
 Thumbs.db
+npm-debug.log*
 
-# Vite cache
-.vite/
 
-# Optional
-coverage/
+
+
+
+
+
+
