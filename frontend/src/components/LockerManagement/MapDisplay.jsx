@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const MapDisplay = ({ map }) => {
   const { locationName, rows, lockersPerRow } = map;
@@ -26,6 +27,29 @@ const MapDisplay = ({ map }) => {
 
   const [lockers, setLockers] = useState(generateLockers());
 
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/bookings/map/${map._id}`);
+        const bookings = response.data;
+        setLockers((prev) => 
+          prev.map((locker) => {
+            const booking = bookings.find(b => b.lockerId === locker.id);
+            if (booking) {
+              return { ...locker, selected: true, date: booking.date, startTime: booking.startTime, endTime: booking.endTime };
+            }
+            return { ...locker, selected: false, date: "", startTime: "", endTime: "" };
+          })
+        );
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+      }
+    };
+    if (map && map._id) {
+      fetchBookings();
+    }
+  }, [map, map._id]);
+
   // Booking Modal State
   const [selectedLockerForBooking, setSelectedLockerForBooking] = useState(null);
   const [bookingDate, setBookingDate] = useState("");
@@ -34,15 +58,21 @@ const MapDisplay = ({ map }) => {
 
   const todayDateStr = new Date().toISOString().split("T")[0];
 
-  const handleSelect = (id) => {
+  const handleSelect = async (id) => {
     const locker = lockers.find(l => l.id === id);
     if (locker.selected) {
-      // If already selected, deselect it (or cancel booking)
-      setLockers((prev) =>
-        prev.map((l) =>
-          l.id === id ? { ...l, selected: false, date: "", startTime: "", endTime: "" } : l
-        )
-      );
+      if (!window.confirm("Are you sure you want to cancel this booking?")) return;
+      try {
+        await axios.delete(`http://localhost:5000/bookings/map/${map._id}/locker/${id}`);
+        setLockers((prev) =>
+          prev.map((l) =>
+            l.id === id ? { ...l, selected: false, date: "", startTime: "", endTime: "" } : l
+          )
+        );
+      } catch (error) {
+        console.error("Error cancelling booking:", error);
+        alert("Error cancelling booking.");
+      }
     } else {
       // Open booking modal
       setSelectedLockerForBooking(id);
@@ -52,7 +82,7 @@ const MapDisplay = ({ map }) => {
     }
   };
 
-  const confirmBooking = () => {
+  const confirmBooking = async () => {
     if (!bookingDate || !bookingStartTime || !bookingEndTime) {
       alert("Please select a date, start time, and end time to book.");
       return;
@@ -69,14 +99,26 @@ const MapDisplay = ({ map }) => {
       alert("End time must be after start time.");
       return;
     }
-    setLockers((prev) =>
-      prev.map((l) =>
-        l.id === selectedLockerForBooking
-          ? { ...l, selected: true, date: bookingDate, startTime: bookingStartTime, endTime: bookingEndTime }
-          : l
-      )
-    );
-    setSelectedLockerForBooking(null);
+    try {
+      await axios.post("http://localhost:5000/bookings", {
+        mapId: map._id,
+        lockerId: selectedLockerForBooking,
+        date: bookingDate,
+        startTime: bookingStartTime,
+        endTime: bookingEndTime
+      });
+      setLockers((prev) =>
+        prev.map((l) =>
+          l.id === selectedLockerForBooking
+            ? { ...l, selected: true, date: bookingDate, startTime: bookingStartTime, endTime: bookingEndTime }
+            : l
+        )
+      );
+      setSelectedLockerForBooking(null);
+    } catch (error) {
+      console.error("Booking failed:", error);
+      alert(error.response?.data?.message || "Booking failed.");
+    }
   };
 
   const cancelBooking = () => {

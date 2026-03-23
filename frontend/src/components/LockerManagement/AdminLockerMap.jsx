@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import lockerBg from "../../assets/locker.png";
+import logo from "../../assets/logo.png";
 
 const AdminLockerMap = () => {
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
     locationName: "",
@@ -155,20 +158,22 @@ const AdminLockerMap = () => {
       style={{ backgroundImage: `url(${lockerBg})` }}
     >
       {/* Navigation Bar */}
-      <nav className="sticky top-0 z-[80] w-full bg-blue-600 backdrop-blur-md shadow-lg border-b border-blue-800 px-8 py-6 mb-10 flex justify-between items-center transition-all">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-inner text-blue-600 font-black text-2xl">U</div>
-          <span className="text-2xl font-extrabold text-white tracking-tight hidden sm:block">UniSpot</span>
+      <nav className="sticky top-0 z-[80] w-full bg-gradient-to-r from-blue-200 via-blue-600 to-blue-600 backdrop-blur-md shadow-lg border-b border-blue-800 px-4 md:px-8 py-2 md:py-3 mb-10 flex justify-between items-center transition-all">
+        <div className="flex items-center">
+          <img src={logo} alt="UniSpot Logo" className="h-20 md:h-[100px] w-auto object-contain scale-110 origin-left drop-shadow-sm" />
         </div>
-        
+
         <h1 className="absolute left-1/2 -translate-x-1/2 text-2xl md:text-3xl font-extrabold text-blue-800 bg-blue-100 px-8 py-2 border-2 border-blue-300 rounded-xl shadow-md tracking-widest uppercase whitespace-nowrap">
           ADMIN LOCKER MAP
         </h1>
 
         <div className="flex gap-4 items-center">
-          <a href="/lockermap" className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition border border-white/20 backdrop-blur-sm">
-            View Map
-          </a>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition border border-white/20 backdrop-blur-sm"
+          >
+            Back to Panel
+          </button>
         </div>
       </nav>
 
