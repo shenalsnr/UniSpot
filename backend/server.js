@@ -1,27 +1,34 @@
 import express from "express";
 import mongoose from "mongoose";
-import cors from "cors";
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
+import { applyMiddleware } from "./middleware/appMiddleware.js";
+import lockerRoutes from "./routes/lockerRoutes.js";
+import { applyErrorMiddleware } from "./middleware/errorMiddleware.js";
 
 dotenv.config();
 
 const app = express();
 
-// middleware
-app.use(cors());
-app.use(express.json());
+// Middleware
+applyMiddleware(app);
 
-// simple route
+// Routes
+app.use("/", lockerRoutes);
+
+// Simple Route
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// connect database
-mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log("MongoDB Connected"))
-.catch((err) => console.log(err));
+// Error Handling Middleware
+applyErrorMiddleware(app);
 
-// start server
+// Connect Database
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Connected Successfully"))
+  .catch((err) => console.log("MongoDB Connection Error:", err));
+
+// Start Server
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
