@@ -1,5 +1,5 @@
 import LockerMap from "../models/LockerModel.js";
-import LockerBooking from "../models/LockerBookingModel.js";
+import LockerBooking from "../models/BookingModel.js";
 
 // Create Map
 export const createMap = async (req, res, next) => {
