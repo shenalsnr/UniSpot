@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import AdminLockerMap from "./components/LockerManagement/AdminLockerMap";
 import LockerMap from "./components/LockerManagement/LockerMap";
 
@@ -9,9 +9,10 @@ import StudentProfile from "./components/Students/StudentProfile";
 
 const App = () => {
   return (
-    <div className="min-h-screen bg-gray-200">
+    <div >
       <Routes>
-        <Route path="/" element={<AdminLockerMap />} />
+        <Route path="/" element={<Navigate to="/student-register" />} />
+
         <Route path="/AdminLockerMap" element={<AdminLockerMap />} />
         <Route path="/lockers" element={<LockerMap />} />
 

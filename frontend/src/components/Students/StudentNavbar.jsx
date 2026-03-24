@@ -1,7 +1,8 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const StudentNavbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const studentInfo = JSON.parse(localStorage.getItem("studentInfo"));
 
   const logoutHandler = () => {
@@ -11,18 +12,42 @@ const StudentNavbar = () => {
 
   return (
     <nav className="student-navbar">
-      <div className="student-navbar-left">
-        <h2>UNISPOT Student</h2>
+      <div className="student-navbar-brand">
+        <h2>UniSpot Student Portal</h2>
+        <p>Student Registration, Vehicle & QR Management</p>
       </div>
 
-      <div className="student-navbar-right">
-        <Link to="/student-register">Register</Link>
-        <Link to="/student-login">Login</Link>
+      <div className="student-navbar-links">
+        <Link
+          to="/student-register"
+          className={location.pathname === "/student-register" ? "active-link" : ""}
+        >
+          Register
+        </Link>
+
+        <Link
+          to="/student-login"
+          className={location.pathname === "/student-login" ? "active-link" : ""}
+        >
+          Login
+        </Link>
 
         {studentInfo && (
           <>
-            <Link to="/student-dashboard">Dashboard</Link>
-            <Link to="/student-profile">Profile</Link>
+            <Link
+              to="/student-dashboard"
+              className={location.pathname === "/student-dashboard" ? "active-link" : ""}
+            >
+              Dashboard
+            </Link>
+
+            <Link
+              to="/student-profile"
+              className={location.pathname === "/student-profile" ? "active-link" : ""}
+            >
+              Profile
+            </Link>
+
             <button onClick={logoutHandler}>Logout</button>
           </>
         )}

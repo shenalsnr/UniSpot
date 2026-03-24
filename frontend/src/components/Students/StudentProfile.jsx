@@ -103,6 +103,11 @@ const StudentProfile = () => {
     const lettersPattern = /^[A-Z]{2,3}$/;
     const numberPattern = /^\d{4}$/;
 
+    if (!vehicleData.model || !vehicleData.color || !vehicleData.regLetters || !vehicleData.regNumbers) {
+      setVehicleMessage("Please fill all vehicle fields");
+      return;
+    }
+
     if (!lettersPattern.test(vehicleData.regLetters.toUpperCase())) {
       setVehicleMessage("Vehicle letters must contain 2 or 3 English letters only");
       return;
@@ -132,6 +137,12 @@ const StudentProfile = () => {
     try {
       const res = await studentApi.delete("/students/vehicle");
       setVehicleMessage(res.data.message);
+      setVehicleData({
+        model: "",
+        color: "",
+        regLetters: "",
+        regNumbers: "",
+      });
       fetchProfile();
     } catch (error) {
       setVehicleMessage(error.response?.data?.message || "Vehicle remove failed");
@@ -139,7 +150,14 @@ const StudentProfile = () => {
   };
 
   if (!student) {
-    return <h3 className="student-loading">Loading...</h3>;
+    return (
+      <>
+        <StudentNavbar />
+        <div className="student-profile-page">
+          <div className="student-loading-box">Loading profile...</div>
+        </div>
+      </>
+    );
   }
 
   return (
@@ -147,110 +165,123 @@ const StudentProfile = () => {
       <StudentNavbar />
 
       <div className="student-profile-page">
-        <div className="student-section">
-          <h2>Profile Details</h2>
-          {profileMessage && <p className="student-success">{profileMessage}</p>}
-
-          <form className="student-form" onSubmit={updateProfileHandler}>
-            <input
-              type="text"
-              name="name"
-              value={profileData.name}
-              onChange={profileChangeHandler}
-              placeholder="Name"
-            />
-            <input
-              type="text"
-              name="phone"
-              value={profileData.phone}
-              onChange={profileChangeHandler}
-              placeholder="Phone"
-            />
-            <input
-              type="text"
-              name="address"
-              value={profileData.address}
-              onChange={profileChangeHandler}
-              placeholder="Address"
-            />
-            <input
-              type="text"
-              name="faculty"
-              value={profileData.faculty}
-              onChange={profileChangeHandler}
-              placeholder="Faculty"
-            />
-            <input
-              type="email"
-              name="email"
-              value={profileData.email}
-              onChange={profileChangeHandler}
-              placeholder="Email"
-            />
-            <input
-              type="file"
-              name="photo"
-              onChange={profileChangeHandler}
-            />
-            <button type="submit">Update Profile</button>
-          </form>
+        <div className="student-page-header">
+          <h1>My Profile</h1>
+          <p>Update your profile details and manage your vehicle information.</p>
         </div>
 
-        <div className="student-section">
-          <h2>Vehicle Details</h2>
-          {vehicleMessage && <p className="student-success">{vehicleMessage}</p>}
+        <div className="student-profile-grid">
+          <div className="student-section">
+            <h2>Profile Details</h2>
+            {profileMessage && <p className="student-success">{profileMessage}</p>}
 
-          <form className="student-form" onSubmit={saveVehicleHandler}>
-            <input
-              type="text"
-              name="model"
-              value={vehicleData.model}
-              onChange={vehicleChangeHandler}
-              placeholder="Vehicle Model"
-            />
-            <input
-              type="text"
-              name="color"
-              value={vehicleData.color}
-              onChange={vehicleChangeHandler}
-              placeholder="Vehicle Color"
-            />
-            <input
-              type="text"
-              name="regLetters"
-              value={vehicleData.regLetters}
-              onChange={vehicleChangeHandler}
-              placeholder="Letters (2-3)"
-            />
-            <input
-              type="text"
-              name="regNumbers"
-              value={vehicleData.regNumbers}
-              onChange={vehicleChangeHandler}
-              placeholder="Numbers (4 digits)"
-            />
-            <button type="submit">Save Vehicle</button>
-          </form>
+            <form className="student-form" onSubmit={updateProfileHandler}>
+              <input
+                type="text"
+                name="name"
+                value={profileData.name}
+                onChange={profileChangeHandler}
+                placeholder="Name"
+              />
+              <input
+                type="text"
+                name="phone"
+                value={profileData.phone}
+                onChange={profileChangeHandler}
+                placeholder="Phone"
+              />
+              <input
+                type="text"
+                name="address"
+                value={profileData.address}
+                onChange={profileChangeHandler}
+                placeholder="Address"
+              />
+              <input
+                type="text"
+                name="faculty"
+                value={profileData.faculty}
+                onChange={profileChangeHandler}
+                placeholder="Faculty"
+              />
+              <input
+                type="email"
+                name="email"
+                value={profileData.email}
+                onChange={profileChangeHandler}
+                placeholder="Email"
+              />
+              <input
+                type="file"
+                name="photo"
+                onChange={profileChangeHandler}
+              />
+              <button type="submit">Update Profile</button>
+            </form>
+          </div>
 
-          {student.vehicleRegistered && (
-            <button className="student-delete-btn" onClick={removeVehicleHandler}>
-              Remove Vehicle
-            </button>
-          )}
-        </div>
+          <div className="student-section">
+            <h2>Vehicle Details</h2>
+            {vehicleMessage && <p className="student-success">{vehicleMessage}</p>}
 
-        <div className="student-section">
-          <h2>Student QR Code</h2>
-          <img src={student.qrCode} alt="QR Code" className="student-qr-image" />
-        </div>
+            <div className="student-vehicle-status">
+              {student.vehicleRegistered ? "Vehicle Registered" : "No Vehicle Registered"}
+            </div>
 
-        <div className="student-section">
-          <h2>Current Photo</h2>
-          <img
-            src={`http://localhost:5000${student.photo}`}
-            alt="Student"
-            className="student-profile-image"
-          />
+            <form className="student-form" onSubmit={saveVehicleHandler}>
+              <input
+                type="text"
+                name="model"
+                value={vehicleData.model}
+                onChange={vehicleChangeHandler}
+                placeholder="Vehicle Model"
+              />
+              <input
+                type="text"
+                name="color"
+                value={vehicleData.color}
+                onChange={vehicleChangeHandler}
+                placeholder="Vehicle Color"
+              />
+              <input
+                type="text"
+                name="regLetters"
+                value={vehicleData.regLetters}
+                onChange={vehicleChangeHandler}
+                placeholder="Letters (2-3)"
+              />
+              <input
+                type="text"
+                name="regNumbers"
+                value={vehicleData.regNumbers}
+                onChange={vehicleChangeHandler}
+                placeholder="Numbers (4 digits)"
+              />
+              <button type="submit">
+                {student.vehicleRegistered ? "Update Vehicle" : "Add Vehicle"}
+              </button>
+            </form>
+
+            {student.vehicleRegistered && (
+              <button className="student-delete-btn" onClick={removeVehicleHandler}>
+                Remove Vehicle
+              </button>
+            )}
+          </div>
+
+          <div className="student-section">
+            <h2>Current Photo</h2>
+            <img
+              src={`http://localhost:5000${student.photo}`}
+              alt="Student"
+              className="student-profile-image"
+            />
+          </div>
+
+          <div className="student-section">
+            <h2>QR Code</h2>
+            <img src={student.qrCode} alt="QR Code" className="student-qr-image" />
+          </div>
         </div>
       </div>
     </>
