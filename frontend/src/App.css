@@ -1,0 +1,133 @@
+.student-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #e5e7eb;
+  padding: 30px;
+}
+
+.student-form {
+  width: 100%;
+  max-width: 450px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.student-form h2 {
+  margin: 0 0 10px 0;
+  text-align: center;
+  color: #111827;
+}
+
+.student-form input,
+.student-form select {
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.student-form button,
+.student-btn-link,
+.student-delete-btn,
+.student-navbar button {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.student-delete-btn {
+  background: #dc2626;
+  margin-top: 10px;
+}
+
+.student-error {
+  color: #dc2626;
+  font-weight: 600;
+  text-align: center;
+}
+
+.student-success {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.student-preview,
+.student-profile-image,
+.student-qr-image {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+
+.student-qr-image {
+  object-fit: contain;
+  background: white;
+  padding: 10px;
+}
+
+.student-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #111827;
+  color: white;
+  padding: 16px 24px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.student-navbar-right {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.student-navbar a {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.student-dashboard,
+.student-profile-page {
+  padding: 30px;
+}
+
+.student-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  margin-top: 20px;
+  gap: 20px;
+}
+
+.student-card,
+.student-section {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.student-dashboard-actions {
+  margin-top: 20px;
+}
+
+.student-loading {
+  text-align: center;
+  margin-top: 50px;
+}
