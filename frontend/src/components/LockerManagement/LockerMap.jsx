@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight, Home, ArrowLeft } from "lucide-react";
 import lockerBg from "../../assets/locker.png";
 import logo from "../../assets/logo.png";
 
-const LockerMap = () => {
+  const LockerMap = () => {
   const navigate = useNavigate();
   const [maps, setMaps] = useState([]);
   const [loading, setLoading] = useState(true);
