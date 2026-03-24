@@ -26,6 +26,25 @@ export const getParkingSpots = async (req, res, next) => {
   }
 };
 
+// @desc    Get a single parking spot by ID
+// @route   GET /api/parking/:id
+// @access  Public
+export const getParkingSpotById = async (req, res, next) => {
+  try {
+    const spot = await ParkingSpot.findById(req.params.id);
+
+    if (!spot) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Parking spot not found" });
+    }
+
+    res.status(200).json({ success: true, data: spot });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Create a new parking spot
 // @route   POST /api/parking
 // @access  Private/Admin

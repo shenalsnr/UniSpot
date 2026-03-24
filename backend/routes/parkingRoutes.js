@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getParkingSpots,
+  getParkingSpotById,
   createParkingSpot,
   reserveParkingSpot,
   releaseParkingSpot,
@@ -22,8 +23,9 @@ router.route("/:id/reserve")
 router.route("/:id/release")
   .put(releaseParkingSpot);
 
-// Route to delete a specific parking spot
+// Route to get and delete a specific parking spot
 router.route("/:id")
+  .get(getParkingSpotById)
   .delete(deleteParkingSpot);
 
 export default router;

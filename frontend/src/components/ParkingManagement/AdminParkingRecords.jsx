@@ -25,16 +25,21 @@ const AdminParkingRecords = () => {
     const zoneNum = zoneLabel.replace(/\D/g, '');
     
     const zoneSpots = currentSpots.filter(s => s.zone === zoneLabel);
-    let max = 0;
-    zoneSpots.forEach(s => {
+    const existingNumbers = zoneSpots.map(s => {
       const match = s.slotNumber.match(/S(\d{2})$/);
-      if (match) {
-        const num = parseInt(match[1]);
-        if (num > max) max = num;
-      }
-    });
+      return match ? parseInt(match[1], 10) : null;
+    }).filter(n => n !== null).sort((a,b) => a - b);
+
+    let nextNumInt = 1;
+    for (let i = 0; i < existingNumbers.length; i++) {
+        if (existingNumbers[i] === nextNumInt) {
+            nextNumInt++;
+        } else if (existingNumbers[i] > nextNumInt) {
+            break;
+        }
+    }
     
-    const nextNum = (max + 1).toString().padStart(2, '0');
+    const nextNum = nextNumInt.toString().padStart(2, '0');
     return `Z${zoneNum}-S${nextNum}`;
   };
 

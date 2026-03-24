@@ -44,7 +44,7 @@ const ParkingMap = () => {
 
   const handleSpotSelect = (spot) => {
     if (spot.isOccupied) return;
-    navigate(`/parking/book/${spot._id}`);
+    navigate(`/parking/book/${spot._id}`, { state: { spot } });
   };
 
   const handleBack = () => {

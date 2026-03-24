@@ -7,7 +7,9 @@ const ParkingBookingForm = () => {
   const { spotId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const spot = location.state?.spot;
+  
+  const [spot, setSpot] = useState(location.state?.spot || null);
+  const [loadingSpot, setLoadingSpot] = useState(!location.state?.spot);
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -26,17 +28,34 @@ const ParkingBookingForm = () => {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    if (!spot) {
+    if (!spot && spotId) {
+      const fetchSpot = async () => {
+        try {
+          const res = await fetch(`http://localhost:5000/api/parking/${spotId}`);
+          if (res.ok) {
+            const data = await res.json();
+            setSpot(data.data);
+          } else {
+            navigate('/parking/zones');
+          }
+        } catch (error) {
+          navigate('/parking/zones');
+        } finally {
+          setLoadingSpot(false);
+        }
+      };
+      fetchSpot();
+    } else if (!spot && !spotId) {
       navigate('/parking/zones');
     }
-  }, [spot, navigate]);
+  }, [spot, spotId, navigate]);
 
   // Sync spotId from URL if it changes
   useEffect(() => {
     if (spotId && spotId !== formData.spotId) {
       setFormData(prev => ({ ...prev, spotId }));
     }
-  }, [spotId]);
+  }, [spotId, formData.spotId]);
 
   const downloadReceipt = () => {
     const doc = new jsPDF();
@@ -209,6 +228,14 @@ const ParkingBookingForm = () => {
     
     setIsSubmitting(false);
   };
+
+  if (loadingSpot) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+        <div className="animate-pulse text-xl text-blue-500 font-bold">Loading booking details...</div>
+      </div>
+    );
+  }
 
   if (success) {
     return (
