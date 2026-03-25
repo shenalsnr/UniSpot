@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import { applyMiddleware } from "./middleware/appMiddleware.js";
 import { applyErrorMiddleware } from "./middleware/errorMiddleware.js";
 import studentRoutes from "./routes/studentRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 dotenv.config();
 
@@ -26,8 +27,9 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// Only your student routes for now
+// Routes
 app.use("/api/students", studentRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Error middleware
 applyErrorMiddleware(app);

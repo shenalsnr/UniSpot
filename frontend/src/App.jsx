@@ -7,9 +7,12 @@ import StudentLogin from "./components/Students/StudentLogin";
 import StudentDashboard from "./components/Students/StudentDashboard";
 import StudentProfile from "./components/Students/StudentProfile";
 
+import AdminLogin from "./components/Admin/AdminLogin";
+import AdminDashboard from "./components/Admin/AdminDashboard";
+
 const App = () => {
   return (
-    <div >
+    <div>
       <Routes>
         <Route path="/" element={<Navigate to="/student-register" />} />
 
@@ -20,6 +23,9 @@ const App = () => {
         <Route path="/student-login" element={<StudentLogin />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/student-profile" element={<StudentProfile />} />
+
+        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
       </Routes>
     </div>
   );
