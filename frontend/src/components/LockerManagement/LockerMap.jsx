@@ -46,9 +46,9 @@ import logo from "../../assets/logo.png";
       style={{ backgroundImage: `url(${lockerBg})` }}
     >
       {/* Navigation Bar */}
-      <nav className="sticky top-0 z-[80] w-full bg-gradient-to-r from-blue-200 via-blue-600 to-blue-600 backdrop-blur-md shadow-lg border-b border-blue-800 px-4 md:px-8 py-2 md:py-3 mb-10 flex justify-between items-center">
+      <nav className="sticky top-0 z-80 w-full bg-linear-to-r from-blue-200 via-blue-600 to-blue-600 backdrop-blur-md shadow-lg border-b border-blue-800 px-4 md:px-8 py-2 md:py-3 mb-10 flex justify-between items-center">
         <div className="flex items-center">
-          <img src={logo} alt="UniSpot Logo" className="h-20 md:h-[100px] w-auto object-contain scale-110 origin-left drop-shadow-sm" />
+          <img src={logo} alt="UniSpot Logo" className="h-20 md:h-25 w-auto object-contain scale-110 origin-left drop-shadow-sm" />
         </div>
 
         <h1 className="absolute left-1/2 -translate-x-1/2 text-2xl md:text-3xl font-extrabold text-blue-800 bg-blue-100 px-8 py-2 border-2 border-blue-300 rounded-xl shadow-md tracking-widest uppercase whitespace-nowrap">
@@ -57,18 +57,18 @@ import logo from "../../assets/logo.png";
 
         <div className="flex gap-4 items-center">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate()}
             className="p-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition border border-white/20 backdrop-blur-sm flex items-center justify-center"
             title="Go Back"
           >
-            <ArrowLeft size={24} />
+            <ArrowLeft />
           </button>
           <button
-            onClick={() => navigate("/")}
+            
             className="p-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition border border-white/20 backdrop-blur-sm flex items-center justify-center"
             title="Home"
           >
-            <Home size={24} />
+            <Home />
           </button>
         </div>
       </nav>
@@ -85,9 +85,8 @@ import logo from "../../assets/logo.png";
             <ChevronLeft size={32} className="text-white" />
           </button>
 
-          <div className="w-full flex justify-center overflow-x-auto px-20 py-4 min-h-[400px] items-center">
-            {/* MapDisplay is rendered with a key to completely remount the map component when index changes,
-                 this ensures that individual locker selection states remain separate between maps if necessary */}
+          <div className="w-full flex justify-center overflow-x-auto px-20 py-4 min-h[400px] items-center ">
+            
             <MapDisplay key={maps[currentIndex]._id} map={maps[currentIndex]} />
           </div>
 

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { ChevronLeft, ChevronRight, Home, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import lockerBg from "../../assets/locker.png";
@@ -158,9 +160,9 @@ const AdminLockerMap = () => {
       style={{ backgroundImage: `url(${lockerBg})` }}
     >
       {/* Navigation Bar */}
-      <nav className="sticky top-0 z-[80] w-full bg-gradient-to-r from-blue-200 via-blue-600 to-blue-600 backdrop-blur-md shadow-lg border-b border-blue-800 px-4 md:px-8 py-2 md:py-3 mb-10 flex justify-between items-center transition-all">
+      <nav className="sticky top-0 z-80 w-full bg-linear-to-r from-blue-200 via-blue-600 to-blue-600 backdrop-blur-md shadow-lg border-b border-blue-800 px-4 md:px-8 py-2 md:py-3 mb-10 flex justify-between items-center transition-all">
         <div className="flex items-center">
-          <img src={logo} alt="UniSpot Logo" className="h-20 md:h-[100px] w-auto object-contain scale-110 origin-left drop-shadow-sm" />
+          <img src={logo} alt="UniSpot Logo" className="h-20 md:h-25 w-auto object-contain scale-110 origin-left drop-shadow-sm" />
         </div>
 
         <h1 className="absolute left-1/2 -translate-x-1/2 text-2xl md:text-3xl font-extrabold text-blue-800 bg-blue-100 px-8 py-2 border-2 border-blue-300 rounded-xl shadow-md tracking-widest uppercase whitespace-nowrap">
@@ -168,16 +170,23 @@ const AdminLockerMap = () => {
         </h1>
 
         <div className="flex gap-4 items-center">
-          <button
-            onClick={() => navigate(-1)}
-            className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition border border-white/20 backdrop-blur-sm"
-          >
-            Back to Panel
-          </button>
+         <div className="flex gap-4 items-center">
+
+  
+  
+  {/* Back Button */}
+  <button
+    onClick={() => navigate("/")}
+    className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition border border-white/20 backdrop-blur-sm"
+  >
+   <ArrowLeft />
+  </button>
+
+</div>
         </div>
       </nav>
 
-      <div className="flex flex-col md:flex-row gap-8 max-w-[95%] 2xl:max-w-[1600px] mx-auto w-full px-8">
+      <div className="flex flex-col md:flex-row gap-8 max-w-[95%] 2xl:max-w-400 mx-auto w-full px-8">
 
         {/* Left Side: Table View */}
         <div className="flex-1 bg-blue-100 border-2 border-blue-300 shadow-xl rounded-xl p-6 flex flex-col">
@@ -284,7 +293,7 @@ const AdminLockerMap = () => {
                   <button
                     onClick={handleUpdateSubmit}
                     disabled={loading}
-                    className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition font-bold text-lg shadow hover:shadow-lg disabled:opacity-50"
+                    className="bg-linear-to-r from-blue-200 via-blue-600 to-blue-600 text-white p-3 rounded-lg hover:from-blue-300 hover:via-blue-700 hover:to-blue-700 transition font-bold text-lg shadow hover:shadow-lg disabled:opacity-50"
                   >
                     {loading ? "Saving..." : "Save Changes"}
                   </button>
@@ -353,7 +362,7 @@ const AdminLockerMap = () => {
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="mt-4 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition font-bold text-lg shadow hover:shadow-lg disabled:opacity-50"
+                  className="mt-4 bg-linear-to-r from-blue-200 via-blue-600 to-blue-600 text-white p-3 rounded-lg hover:from-blue-300 hover:via-blue-700 hover:to-blue-700 transition font-bold text-lg shadow hover:shadow-lg disabled:opacity-50"
                 >
                   {loading ? "Creating..." : "Create Map"}
                 </button>
