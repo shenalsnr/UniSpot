@@ -138,13 +138,16 @@ const BookLockersStatus = () => {
           </button>
 
           {/* LOCKER GRID */}
-          <div className="bg-white/80 backdrop-blur-md rounded-xl shadow-lg p-8">
+          <div className="bg-blue-100 border-2 border-blue-300 p-7 rounded-2xl shadow-xl w-full">
 
-            <h2 className="text-2xl font-bold mb-6 text-white bg-linear-to-r from-blue-200 via-blue-600 to-blue-600 px-8 py-3 rounded-xl shadow-md tracking-wide text-center">
+            <h2 className="text-2xl font-bold mb-6 text-white bg-gradient-to-r from-blue-200 via-blue-600 to-blue-600 px-8 py-3 rounded-xl shadow-md tracking-wide text-center">
               {maps[selectedIndex]?.locationName}
             </h2>
 
-            <div className="grid grid-cols-10 gap-3">
+            <div 
+              className="grid gap-4 mx-auto w-max"
+              style={{ gridTemplateColumns: `repeat(${maps[selectedIndex]?.lockersPerRow || 10}, minmax(0, 1fr))` }}
+            >
               {generateLockers().map((lockerId) => {
                 const booked = isBooked(lockerId);
 
