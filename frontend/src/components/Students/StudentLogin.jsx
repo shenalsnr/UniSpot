@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PublicNavbar from "../Home/PublicNavbar";
 import studentApi from "./studentApi";
 
 const StudentLogin = () => {
@@ -26,31 +27,37 @@ const StudentLogin = () => {
   };
 
   return (
-    <div className="student-page">
-      <form className="student-form" onSubmit={submitHandler}>
-        <h2>Student Login</h2>
+    <>
+      <PublicNavbar />
+      <div className="student-page">
+        <form className="student-login-card student-form fade-up" onSubmit={submitHandler}>
+          <h2>Student Login</h2>
+          <p className="student-login-subtitle">
+            Access your profile, QR code, and vehicle management dashboard.
+          </p>
 
-        {message && <p className="student-error">{message}</p>}
+          {message && <p className="student-error">{message}</p>}
 
-        <input
-          type="text"
-          placeholder="Student ID"
-          value={studentId}
-          onChange={(e) => setStudentId(e.target.value)}
-          required
-        />
+          <input
+            type="text"
+            placeholder="Student ID"
+            value={studentId}
+            onChange={(e) => setStudentId(e.target.value)}
+            required
+          />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
 
-        <button type="submit">Login</button>
-      </form>
-    </div>
+          <button type="submit">Login</button>
+        </form>
+      </div>
+    </>
   );
 };
 

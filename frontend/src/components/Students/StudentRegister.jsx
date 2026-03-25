@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PublicNavbar from "../Home/PublicNavbar";
 import studentApi from "./studentApi";
 
 const StudentRegister = () => {
@@ -26,7 +27,6 @@ const StudentRegister = () => {
     if (name === "photo") {
       const file = files[0];
       setFormData({ ...formData, photo: file });
-
       if (file) {
         setPreview(URL.createObjectURL(file));
       }
@@ -89,9 +89,7 @@ const StudentRegister = () => {
       data.append("photo", formData.photo);
 
       const res = await studentApi.post("/students/register", data, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       localStorage.setItem("studentInfo", JSON.stringify(res.data));
@@ -102,90 +100,41 @@ const StudentRegister = () => {
   };
 
   return (
-    <div className="student-page">
-      <form className="student-form" onSubmit={submitHandler}>
-        <h2>Student Registration</h2>
+    <>
+      <PublicNavbar />
+      <div className="student-page">
+        <form className="student-register-card student-form fade-up" onSubmit={submitHandler}>
+          <h2>Create Student Account</h2>
+          <p className="student-register-subtitle">
+            Register your profile to manage lockers, parking, vehicle details, and QR access.
+          </p>
 
-        {message && <p className="student-error">{message}</p>}
+          {message && <p className="student-error">{message}</p>}
 
-        <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          onChange={changeHandler}
-          required
-        />
+          <input type="text" name="name" placeholder="Full Name" onChange={changeHandler} required />
+          <input type="text" name="studentId" placeholder="Student ID (IT12345678)" onChange={changeHandler} required />
+          <input type="text" name="phone" placeholder="Phone Number" onChange={changeHandler} required />
+          <input type="text" name="address" placeholder="Address" onChange={changeHandler} required />
 
-        <input
-          type="text"
-          name="studentId"
-          placeholder="Student ID (IT12345678)"
-          onChange={changeHandler}
-          required
-        />
+          <select name="faculty" onChange={changeHandler} required>
+            <option value="">Select Faculty</option>
+            <option value="Faculty of Computing">Faculty of Computing</option>
+            <option value="Faculty of Business">Faculty of Business</option>
+            <option value="Faculty of Engineering">Faculty of Engineering</option>
+            <option value="Faculty of Humanities & Sciences">Faculty of Humanities & Sciences</option>
+          </select>
 
-        <input
-          type="text"
-          name="phone"
-          placeholder="Phone Number"
-          onChange={changeHandler}
-          required
-        />
+          <input type="email" name="email" placeholder="Email (Optional)" onChange={changeHandler} />
+          <input type="password" name="password" placeholder="Password" onChange={changeHandler} required />
+          <input type="password" name="confirmPassword" placeholder="Confirm Password" onChange={changeHandler} required />
+          <input type="file" name="photo" accept="image/*" onChange={changeHandler} required />
 
-        <input
-          type="text"
-          name="address"
-          placeholder="Address"
-          onChange={changeHandler}
-          required
-        />
+          {preview && <img src={preview} alt="Preview" className="student-preview" />}
 
-        <select name="faculty" onChange={changeHandler} required>
-          <option value="">Select Faculty</option>
-          <option value="Faculty of Computing">Faculty of Computing</option>
-          <option value="Faculty of Business">Faculty of Business</option>
-          <option value="Faculty of Engineering">Faculty of Engineering</option>
-          <option value="Faculty of Humanities & Sciences">
-            Faculty of Humanities & Sciences
-          </option>
-        </select>
-
-        <input
-          type="email"
-          name="email"
-          placeholder="Email (Optional)"
-          onChange={changeHandler}
-        />
-
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={changeHandler}
-          required
-        />
-
-        <input
-          type="password"
-          name="confirmPassword"
-          placeholder="Confirm Password"
-          onChange={changeHandler}
-          required
-        />
-
-        <input
-          type="file"
-          name="photo"
-          accept="image/*"
-          onChange={changeHandler}
-          required
-        />
-
-        {preview && <img src={preview} alt="Preview" className="student-preview" />}
-
-        <button type="submit">Register</button>
-      </form>
-    </div>
+          <button type="submit">Register Now</button>
+        </form>
+      </div>
+    </>
   );
 };
 
