@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 const StudentNavbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const studentInfo = JSON.parse(localStorage.getItem("studentInfo"));
 
   const logoutHandler = () => {
     localStorage.removeItem("studentInfo");
@@ -14,43 +13,32 @@ const StudentNavbar = () => {
     <nav className="student-navbar">
       <div className="student-navbar-brand">
         <h2>UniSpot Student Portal</h2>
-        <p>Student Registration, Vehicle & QR Management</p>
+        <p>Student Dashboard & Profile Management</p>
       </div>
 
       <div className="student-navbar-links">
         <Link
-          to="/student-register"
-          className={location.pathname === "/student-register" ? "active-link" : ""}
+          to="/"
+          className={location.pathname === "/" ? "active-link" : ""}
         >
-          Register
+          Home
         </Link>
 
         <Link
-          to="/student-login"
-          className={location.pathname === "/student-login" ? "active-link" : ""}
+          to="/student-dashboard"
+          className={location.pathname === "/student-dashboard" ? "active-link" : ""}
         >
-          Login
+          Dashboard
         </Link>
 
-        {studentInfo && (
-          <>
-            <Link
-              to="/student-dashboard"
-              className={location.pathname === "/student-dashboard" ? "active-link" : ""}
-            >
-              Dashboard
-            </Link>
+        <Link
+          to="/student-profile"
+          className={location.pathname === "/student-profile" ? "active-link" : ""}
+        >
+          Profile
+        </Link>
 
-            <Link
-              to="/student-profile"
-              className={location.pathname === "/student-profile" ? "active-link" : ""}
-            >
-              Profile
-            </Link>
-
-            <button onClick={logoutHandler}>Logout</button>
-          </>
-        )}
+        <button onClick={logoutHandler}>Logout</button>
       </div>
     </nav>
   );

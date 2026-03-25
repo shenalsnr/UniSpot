@@ -58,17 +58,32 @@ const StudentDashboard = () => {
       <StudentNavbar />
 
       <div className="student-dashboard-page">
-        <div className="student-hero-card">
-          <div>
+        <div className="student-hero-card student-hero-creative">
+          <div className="student-hero-left">
             <h1>Welcome back, {student.name}</h1>
             <p>
-              Here you can check your profile, QR code, vehicle details,
-              account status, and marks.
+              Manage your profile, view QR code, update vehicle details, and
+              access locker or parking booking options from your student dashboard.
             </p>
+
+            <div className="student-hero-actions">
+              <Link to="/student-book-locker" className="student-btn-link">
+                Book Locker
+              </Link>
+              <Link to="/student-book-parking" className="student-btn-link student-btn-secondary">
+                Book Parking Slot
+              </Link>
+            </div>
           </div>
 
-          <div className={`student-status-badge ${student.status === "blocked" ? "status-blocked" : "status-active"}`}>
-            {student.status}
+          <div className="student-hero-right">
+            <div className="student-round-photo-frame">
+              <img
+                src={`http://localhost:5000${student.photo}`}
+                alt="Student"
+                className="student-round-photo"
+              />
+            </div>
           </div>
         </div>
 
@@ -119,15 +134,6 @@ const StudentDashboard = () => {
                 <small>You can add one from your profile page.</small>
               </div>
             )}
-          </div>
-
-          <div className="student-summary-card student-photo-card">
-            <h3>Student Photo</h3>
-            <img
-              src={`http://localhost:5000${student.photo}`}
-              alt="Student"
-              className="student-profile-image"
-            />
           </div>
 
           <div className="student-summary-card student-qr-card">

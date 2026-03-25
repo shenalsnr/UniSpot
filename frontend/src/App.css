@@ -85,7 +85,8 @@ body {
 .student-dashboard-page,
 .student-profile-page,
 .home-page,
-.info-page {
+.info-page,
+.student-simple-page {
   min-height: calc(100vh - 90px);
   padding: 30px;
 }
@@ -220,14 +221,16 @@ body {
   line-height: 1.6;
 }
 
-/* ABOUT / CONTACT */
-.info-page {
+/* ABOUT / CONTACT / SIMPLE PAGES */
+.info-page,
+.student-simple-page {
   display: flex;
   justify-content: center;
   align-items: flex-start;
 }
 
-.info-card {
+.info-card,
+.student-simple-card {
   width: 100%;
   max-width: 1100px;
   background: rgba(255, 255, 255, 0.84);
@@ -236,13 +239,15 @@ body {
   box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
 }
 
-.info-card h1 {
+.info-card h1,
+.student-simple-card h1 {
   margin-top: 0;
   font-size: 38px;
   color: #0f172a;
 }
 
-.info-card > p {
+.info-card > p,
+.student-simple-card > p {
   color: #64748b;
   line-height: 1.7;
 }
@@ -254,19 +259,22 @@ body {
   gap: 20px;
 }
 
-.info-box {
+.info-box,
+.student-info-box {
   background: linear-gradient(135deg, #eff6ff, #ffffff);
   border-radius: 20px;
   padding: 20px;
   border: 1px solid #dbeafe;
 }
 
-.info-box h3 {
+.info-box h3,
+.student-info-box h3 {
   margin-top: 0;
   color: #1d4ed8;
 }
 
-.info-box p {
+.info-box p,
+.student-info-box p {
   color: #475569;
   line-height: 1.6;
 }
@@ -373,6 +381,10 @@ body {
   color: white;
 }
 
+.student-delete-btn:hover {
+  transform: translateY(-2px);
+}
+
 .student-preview,
 .student-profile-image,
 .student-qr-image {
@@ -429,6 +441,54 @@ body {
   line-height: 1.6;
   max-width: 700px;
   opacity: 0.96;
+}
+
+.student-hero-creative {
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  align-items: center;
+}
+
+.student-hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.student-hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.student-btn-secondary {
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+}
+
+.student-hero-right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.student-round-photo-frame {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  padding: 10px;
+  background: linear-gradient(135deg, #ffffff, #dbeafe, #bfdbfe);
+  box-shadow: 0 15px 30px rgba(15, 23, 42, 0.18);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.student-round-photo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 6px solid white;
 }
 
 .student-status-badge {
@@ -576,6 +636,23 @@ body {
   margin-top: 26px;
 }
 
+.forgot-link-wrap {
+  text-align: center;
+  margin-top: 4px;
+}
+
+.forgot-password-link {
+  text-decoration: none;
+  color: #2563eb;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.forgot-password-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
 /* ANIMATIONS */
 .fade-up {
   animation: fadeUp 0.8s ease forwards;
@@ -626,6 +703,19 @@ body {
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .student-hero-creative {
+    grid-template-columns: 1fr;
+  }
+
+  .student-hero-right {
+    justify-content: flex-start;
+  }
+
+  .student-round-photo-frame {
+    width: 170px;
+    height: 170px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -643,7 +733,8 @@ body {
   .student-dashboard-page,
   .student-profile-page,
   .home-page,
-  .info-page {
+  .info-page,
+  .student-simple-page {
     padding: 16px;
   }
 
@@ -664,7 +755,8 @@ body {
 
   .student-register-card,
   .student-login-card,
-  .info-card {
+  .info-card,
+  .student-simple-card {
     padding: 22px;
   }
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import PublicNavbar from "../Home/PublicNavbar";
 import studentApi from "./studentApi";
 
@@ -55,6 +55,12 @@ const StudentLogin = () => {
           />
 
           <button type="submit">Login</button>
+
+          <div className="forgot-link-wrap">
+            <Link to="/student-forgot-password" className="forgot-password-link">
+              Forgot Password?
+            </Link>
+          </div>
         </form>
       </div>
     </>

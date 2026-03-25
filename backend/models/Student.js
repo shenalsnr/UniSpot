@@ -85,6 +85,17 @@ const studentSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+
+    otpCode: {
+      type: String,
+      default: "",
+    },
+
+    otpExpires: {
+      type: Date,
+      default: null,
+    },
+    
     qrCode: {
       type: String,
       default: "",

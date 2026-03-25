@@ -298,6 +298,86 @@ const removeVehicle = async (req, res) => {
   }
 };
 
+// Request password OTP
+const requestPasswordOtp = async (req, res) => {
+  try {
+    const { studentId, phone } = req.body;
+
+    if (!studentId || !phone) {
+      return res.status(400).json({ message: "Student ID and phone number are required" });
+    }
+
+    const formattedStudentId = studentId.toUpperCase();
+
+    const student = await Student.findOne({
+      studentId: formattedStudentId,
+      phone,
+    });
+
+    if (!student) {
+      return res.status(404).json({
+        message: "Student not found with matching phone number",
+      });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    student.otpCode = otp;
+    student.otpExpires = new Date(Date.now() + 5 * 60 * 1000);
+
+    await student.save();
+
+    console.log(`OTP for ${student.studentId}: ${otp}`);
+
+    res.json({
+      message: "OTP generated successfully. Check backend terminal for demo OTP.",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Reset password with OTP
+const resetPasswordWithOtp = async (req, res) => {
+  try {
+    const { studentId, phone, otp, newPassword } = req.body;
+
+    if (!studentId || !phone || !otp || !newPassword) {
+      return res.status(400).json({ message: "Please fill all required fields" });
+    }
+
+    const formattedStudentId = studentId.toUpperCase();
+
+    const student = await Student.findOne({
+      studentId: formattedStudentId,
+      phone,
+    });
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    if (!student.otpCode || student.otpCode !== otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    if (!student.otpExpires || student.otpExpires < new Date()) {
+      return res.status(400).json({ message: "OTP has expired" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    student.password = hashedPassword;
+    student.otpCode = "";
+    student.otpExpires = null;
+
+    await student.save();
+
+    res.json({ message: "Password reset successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // QR scan details
 const getStudentByQr = async (req, res) => {
   try {
@@ -334,5 +414,7 @@ export {
   updateStudentProfile,
   addOrUpdateVehicle,
   removeVehicle,
+  requestPasswordOtp,
+  resetPasswordWithOtp,
   getStudentByQr,
 };

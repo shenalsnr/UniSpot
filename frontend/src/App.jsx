@@ -10,6 +10,9 @@ import StudentRegister from "./components/Students/StudentRegister";
 import StudentLogin from "./components/Students/StudentLogin";
 import StudentDashboard from "./components/Students/StudentDashboard";
 import StudentProfile from "./components/Students/StudentProfile";
+import StudentBookLocker from "./components/Students/StudentBookLocker";
+import StudentBookParking from "./components/Students/StudentBookParking";
+import StudentForgotPassword from "./components/Students/StudentForgotPassword";
 
 import AdminLogin from "./components/Admin/AdminLogin";
 import AdminDashboard from "./components/Admin/AdminDashboard";
@@ -26,6 +29,9 @@ const App = () => {
         <Route path="/student-login" element={<StudentLogin />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/student-profile" element={<StudentProfile />} />
+        <Route path="/student-book-locker" element={<StudentBookLocker />} />
+        <Route path="/student-book-parking" element={<StudentBookParking />} />
+        <Route path="/student-forgot-password" element={<StudentForgotPassword />} />
 
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />

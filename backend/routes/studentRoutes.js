@@ -6,6 +6,8 @@ import {
   updateStudentProfile,
   addOrUpdateVehicle,
   removeVehicle,
+  requestPasswordOtp,
+  resetPasswordWithOtp,
   getStudentByQr,
 } from "../controllers/studentController.js";
 
@@ -17,6 +19,8 @@ const router = express.Router();
 // Public routes
 router.post("/register", upload.single("photo"), registerStudent);
 router.post("/login", loginStudent);
+router.post("/request-password-otp", requestPasswordOtp);
+router.post("/reset-password-with-otp", resetPasswordWithOtp);
 router.get("/qr/:studentId", getStudentByQr);
 
 // Protected routes
