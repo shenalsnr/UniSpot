@@ -1,48 +1,40 @@
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
-
+import dotenv from 'dotenv';
 import { applyMiddleware } from "./middleware/appMiddleware.js";
+import lockerRoutes from "./routes/lockerRoutes.js";
+import parkingRoutes from "./routes/parkingRoutes.js";
+import securityRoutes from "./routes/securityRoutes.js";
 import { applyErrorMiddleware } from "./middleware/errorMiddleware.js";
-import studentRoutes from "./routes/studentRoutes.js";
-import adminRoutes from "./routes/adminRoutes.js";
 
 dotenv.config();
 
 const app = express();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 // Middleware
 applyMiddleware(app);
 
-// Static uploads folder
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Routes
+app.use("/", lockerRoutes);
+app.use("/api/parking", parkingRoutes);
+app.use("/api/security", securityRoutes);
 
-// Simple route
+// Simple Route
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// Routes
-app.use("/api/students", studentRoutes);
-app.use("/api/admin", adminRoutes);
-
-// Error middleware
+// Error Handling Middleware
 applyErrorMiddleware(app);
 
-// DB connect
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("MongoDB Connected Successfully");
+// Connect Database
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Connected Successfully"))
+  .catch((err) => console.log("MongoDB Connection Error:", err));
 
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => console.log("MongoDB Connection Error:", err.message));
+// Start Server
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
