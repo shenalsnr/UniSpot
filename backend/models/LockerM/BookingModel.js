@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema({
+  studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student", required: true },
   mapId: { type: mongoose.Schema.Types.ObjectId, ref: "LockerMap", required: true },
   lockerId: { type: String, required: true },
   date: { type: String, required: true },

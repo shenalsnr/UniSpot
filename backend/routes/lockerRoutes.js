@@ -8,18 +8,19 @@ import {
   getBookingsByMap,
   deleteBooking
 } from "../controllers/LockerController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// MAP ROUTES
+// MAP ROUTES (Admin only - no auth middleware for now)
 router.post("/create-map", createMap);
 router.get("/maps", getMaps);
 router.put("/update-map/:id", updateMap);
 router.delete("/delete-map/:id", deleteMap);
 
-//  BOOKING ROUTES
-router.post("/bookings", createBooking);
+//  BOOKING ROUTES (Student authentication required)
+router.post("/bookings", protect, createBooking);
 router.get("/bookings/map/:mapId", getBookingsByMap);
-router.delete("/bookings/map/:mapId/locker/:lockerId", deleteBooking);
+router.delete("/bookings/map/:mapId/locker/:lockerId", protect, deleteBooking);
 
 export default router;

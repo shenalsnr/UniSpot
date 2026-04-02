@@ -50,11 +50,46 @@ export const deleteMap = async (req, res, next) => {
 export const createBooking = async (req, res, next) => {
   try {
     const { mapId, lockerId, date, startTime, endTime } = req.body;
-    const existing = await LockerBooking.findOne({ mapId, lockerId });
-    if (existing) {
+    
+    // Get student ID from authenticated user (assuming auth middleware is used)
+    const studentId = req.student?._id || req.user?._id;
+    
+    if (!studentId) {
+      return res.status(401).json({ message: "Student authentication required" });
+    }
+
+    // Validate booking time - must end before 10 PM
+    const bookingEndTime = new Date(`${date}T${endTime}`);
+    const maxEndTime = new Date(`${date}T22:00`);
+    
+    if (bookingEndTime > maxEndTime) {
+      return res.status(400).json({ 
+        message: "Booking time must end before 10:00 PM" 
+      });
+    }
+
+    // Check if locker is already booked
+    const existingBooking = await LockerBooking.findOne({ mapId, lockerId });
+    if (existingBooking) {
       return res.status(400).json({ message: "Locker is already booked." });
     }
-    const newBooking = new LockerBooking({ mapId, lockerId, date, startTime, endTime });
+
+    // Check if student already has a booking (one locker per student rule)
+    const studentBooking = await LockerBooking.findOne({ studentId });
+    if (studentBooking) {
+      return res.status(400).json({ 
+        message: "You can only book one locker at a time. Please cancel your existing booking first." 
+      });
+    }
+
+    const newBooking = new LockerBooking({ 
+      studentId, 
+      mapId, 
+      lockerId, 
+      date, 
+      startTime, 
+      endTime 
+    });
     await newBooking.save();
     res.json(newBooking);
   } catch (error) {
@@ -76,8 +111,24 @@ export const getBookingsByMap = async (req, res, next) => {
 export const deleteBooking = async (req, res, next) => {
   try {
     const { mapId, lockerId } = req.params;
-    await LockerBooking.findOneAndDelete({ mapId, lockerId });
-    res.json({ message: "Booking cancelled" });
+    
+    // Get student ID from authenticated user
+    const studentId = req.student?._id || req.user?._id;
+    
+    if (!studentId) {
+      return res.status(401).json({ message: "Student authentication required" });
+    }
+
+    // Find the booking and verify it belongs to the student
+    const booking = await LockerBooking.findOne({ mapId, lockerId, studentId });
+    if (!booking) {
+      return res.status(404).json({ 
+        message: "Booking not found or you don't have permission to cancel this booking." 
+      });
+    }
+
+    await LockerBooking.findByIdAndDelete(booking._id);
+    res.json({ message: "Booking cancelled successfully" });
   } catch (error) {
     next(error);
   }

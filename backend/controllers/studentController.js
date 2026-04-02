@@ -23,9 +23,9 @@ const registerStudent = async (req, res) => {
       return res.status(400).json({ message: "Please fill all required fields" });
     }
 
-    if (!req.file) {
-      return res.status(400).json({ message: "Student photo is required" });
-    }
+    // if (!req.file) {
+    //   return res.status(400).json({ message: "Student photo is required" });
+    // }
 
     if (!isValidName(name)) {
       return res.status(400).json({

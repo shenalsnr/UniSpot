@@ -5,6 +5,7 @@ import { applyMiddleware } from "./middleware/appMiddleware.js";
 import lockerRoutes from "./routes/lockerRoutes.js";
 import parkingRoutes from "./routes/parkingRoutes.js";
 import securityRoutes from "./routes/securityRoutes.js";
+import studentRoutes from "./routes/studentRoutes.js";
 import { applyErrorMiddleware } from "./middleware/errorMiddleware.js";
 
 dotenv.config();
@@ -15,9 +16,10 @@ const app = express();
 applyMiddleware(app);
 
 // Routes
-app.use("/", lockerRoutes);
+app.use("/api/locker", lockerRoutes);
 app.use("/api/parking", parkingRoutes);
 app.use("/api/security", securityRoutes);
+app.use("/api/students", studentRoutes);
 
 // Simple Route
 app.get("/", (req, res) => {
