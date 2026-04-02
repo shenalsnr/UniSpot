@@ -1,52 +1,25 @@
-import { Link, useLocation } from "react-router-dom";
+import UnifiedNavbar from "../Shared/UnifiedNavbar";
+import { Link } from "react-router-dom";
 
 const PublicNavbar = () => {
-  const location = useLocation();
-
   return (
-    <nav className="public-navbar">
-      <div className="public-navbar-brand">
-        <h2>UniSpot</h2>
-        <p>Vehicle Parking & Locker Management System</p>
-      </div>
-
-      <div className="public-navbar-links">
-        <Link
-          to="/"
-          className={location.pathname === "/" ? "active-link" : ""}
-        >
-          Home
-        </Link>
-
+    <UnifiedNavbar
+      title="UniSpot"
+      
+      links={[
+        { to: "/", label: "Home" },
+        { to: "/about", label: "About" },
+        { to: "/contact", label: "Contact" }
+      ]}
+      rightActions={
         <Link
           to="/student-register"
-          className={location.pathname === "/student-register" ? "active-link" : ""}
+          className="px-5 py-2 md:px-7 md:py-2.5 bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 text-white font-bold rounded-[100px] text-sm md:text-[15px] shadow-sm transition-all hover:-translate-y-0.5"
         >
-          Register
+          Get Started
         </Link>
-
-        <Link
-          to="/student-login"
-          className={location.pathname === "/student-login" ? "active-link" : ""}
-        >
-          Login
-        </Link>
-
-        <Link
-          to="/about"
-          className={location.pathname === "/about" ? "active-link" : ""}
-        >
-          About
-        </Link>
-
-        <Link
-          to="/contact"
-          className={location.pathname === "/contact" ? "active-link" : ""}
-        >
-          Contact
-        </Link>
-      </div>
-    </nav>
+      }
+    />
   );
 };
 

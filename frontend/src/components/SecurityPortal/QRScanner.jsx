@@ -145,7 +145,7 @@ const QRScanner = () => {
           onClick={() => setScanMode('camera')}
           className={`py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 ${
             scanMode === 'camera'
-              ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg'
+              ? 'bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg'
               : 'bg-white border-2 border-slate-300 text-slate-800 hover:border-blue-400'
           }`}
         >
@@ -155,7 +155,7 @@ const QRScanner = () => {
           onClick={() => setScanMode('manual')}
           className={`py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 ${
             scanMode === 'manual'
-              ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg'
+              ? 'bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg'
               : 'bg-white border-2 border-slate-300 text-slate-800 hover:border-blue-400'
           }`}
         >
@@ -232,7 +232,7 @@ const QRScanner = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105"
+              className="w-full py-4 bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 disabled:opacity-50 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105"
             >
               {loading ? '⏳ Verifying...' : '🔍 Verify Staff'}
             </button>

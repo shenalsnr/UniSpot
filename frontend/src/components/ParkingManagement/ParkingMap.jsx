@@ -63,7 +63,7 @@ const ParkingMap = () => {
           </p>
           <button
             onClick={handleBack}
-            className="px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+            className="px-6 py-3 rounded-lg bg-[oklch(48.8%_0.243_264.376)] text-white font-semibold hover:opacity-90 transition"
           >
             Go to Campus Map
           </button>

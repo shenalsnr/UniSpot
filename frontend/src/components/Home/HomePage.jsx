@@ -1,79 +1,136 @@
 import { Link } from "react-router-dom";
 import PublicNavbar from "./PublicNavbar";
+import logo from "../../assets/logo.png";
+import PageBackground from "../Shared/PageBackground";
+import { UserPlus, Car, QrCode, RefreshCcw, Target, Lock } from "lucide-react";
 
 const HomePage = () => {
   return (
     <>
       <PublicNavbar />
 
-      <div className="home-page">
-        <section className="home-hero">
-          <div className="home-hero-left fade-up">
-            <span className="home-badge">Welcome to UniSpot</span>
+      <PageBackground>
+        <div className="p-4 md:p-12 xl:p-16 max-w-[1400px] mx-auto">
+          <section className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-12 lg:gap-16 items-center pt-8 min-h-[70vh]">
+            <div className="animate-[fade-in_1s_ease-out] mt-10 md:mt-0">
+              <span className="inline-block mb-6 px-5 py-2 rounded-full border border-[oklch(48.8%_0.243_264.376)]/20 bg-[#eef4ff] text-[oklch(48.8%_0.243_264.376)] font-bold tracking-[0.15em] uppercase text-xs shadow-sm">
+                WELCOME TO UNISPOT
+              </span>
 
-            <h1>
-              Smart Locker & Parking
-              <br />
-              <span>Management for Students</span>
-            </h1>
+              <h1 className="m-0 mb-6 text-5xl md:text-6xl lg:text-[76px] leading-[1.05] font-black tracking-tight text-slate-800">
+                Smart Locker &
+                <br />
+                <span className="text-[oklch(48.8%_0.243_264.376)]">Parking <br className="lg:hidden" /> Management</span>
+              </h1>
 
-            <p>
-              UniSpot helps students register profiles, manage vehicle details,
-              generate QR codes, and use a modern university locker and parking system
-              with better control and convenience.
-            </p>
+              <p className="m-0 mb-10 text-lg md:text-xl leading-relaxed text-slate-500 max-w-[550px] font-medium">
+                The ultimate student-friendly ecosystem designed to manage your campus logistics with frictionless precision. Experience real-time tracking and instant access at your fingertips.
+              </p>
 
-            <div className="home-buttons">
-              <Link to="/student-register" className="primary-btn">
-                Register Now
-              </Link>
+              <div className="flex gap-4 flex-wrap">
+                <Link to="/student-register" className="inline-block px-8 py-4 rounded-[100px] font-bold transition-all duration-300 bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-[oklch(48.8%_0.243_264.376)]/30 hover:-translate-y-1 hover:scale-[1.02] hover:opacity-90 text-[16px]">
+                  Register Now
+                </Link>
 
-              <Link to="/student-login" className="secondary-btn">
-                Student Login
-              </Link>
+                <Link to="/student-login" className="inline-block px-8 py-4 rounded-[100px] font-bold transition-all duration-300 bg-slate-100 text-slate-800 border-2 border-transparent hover:-translate-y-1 hover:scale-[1.02] hover:bg-slate-200 text-[16px]">
+                  Student Login
+                </Link>
+              </div>
             </div>
-          </div>
 
-          <div className="home-hero-right fade-up-delay">
-            <div className="glass-feature-card">
-              <h3>System Highlights</h3>
-              <ul>
-                <li>Student profile registration</li>
-                <li>Vehicle management</li>
-                <li>Unique QR generation</li>
-                <li>Locker and parking support</li>
-                <li>Marks and status tracking</li>
-              </ul>
+            <div className="animate-fade-in [animation-delay:200ms] lg:pl-10">
+              <div className="bg-white rounded-[24px] p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-slate-100 relative overflow-hidden group">
+                {/* Padlock Watermark */}
+                <div className="absolute right-4 top-4 opacity-[0.03] pointer-events-none transform transition-transform duration-700 group-hover:scale-110 z-0">
+                  <Lock size={180} strokeWidth={2} />
+                </div>
+
+                <div className="flex items-center gap-3 mb-8 relative z-10">
+                  <div className="text-[oklch(48.8%_0.243_264.376)]">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-layout-grid"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+                  </div>
+                  <h3 className="m-0 text-slate-800 text-[26px] font-extrabold tracking-tight">System Highlights</h3>
+                </div>
+                
+                <ul className="pl-0 m-0 list-none relative z-10 flex flex-col gap-6">
+                  <li className="flex items-start gap-4">
+                    <div className="p-3 bg-blue-50 text-[oklch(48.8%_0.243_264.376)] rounded-[12px]">
+                      <UserPlus size={20} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <h4 className="m-0 text-slate-800 font-bold text-[16px]">Student profile registration</h4>
+                      <p className="m-0 text-slate-500 text-[14px] mt-1 font-medium">Seamless onboarding process for all campus members.</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <div className="p-3 bg-blue-50 text-[oklch(48.8%_0.243_264.376)] rounded-[12px]">
+                      <Car size={20} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <h4 className="m-0 text-slate-800 font-bold text-[16px]">Vehicle management</h4>
+                      <p className="m-0 text-slate-500 text-[14px] mt-1 font-medium">Register multiple vehicles and track parking permits.</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <div className="p-3 bg-blue-50 text-[oklch(48.8%_0.243_264.376)] rounded-[12px]">
+                      <QrCode size={20} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <h4 className="m-0 text-slate-800 font-bold text-[16px]">QR code access</h4>
+                      <p className="m-0 text-slate-500 text-[14px] mt-1 font-medium">Instant, contactless entry for lockers and parking zones.</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <div className="p-3 bg-blue-50 text-[oklch(48.8%_0.243_264.376)] rounded-[12px]">
+                      <RefreshCcw size={20} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <h4 className="m-0 text-slate-800 font-bold text-[16px]">Real-time updates</h4>
+                      <p className="m-0 text-slate-500 text-[14px] mt-1 font-medium">Live availability status for lockers and parking spots.</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-4">
+                    <div className="p-3 bg-blue-50 text-[oklch(48.8%_0.243_264.376)] rounded-[12px]">
+                      <Target size={20} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <h4 className="m-0 text-slate-800 font-bold text-[16px]">Status tracking system</h4>
+                      <p className="m-0 text-slate-500 text-[14px] mt-1 font-medium">Detailed history and status logs of all activities.</p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section className="feature-grid">
-          <div className="feature-card floating-card">
-            <div className="feature-icon">👤</div>
-            <h3>Profile Registration</h3>
-            <p>
-              Students can create profiles with personal details, photo, and faculty information.
-            </p>
-          </div>
+          {/* Feature Grid below */}
+          <section className="mt-8 md:mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 pb-10">
+            <div className="bg-white rounded-[28px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.02)] border border-slate-100 transition-all duration-300 hover:-translate-y-2 hover:shadow-md cursor-default group">
+              <div className="text-[42px] mb-5 transform transition-transform group-hover:scale-110">👤</div>
+              <h3 className="m-0 mb-3 text-slate-800 text-xl font-extrabold tracking-wide">Profile Registration</h3>
+              <p className="m-0 text-slate-500 leading-relaxed font-medium">
+                Students can create profiles with personal details, photo, and faculty information.
+              </p>
+            </div>
 
-          <div className="feature-card floating-card">
-            <div className="feature-icon">🚗</div>
-            <h3>Vehicle Handling</h3>
-            <p>
-              Students can add vehicle details later and update them from the profile page.
-            </p>
-          </div>
+            <div className="bg-white rounded-[28px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.02)] border border-slate-100 transition-all duration-300 hover:-translate-y-2 hover:shadow-md cursor-default group">
+              <div className="text-[42px] mb-5 transform transition-transform group-hover:scale-110">🚗</div>
+              <h3 className="m-0 mb-3 text-slate-800 text-xl font-extrabold tracking-wide">Vehicle Handling</h3>
+              <p className="m-0 text-slate-500 leading-relaxed font-medium">
+                Students can add vehicle details later and update them seamlessly from the profile page.
+              </p>
+            </div>
 
-          <div className="feature-card floating-card">
-            <div className="feature-icon">📱</div>
-            <h3>QR Verification</h3>
-            <p>
-              Each student gets a unique QR code for identity and booking confirmation.
-            </p>
-          </div>
-        </section>
-      </div>
+            <div className="bg-white rounded-[28px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.02)] border border-slate-100 transition-all duration-300 hover:-translate-y-2 hover:shadow-md cursor-default group">
+              <div className="text-[42px] mb-5 transform transition-transform group-hover:scale-110">📱</div>
+              <h3 className="m-0 mb-3 text-slate-800 text-xl font-extrabold tracking-wide">QR Verification</h3>
+              <p className="m-0 text-slate-500 leading-relaxed font-medium">
+                Each student receives a unique QR code ensuring secure identity and booking confirmations.
+              </p>
+            </div>
+          </section>
+        </div>
+      </PageBackground>
     </>
   );
 };

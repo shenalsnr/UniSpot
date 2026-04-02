@@ -3,9 +3,8 @@ import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Home, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import lockerBg from "../../assets/locker.png";
-import logo from "../../assets/logo.png";
-
+import UnifiedNavbar from "../Shared/UnifiedNavbar";
+import PageBackground from "../Shared/PageBackground";
 const AdminLockerMap = () => {
   const navigate = useNavigate();
 
@@ -155,36 +154,20 @@ const AdminLockerMap = () => {
   };
 
   return (
-    <div
-      className="min-h-screen pb-10 flex flex-col relative bg-cover bg-center bg-fixed w-full"
-      style={{ backgroundImage: `url(${lockerBg})` }}
-    >
-      {/* Navigation Bar */}
-      <nav className="sticky top-0 z-80 w-full bg-linear-to-r from-blue-200 via-blue-600 to-blue-600 backdrop-blur-md shadow-lg border-b border-blue-800 px-4 md:px-8 py-2 md:py-3 mb-10 flex justify-between items-center transition-all">
-        <div className="flex items-center">
-          <img src={logo} alt="UniSpot Logo" className="h-20 md:h-25 w-auto object-contain scale-110 origin-left drop-shadow-sm" />
-        </div>
-
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-2xl md:text-3xl font-extrabold text-blue-800 bg-blue-100 px-8 py-2 border-2 border-blue-300 rounded-xl shadow-md tracking-widest uppercase whitespace-nowrap">
-          ADMIN LOCKER MAP
-        </h1>
-
-        <div className="flex gap-4 items-center">
-         <div className="flex gap-4 items-center">
-
-  
-  
-  {/* Back Button */}
-  <button
-    onClick={() => navigate("/")}
-    className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition border border-white/20 backdrop-blur-sm"
-  >
-   <ArrowLeft />
-  </button>
-
-</div>
-        </div>
-      </nav>
+    <>
+      <UnifiedNavbar 
+        moduleName="ADMIN LOCKER MAP" 
+        centerModule={true}
+        rightActions={
+          <button
+            onClick={() => navigate("/")}
+            className="px-4 py-2 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)] hover:shadow-[0_0_20px_rgba(59,130,246,0.8)] border border-blue-300 transition-all hover:scale-105 hover:opacity-90 flex items-center gap-2"
+          >
+           <ArrowLeft size={18} /> Back
+          </button>
+        }
+      />
+      <PageBackground className="pb-10 flex flex-col relative w-full pt-10">
 
       <div className="flex flex-col md:flex-row gap-8 max-w-[95%] 2xl:max-w-400 mx-auto w-full px-8">
 
@@ -372,8 +355,9 @@ const AdminLockerMap = () => {
         </div>
 
       </div>
+      </PageBackground>
 
-    </div>
+    </>
   );
 };
 

@@ -3,9 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import MapDisplay from "./MapDisplay";
 import { ChevronLeft, ChevronRight, Home, ArrowLeft } from "lucide-react";
-import lockerBg from "../../assets/locker.png";
-import logo from "../../assets/logo.png";
-
+import UnifiedNavbar from "../Shared/UnifiedNavbar";
+import PageBackground from "../Shared/PageBackground";
   const LockerMap = () => {
   const navigate = useNavigate();
   const [maps, setMaps] = useState([]);
@@ -41,37 +40,30 @@ import logo from "../../assets/logo.png";
   if (loading) return <div className="p-10 text-center font-semibold text-gray-500">Loading maps...</div>;
 
   return (
-    <div
-      className="flex flex-col items-center pb-10 min-h-screen bg-cover bg-center bg-fixed w-full"
-      style={{ backgroundImage: `url(${lockerBg})` }}
-    >
-      {/* Navigation Bar */}
-      <nav className="sticky top-0 z-80 w-full bg-linear-to-r from-blue-200 via-blue-600 to-blue-600 backdrop-blur-md shadow-lg border-b border-blue-800 px-4 md:px-8 py-2 md:py-3 mb-10 flex justify-between items-center">
-        <div className="flex items-center">
-          <img src={logo} alt="UniSpot Logo" className="h-20 md:h-25 w-auto object-contain scale-110 origin-left drop-shadow-sm" />
-        </div>
-
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-2xl md:text-3xl font-extrabold text-blue-800 bg-blue-100 px-8 py-2 border-2 border-blue-300 rounded-xl shadow-md tracking-widest uppercase whitespace-nowrap">
-          LOCKER MAPS
-        </h1>
-
-        <div className="flex gap-4 items-center">
-          <button
-            onClick={() => navigate()}
-            className="p-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition border border-white/20 backdrop-blur-sm flex items-center justify-center"
-            title="Go Back"
-          >
-            <ArrowLeft />
-          </button>
-          <button
-            
-            className="p-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition border border-white/20 backdrop-blur-sm flex items-center justify-center"
-            title="Home"
-          >
-            <Home />
-          </button>
-        </div>
-      </nav>
+    <>
+      <UnifiedNavbar 
+        moduleName="LOCKER MAPS" 
+        centerModule={true}
+        rightActions={
+          <>
+            <button
+              onClick={() => navigate(-1)}
+              className="px-4 py-2 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)] hover:shadow-[0_0_20px_rgba(59,130,246,0.8)] border border-blue-300 transition-all hover:scale-105 hover:opacity-90 flex items-center gap-2"
+              title="Go Back"
+            >
+              <ArrowLeft size={18} /> Back
+            </button>
+            <button
+              onClick={() => navigate("/")}
+              className="px-4 py-2 bg-white text-blue-900 font-bold rounded-full shadow-[0_0_15px_rgba(255,255,255,0.6)] hover:bg-gray-100 border-2 border-blue-200 transition-all hover:scale-105 flex items-center justify-center p-2.5"
+              title="Home"
+            >
+              <Home size={20} />
+            </button>
+          </>
+        }
+      />
+      <PageBackground className="flex flex-col items-center pb-10 w-full pt-10">
 
       {maps.length > 0 ? (
         <div className="flex items-center justify-center w-full max-w-7xl relative mx-auto">
@@ -111,7 +103,8 @@ import logo from "../../assets/logo.png";
         </div>
       )}
 
-    </div>
+    </PageBackground>
+    </>
   );
 };
 

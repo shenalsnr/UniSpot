@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import StudentNavbar from "./StudentNavbar";
 import studentApi from "./studentApi";
+import PageBackground from "../Shared/PageBackground";
 
 const StudentProfile = () => {
   const [student, setStudent] = useState(null);
@@ -153,9 +154,9 @@ const StudentProfile = () => {
     return (
       <>
         <StudentNavbar />
-        <div className="student-profile-page">
-          <div className="student-loading-box">Loading profile...</div>
-        </div>
+        <PageBackground className="flex justify-center items-center p-4 md:p-8">
+          <div className="p-8 text-center font-bold text-white text-lg bg-black/20 rounded-2xl backdrop-blur-sm">Loading profile...</div>
+        </PageBackground>
       </>
     );
   }
@@ -164,19 +165,20 @@ const StudentProfile = () => {
     <>
       <StudentNavbar />
 
-      <div className="student-profile-page">
-        <div className="student-page-header">
-          <h1>My Profile</h1>
-          <p>Update your profile details and manage your vehicle information.</p>
+      <PageBackground className="p-4 md:p-8 md:px-12 lg:px-24">
+        <div className="mb-6 relative z-10">
+          <h1 className="m-0 text-3xl md:text-4xl text-white font-extrabold tracking-tight drop-shadow-md">My Profile</h1>
+          <p className="mt-2 text-blue-50 font-medium text-lg drop-shadow-sm">Update your profile details and manage your vehicle information.</p>
         </div>
 
-        <div className="student-profile-grid">
-          <div className="student-section">
-            <h2>Profile Details</h2>
-            {profileMessage && <p className="student-success">{profileMessage}</p>}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6">
+          <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+            <h2 className="mt-0 mb-5 text-slate-900 text-xl font-bold">Profile Details</h2>
+            {profileMessage && <p className="bg-green-100 text-green-800 px-4 py-3 rounded-xl font-semibold mb-4 text-center text-sm">{profileMessage}</p>}
 
-            <form className="student-form" onSubmit={updateProfileHandler}>
+            <form className="flex flex-col gap-4" onSubmit={updateProfileHandler}>
               <input
+                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
                 type="text"
                 name="name"
                 value={profileData.name}
@@ -184,6 +186,7 @@ const StudentProfile = () => {
                 placeholder="Name"
               />
               <input
+                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
                 type="text"
                 name="phone"
                 value={profileData.phone}
@@ -191,6 +194,7 @@ const StudentProfile = () => {
                 placeholder="Phone"
               />
               <input
+                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
                 type="text"
                 name="address"
                 value={profileData.address}
@@ -198,6 +202,7 @@ const StudentProfile = () => {
                 placeholder="Address"
               />
               <input
+                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
                 type="text"
                 name="faculty"
                 value={profileData.faculty}
@@ -205,6 +210,7 @@ const StudentProfile = () => {
                 placeholder="Faculty"
               />
               <input
+                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
                 type="email"
                 name="email"
                 value={profileData.email}
@@ -212,24 +218,26 @@ const StudentProfile = () => {
                 placeholder="Email"
               />
               <input
+                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 block file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 type="file"
                 name="photo"
                 onChange={profileChangeHandler}
               />
-              <button type="submit">Update Profile</button>
+              <button type="submit" className="w-full mt-2 bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-blue-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/30 hover:opacity-90">Update Profile</button>
             </form>
           </div>
 
-          <div className="student-section">
-            <h2>Vehicle Details</h2>
-            {vehicleMessage && <p className="student-success">{vehicleMessage}</p>}
+          <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+            <h2 className="mt-0 mb-5 text-slate-900 text-xl font-bold">Vehicle Details</h2>
+            {vehicleMessage && <p className="bg-green-100 text-green-800 px-4 py-3 rounded-xl font-semibold mb-4 text-center text-sm">{vehicleMessage}</p>}
 
-            <div className="student-vehicle-status">
+            <div className="inline-block mb-4 px-4 py-2 rounded-full bg-gradient-to-br from-blue-100 to-blue-50 text-blue-700 text-sm font-bold border border-blue-200">
               {student.vehicleRegistered ? "Vehicle Registered" : "No Vehicle Registered"}
             </div>
 
-            <form className="student-form" onSubmit={saveVehicleHandler}>
+            <form className="flex flex-col gap-4" onSubmit={saveVehicleHandler}>
               <input
+                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
                 type="text"
                 name="model"
                 value={vehicleData.model}
@@ -237,6 +245,7 @@ const StudentProfile = () => {
                 placeholder="Vehicle Model"
               />
               <input
+                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
                 type="text"
                 name="color"
                 value={vehicleData.color}
@@ -244,6 +253,7 @@ const StudentProfile = () => {
                 placeholder="Vehicle Color"
               />
               <input
+                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
                 type="text"
                 name="regLetters"
                 value={vehicleData.regLetters}
@@ -251,39 +261,42 @@ const StudentProfile = () => {
                 placeholder="Letters (2-3)"
               />
               <input
+                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
                 type="text"
                 name="regNumbers"
                 value={vehicleData.regNumbers}
                 onChange={vehicleChangeHandler}
                 placeholder="Numbers (4 digits)"
               />
-              <button type="submit">
+              <button type="submit" className="w-full mt-2 bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-blue-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/30 hover:opacity-90">
                 {student.vehicleRegistered ? "Update Vehicle" : "Add Vehicle"}
               </button>
             </form>
 
             {student.vehicleRegistered && (
-              <button className="student-delete-btn" onClick={removeVehicleHandler}>
+              <button className="mt-4 w-full bg-gradient-to-br from-red-600 to-red-500 text-white shadow-lg shadow-red-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-red-700" onClick={removeVehicleHandler}>
                 Remove Vehicle
               </button>
             )}
           </div>
 
-          <div className="student-section">
-            <h2>Current Photo</h2>
-            <img
-              src={`http://localhost:5000${student.photo}`}
-              alt="Student"
-              className="student-profile-image"
-            />
-          </div>
+          <div className="flex flex-col gap-6">
+            <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl text-center">
+              <h2 className="mt-0 mb-4 text-slate-900 text-xl font-bold">Current Photo</h2>
+              <img
+                src={`http://localhost:5000${student.photo}`}
+                alt="Student"
+                className="w-40 h-40 md:w-48 md:h-48 object-cover rounded-2xl mx-auto block border-4 border-white shadow-lg drop-shadow-sm"
+              />
+            </div>
 
-          <div className="student-section">
-            <h2>QR Code</h2>
-            <img src={student.qrCode} alt="QR Code" className="student-qr-image" />
+            <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl text-center">
+              <h2 className="mt-0 mb-4 text-slate-900 text-xl font-bold">QR Code</h2>
+              <img src={student.qrCode} alt="QR Code" className="w-[180px] h-[180px] object-contain bg-white p-3 rounded-2xl mx-auto border-4 border-white shadow-lg drop-shadow-sm" />
+            </div>
           </div>
         </div>
-      </div>
+      </PageBackground>
     </>
   );
 };

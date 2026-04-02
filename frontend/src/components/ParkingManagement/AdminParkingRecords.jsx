@@ -230,7 +230,7 @@ const AdminParkingRecords = () => {
             <h2 className="text-xl font-bold text-blue-900">System Records</h2>
             <button 
               onClick={openAddModal}
-              className="bg-white text-blue-600 border border-blue-200 px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-blue-600 hover:text-white transition-colors"
+              className="bg-white text-blue-600 border border-blue-200 px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-[oklch(48.8%_0.243_264.376)] hover:text-white transition-colors"
             >
               + Add New Spot
             </button>
@@ -364,7 +364,7 @@ const AdminParkingRecords = () => {
               </div>
               <div className="flex justify-end gap-3 mt-6">
                 <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2 text-gray-500 font-bold hover:bg-gray-100 rounded">Cancel</button>
-                <button type="submit" className="px-5 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700">Save Spot</button>
+                <button type="submit" className="px-5 py-2 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold rounded hover:opacity-90">Save Spot</button>
               </div>
             </form>
           </div>
@@ -433,7 +433,7 @@ const AdminParkingRecords = () => {
             </div>
             <div className="flex justify-end gap-3 mt-8 pt-4 border-t">
               <button onClick={() => setViewModalOpen(false)} className="px-5 py-2 text-gray-500 font-bold hover:bg-gray-100 rounded transition-colors">Close</button>
-              <button onClick={(e) => handleEditClick(selectedSpot, e)} className="px-5 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700 transition-colors">Edit Record</button>
+              <button onClick={(e) => handleEditClick(selectedSpot, e)} className="px-5 py-2 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold rounded hover:opacity-90 transition-colors">Edit Record</button>
             </div>
           </div>
         </div>
@@ -481,7 +481,7 @@ const AdminParkingRecords = () => {
               </div>
               <div className="flex justify-end gap-3 mt-8 pt-4 border-t">
                 <button type="button" onClick={() => setEditModalOpen(false)} className="px-5 py-2 text-gray-500 font-bold hover:bg-gray-100 rounded transition-colors">Cancel</button>
-                <button type="submit" className="px-5 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700 transition-colors">Save Changes</button>
+                <button type="submit" className="px-5 py-2 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold rounded hover:opacity-90 transition-colors">Save Changes</button>
               </div>
             </form>
           </div>

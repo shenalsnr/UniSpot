@@ -1,8 +1,8 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import UnifiedNavbar from "../Shared/UnifiedNavbar";
 
 const StudentNavbar = () => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const logoutHandler = () => {
     localStorage.removeItem("studentInfo");
@@ -10,37 +10,23 @@ const StudentNavbar = () => {
   };
 
   return (
-    <nav className="student-navbar">
-      <div className="student-navbar-brand">
-        <h2>UniSpot Student Portal</h2>
-        <p>Student Dashboard & Profile Management</p>
-      </div>
-
-      <div className="student-navbar-links">
-        <Link
-          to="/"
-          className={location.pathname === "/" ? "active-link" : ""}
+    <UnifiedNavbar
+      moduleName="Student Dashboard & Profile Management"
+      title="UniSpot Portal"
+      links={[
+        { to: "/", label: "Home" },
+        { to: "/student-dashboard", label: "Dashboard" },
+        { to: "/student-profile", label: "Profile" }
+      ]}
+      rightActions={
+        <button
+          onClick={logoutHandler}
+          className="px-6 py-2 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold rounded-full shadow-[0_0_10px_rgba(255,255,255,0.4)] hover:shadow-[0_0_15px_rgba(255,255,255,0.6)] border border-white/50 transition-all hover:scale-105 hover:opacity-90"
         >
-          Home
-        </Link>
-
-        <Link
-          to="/student-dashboard"
-          className={location.pathname === "/student-dashboard" ? "active-link" : ""}
-        >
-          Dashboard
-        </Link>
-
-        <Link
-          to="/student-profile"
-          className={location.pathname === "/student-profile" ? "active-link" : ""}
-        >
-          Profile
-        </Link>
-
-        <button onClick={logoutHandler}>Logout</button>
-      </div>
-    </nav>
+          Logout
+        </button>
+      }
+    />
   );
 };
 

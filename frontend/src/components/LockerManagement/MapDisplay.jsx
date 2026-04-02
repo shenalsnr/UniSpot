@@ -227,7 +227,7 @@ const MapDisplay = ({ map }) => {
             <div className="flex justify-between gap-4 mt-2">
               <button 
                 onClick={confirmBooking}
-                className="flex-1 bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition shadow hover:shadow-lg"
+                className="flex-1 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold py-3 rounded-lg hover:opacity-90 transition shadow hover:shadow-lg"
               >
                 Confirm
               </button>
