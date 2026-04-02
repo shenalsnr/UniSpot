@@ -16,7 +16,6 @@ const ParkingBookingForm = () => {
     lastName: '',
     email: '',
     studentId: '',
-    vehicleNumber: '',
     phone: '',
     bookingDate: '',
     arrivalTime: '',
@@ -61,10 +60,10 @@ const ParkingBookingForm = () => {
   const downloadReceipt = () => {
     const doc = new jsPDF();
     
-    // Header Background
+    
     doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, 210, 40, 'F');
-    // Blue bar
+    
     doc.setFillColor(30, 64, 175);
     doc.rect(0, 40, 210, 8, 'F');
 
@@ -86,7 +85,7 @@ const ParkingBookingForm = () => {
       
       doc.setDrawColor(200, 200, 200);
       doc.setFillColor(248, 250, 252);
-      doc.roundedRect(20, 95, 170, 52, 3, 3, 'FD');
+      doc.roundedRect(20, 95, 170, 45, 3, 3, 'FD');
       
       doc.setFontSize(14);
       doc.setTextColor(30, 64, 175);
@@ -96,28 +95,27 @@ const ParkingBookingForm = () => {
       doc.setTextColor(60, 60, 60);
       doc.text(`Student Name: ${formData.firstName} ${formData.lastName}`, 25, 115);
       doc.text(`Student ID: ${formData.studentId}`, 25, 123);
-      doc.text(`Vehicle Number: ${formData.vehicleNumber || spot?.vehicleNumber || 'N/A'}`, 25, 131);
-      doc.text(`Vehicle Type: ${spot?.vehicleType}`, 25, 139);
+      doc.text(`Vehicle Type: ${spot?.vehicleType}`, 25, 131);
       
       doc.setFillColor(248, 250, 252);
-      doc.roundedRect(20, 153, 170, 50, 3, 3, 'FD');
+      doc.roundedRect(20, 145, 170, 50, 3, 3, 'FD');
       
       doc.setFontSize(14);
       doc.setTextColor(30, 64, 175);
-      doc.text('Time & Location', 25, 163);
+      doc.text('Time & Location', 25, 155);
       
       doc.setFontSize(11);
       doc.setTextColor(60, 60, 60);
-      doc.text(`Slot Number: ${spot?.slotNumber}`, 25, 173);
-      doc.text(`Zone: ${spot?.zone}`, 25, 181);
-      doc.text(`Booking Date: ${formData.bookingDate}`, 25, 189);
-      doc.text(`Time: ${formData.arrivalTime} to ${formData.leavingTime}`, 25, 197);
+      doc.text(`Slot Number: ${spot?.slotNumber}`, 25, 165);
+      doc.text(`Zone: ${spot?.zone}`, 25, 173);
+      doc.text(`Booking Date: ${formData.bookingDate}`, 25, 181);
+      doc.text(`Time: ${formData.arrivalTime} to ${formData.leavingTime}`, 25, 189);
       
       doc.setFillColor(220, 252, 231);
-      doc.rect(20, 213, 170, 15, 'F');
+      doc.rect(20, 205, 170, 15, 'F');
       doc.setTextColor(22, 101, 52);
       doc.setFont(undefined, 'bold');
-      doc.text(`Status: CONFIRMED`, 25, 223);
+      doc.text(`Status: CONFIRMED`, 25, 215);
       
       doc.save(`Parking_Receipt_${spot?.slotNumber}.pdf`);
     };
@@ -147,7 +145,7 @@ const ParkingBookingForm = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    // Clear error for this field
+    
     if (errors[e.target.name]) {
       setErrors({ ...errors, [e.target.name]: null });
     }
@@ -179,16 +177,12 @@ const ParkingBookingForm = () => {
 
     if (!formData.spotId.trim()) newErrors.spotId = "Spot ID is required. Please select a spot from the map.";
     
-    // Student ID Validation (Assume strict format like IT12345678 or similar, but checking non-empty here)
+    // Student ID Validation (non-empty here)
     if (!formData.studentId.trim()) {
       newErrors.studentId = "Student ID is required.";
     }
 
-    if (!formData.vehicleNumber.trim()) {
-      newErrors.vehicleNumber = "Vehicle Number is required.";
-    }
-
-    // Email Validation Regex
+    // Email Validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email) {
       newErrors.email = "Email Address is required.";
@@ -196,7 +190,7 @@ const ParkingBookingForm = () => {
       newErrors.email = "Please enter a valid email address.";
     }
 
-    // Phone Validation Regex (10 digits)
+    // Phone Validation(10 digits)
     const phoneRegex = /^[0-9]{10}$/;
     if (!formData.phone) {
       newErrors.phone = "Phone Number is required.";
@@ -333,23 +327,13 @@ const ParkingBookingForm = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Student ID</label>
-              <input 
-                type="text" name="studentId" value={formData.studentId} onChange={handleChange} placeholder="e.g. IT21345678"
-                className={`w-full border-2 rounded-lg px-4 py-3 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/20 ${errors.studentId ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
-              />
-              {errors.studentId && <p className="text-red-500 text-xs font-bold mt-2">{errors.studentId}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Vehicle Number</label>
-              <input 
-                type="text" name="vehicleNumber" value={formData.vehicleNumber} onChange={handleChange} placeholder="e.g. ABC-1234"
-                className={`w-full border-2 rounded-lg px-4 py-3 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/20 ${errors.vehicleNumber ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
-              />
-              {errors.vehicleNumber && <p className="text-red-500 text-xs font-bold mt-2">{errors.vehicleNumber}</p>}
-            </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">Student ID</label>
+            <input 
+              type="text" name="studentId" value={formData.studentId} onChange={handleChange} placeholder="e.g. IT21345678"
+              className={`w-full border-2 rounded-lg px-4 py-3 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/20 ${errors.studentId ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
+            />
+            {errors.studentId && <p className="text-red-500 text-xs font-bold mt-2">{errors.studentId}</p>}
           </div>
 
           <div>
