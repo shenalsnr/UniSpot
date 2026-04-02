@@ -5,7 +5,8 @@ import {
   createParkingSpot,
   reserveParkingSpot,
   releaseParkingSpot,
-  deleteParkingSpot
+  deleteParkingSpot,
+  updateParkingSpot
 } from "../controllers/parkingController.js";
 
 const router = express.Router();
@@ -23,9 +24,10 @@ router.route("/:id/reserve")
 router.route("/:id/release")
   .put(releaseParkingSpot);
 
-// Route to get and delete a specific parking spot
+// Route to get, update and delete a specific parking spot
 router.route("/:id")
   .get(getParkingSpotById)
+  .put(updateParkingSpot)
   .delete(deleteParkingSpot);
 
 export default router;

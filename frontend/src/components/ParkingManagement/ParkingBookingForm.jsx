@@ -60,10 +60,10 @@ const ParkingBookingForm = () => {
   const downloadReceipt = () => {
     const doc = new jsPDF();
     
-    // Header Background
+    
     doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, 210, 40, 'F');
-    // Blue bar
+    
     doc.setFillColor(30, 64, 175);
     doc.rect(0, 40, 210, 8, 'F');
 
@@ -145,7 +145,7 @@ const ParkingBookingForm = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    // Clear error for this field
+    
     if (errors[e.target.name]) {
       setErrors({ ...errors, [e.target.name]: null });
     }
@@ -177,12 +177,12 @@ const ParkingBookingForm = () => {
 
     if (!formData.spotId.trim()) newErrors.spotId = "Spot ID is required. Please select a spot from the map.";
     
-    // Student ID Validation (Assume strict format like IT12345678 or similar, but checking non-empty here)
+    // Student ID Validation (non-empty here)
     if (!formData.studentId.trim()) {
       newErrors.studentId = "Student ID is required.";
     }
 
-    // Email Validation Regex
+    // Email Validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email) {
       newErrors.email = "Email Address is required.";
@@ -190,7 +190,7 @@ const ParkingBookingForm = () => {
       newErrors.email = "Please enter a valid email address.";
     }
 
-    // Phone Validation Regex (10 digits)
+    // Phone Validation(10 digits)
     const phoneRegex = /^[0-9]{10}$/;
     if (!formData.phone) {
       newErrors.phone = "Phone Number is required.";
