@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import dotenv from 'dotenv';
 import { applyMiddleware } from "./middleware/appMiddleware.js";
 import lockerRoutes from "./routes/lockerRoutes.js";
+import parkingRoutes from "./routes/parkingRoutes.js";
+import securityRoutes from "./routes/securityRoutes.js";
 import { applyErrorMiddleware } from "./middleware/errorMiddleware.js";
 
 dotenv.config();
@@ -14,6 +16,8 @@ applyMiddleware(app);
 
 // Routes
 app.use("/", lockerRoutes);
+app.use("/api/parking", parkingRoutes);
+app.use("/api/security", securityRoutes);
 
 // Simple Route
 app.get("/", (req, res) => {
