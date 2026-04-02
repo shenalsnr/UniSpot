@@ -4,6 +4,10 @@ const AdminParkingRecords = () => {
   const [spots, setSpots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedSpot, setSelectedSpot] = useState(null);
+  const [editForm, setEditForm] = useState(null);
   const [newSpot, setNewSpot] = useState({
     slotNumber: '',
     zone: 'Zone 01',
@@ -72,6 +76,17 @@ const AdminParkingRecords = () => {
     fetchSpots();
   }, []);
 
+  useEffect(() => {
+    if (showModal || viewModalOpen || editModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [showModal, viewModalOpen, editModalOpen]);
+
   const fetchSpots = async () => {
     try {
       const res = await fetch('http://localhost:5000/api/parking');
@@ -86,8 +101,6 @@ const AdminParkingRecords = () => {
     }
     setLoading(false);
   };
-
-  // Removed mock data generating function
 
   const handleDeleteOrRelease = async (spotId) => {
     if (!window.confirm("Are you sure you want to release this spot?")) return;
@@ -148,6 +161,62 @@ const AdminParkingRecords = () => {
     }
   };
 
+  const handleViewClick = (spot) => {
+    setSelectedSpot(spot);
+    setViewModalOpen(true);
+  };
+
+  const handleEditClick = (spot, e) => {
+    if (e) e.stopPropagation();
+    setSelectedSpot(spot);
+    setEditForm({
+      vehicleNumber: spot.vehicleNumber || '',
+      slotNumber: spot.slotNumber,
+      zone: spot.zone,
+      arrivalTime: spot.arrivalTime || '',
+      leavingTime: spot.leavingTime || '',
+      isOccupied: spot.isOccupied,
+      reservedBy: spot.reservedBy || '',
+      createdAt: spot.createdAt || ''
+    });
+    setEditModalOpen(true);
+    setViewModalOpen(false);
+  };
+
+  const handleUpdateSpot = async (e) => {
+    e.preventDefault();
+    if (editForm.arrivalTime && editForm.leavingTime) {
+      if (editForm.leavingTime <= editForm.arrivalTime) {
+        alert("Leaving time must be after arrival time");
+        return;
+      }
+    }
+    try {
+      const payload = {
+        vehicleNumber: editForm.vehicleNumber,
+        arrivalTime: editForm.arrivalTime,
+        leavingTime: editForm.leavingTime,
+        isOccupied: editForm.isOccupied,
+        reservedBy: editForm.reservedBy,
+      };
+      const res = await fetch(`http://localhost:5000/api/parking/${selectedSpot._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        setEditModalOpen(false);
+        fetchSpots();
+        alert("Spot updated successfully");
+      } else {
+        const err = await res.json();
+        alert(err.message || "Failed to update spot");
+      }
+    } catch (error) {
+      alert("Server connection failed");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 p-6 md:p-10 font-sans text-gray-800">
       <div className="max-w-7xl mx-auto">
@@ -183,7 +252,7 @@ const AdminParkingRecords = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {spots.map((spot) => (
-                    <tr key={spot._id} className="hover:bg-blue-50/60 transition-colors duration-150">
+                    <tr key={spot._id} onClick={() => handleViewClick(spot)} className="hover:bg-blue-50/60 transition-colors duration-150 cursor-pointer">
                       <td className="py-5 px-6 font-bold text-blue-900 text-lg">
                         {spot.slotNumber}
                       </td>
@@ -208,6 +277,14 @@ const AdminParkingRecords = () => {
                       </td>
                       <td className="py-5 px-6 text-center space-x-3">
                         <button 
+                          onClick={(e) => { e.stopPropagation(); handleViewClick(spot); }}
+                          className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 px-3 py-1.5 rounded text-sm font-bold transition-colors"
+                          title="View Details"
+                        >
+                          View
+                        </button>
+                        <button 
+                          onClick={(e) => handleEditClick(spot, e)}
                           className="text-blue-500 hover:text-blue-700 hover:bg-blue-100 px-3 py-1.5 rounded text-sm font-bold transition-colors"
                           title="Edit Spot"
                         >
@@ -215,7 +292,7 @@ const AdminParkingRecords = () => {
                         </button>
                         {spot.isOccupied ? (
                           <button 
-                            onClick={() => handleDeleteOrRelease(spot._id)}
+                            onClick={(e) => { e.stopPropagation(); handleDeleteOrRelease(spot._id); }}
                             className="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded text-sm font-bold transition-colors"
                             title="Force Release Spot"
                           >
@@ -223,7 +300,7 @@ const AdminParkingRecords = () => {
                           </button>
                         ) : (
                           <button 
-                            onClick={() => handleDeleteSpot(spot._id)}
+                            onClick={(e) => { e.stopPropagation(); handleDeleteSpot(spot._id); }}
                             className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 px-3 py-1.5 rounded text-sm font-bold transition-colors"
                             title="Delete Spot Config"
                           >
@@ -288,6 +365,123 @@ const AdminParkingRecords = () => {
               <div className="flex justify-end gap-3 mt-6">
                 <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2 text-gray-500 font-bold hover:bg-gray-100 rounded">Cancel</button>
                 <button type="submit" className="px-5 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700">Save Spot</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Modal */}
+      {viewModalOpen && selectedSpot && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white p-8 rounded-xl shadow-2xl max-w-lg w-full my-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-blue-900">Booking Details</h2>
+              <button onClick={() => setViewModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 border-b pb-4">
+                <div>
+                  <p className="text-xs text-gray-400 font-bold uppercase">Booking ID</p>
+                  <p className="font-mono text-sm text-gray-800">{selectedSpot._id}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 font-bold uppercase">Created Date</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedSpot.createdAt ? new Date(selectedSpot.createdAt).toLocaleString() : 'N/A'}
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 border-b pb-4">
+                <div>
+                  <p className="text-xs text-gray-400 font-bold uppercase">User / Student ID</p>
+                  <p className="font-medium text-gray-800">{selectedSpot.reservedBy || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 font-bold uppercase">Vehicle Number</p>
+                  <p className="font-medium text-gray-800">{selectedSpot.vehicleNumber || 'N/A'}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 border-b pb-4">
+                <div>
+                  <p className="text-xs text-gray-400 font-bold uppercase">Slot / Zone</p>
+                  <p className="font-medium text-blue-600 font-bold">{selectedSpot.slotNumber} ({selectedSpot.zone})</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 font-bold uppercase">Status</p>
+                  <p className="font-medium">
+                    {selectedSpot.isOccupied ? (
+                      <span className="text-red-600 font-bold">Occupied</span>
+                    ) : (
+                      <span className="text-emerald-600 font-bold">Available</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 pb-2">
+                <div>
+                  <p className="text-xs text-gray-400 font-bold uppercase">Arrival Time</p>
+                  <p className="font-medium text-gray-800">{selectedSpot.arrivalTime || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 font-bold uppercase">Leaving Time</p>
+                  <p className="font-medium text-gray-800">{selectedSpot.leavingTime || 'N/A'}</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-8 pt-4 border-t">
+              <button onClick={() => setViewModalOpen(false)} className="px-5 py-2 text-gray-500 font-bold hover:bg-gray-100 rounded transition-colors">Close</button>
+              <button onClick={(e) => handleEditClick(selectedSpot, e)} className="px-5 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700 transition-colors">Edit Record</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editModalOpen && editForm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white p-8 rounded-xl shadow-2xl max-w-lg w-full my-8">
+            <h2 className="text-2xl font-bold text-blue-900 mb-6">Edit Booking Details</h2>
+            <form onSubmit={handleUpdateSpot} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Slot Number</label>
+                  <input readOnly type="text" value={editForm.slotNumber} className="w-full border p-2 rounded bg-gray-100 text-gray-500 cursor-not-allowed font-mono" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Zone</label>
+                  <input readOnly type="text" value={editForm.zone} className="w-full border p-2 rounded bg-gray-100 text-gray-500 cursor-not-allowed" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Vehicle Number</label>
+                <input type="text" value={editForm.vehicleNumber} onChange={(e) => setEditForm({...editForm, vehicleNumber: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. ABC 1234" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Reserved By (User ID)</label>
+                <input type="text" value={editForm.reservedBy} onChange={(e) => setEditForm({...editForm, reservedBy: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" required={editForm.isOccupied} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Arrival Time</label>
+                  <input type="time" value={editForm.arrivalTime} onChange={(e) => setEditForm({...editForm, arrivalTime: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" required={editForm.isOccupied} />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Leaving Time</label>
+                  <input type="time" value={editForm.leavingTime} onChange={(e) => setEditForm({...editForm, leavingTime: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" required={editForm.isOccupied} />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1 flex items-center gap-2">
+                  <input type="checkbox" checked={editForm.isOccupied} onChange={(e) => setEditForm({...editForm, isOccupied: e.target.checked})} className="w-4 h-4 text-blue-600 rounded" />
+                  Is Occupied
+                </label>
+              </div>
+              <div className="flex justify-end gap-3 mt-8 pt-4 border-t">
+                <button type="button" onClick={() => setEditModalOpen(false)} className="px-5 py-2 text-gray-500 font-bold hover:bg-gray-100 rounded transition-colors">Cancel</button>
+                <button type="submit" className="px-5 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700 transition-colors">Save Changes</button>
               </div>
             </form>
           </div>

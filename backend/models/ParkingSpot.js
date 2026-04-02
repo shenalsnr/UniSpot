@@ -19,6 +19,26 @@ const parkingSpotSchema = new mongoose.Schema(
       default: null,
     },
 
+    vehicleNumber: {
+      type: String,
+      default: null,
+    },
+
+    bookingDate: {
+      type: Date,
+      default: null,
+    },
+
+    arrivalTime: {
+      type: String,
+      default: null,
+    },
+
+    leavingTime: {
+      type: String,
+      default: null,
+    },
+
     locationCoords: {
       latitude: {
         type: Number,
