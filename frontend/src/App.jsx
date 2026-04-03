@@ -1,6 +1,16 @@
 import { Routes, Route, Link, useLocation } from "react-router-dom";
+import HomePage from "./components/Home/HomePage";
+
+import StudentRegister from "./components/Students/StudentRegister";
+import StudentLogin from "./components/Students/StudentLogin";
+import StudentDashboard from "./components/Students/StudentDashboard";
+import StudentProfile from "./components/Students/StudentProfile";
+
+import AdminDashboard from "./components/Admin/AdminDashboard";
+
 import AdminLockerMap from "./components/LockerManagement/AdminLockerMap";
 import LockerMap from "./components/LockerManagement/LockerMap";
+import BookLockersStatus from "./components/LockerManagement/BookLockersStatus";
 
 import CampusMap from "./components/ParkingManagement/CampusMap";
 import ParkingMap from "./components/ParkingManagement/ParkingMap";
@@ -8,6 +18,7 @@ import ParkingBookingForm from "./components/ParkingManagement/ParkingBookingFor
 import AdminParkingRecords from "./components/ParkingManagement/AdminParkingRecords";
 import SecurityPortal from "./components/SecurityPortal/SecurityPortal";
 import QRScanner from "./components/SecurityPortal/QRScanner";
+import UnifiedNavbar from "./components/Shared/UnifiedNavbar";
 
 const App = () => {
   const location = useLocation();
@@ -17,82 +28,43 @@ const App = () => {
   return (
     <div className="min-h-screen bg-gray-200">
       {isParkingFlow && (
-        <nav className="bg-blue-700 text-white shadow-md sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-xl tracking-wider">
-                  UniSpot
-                </span>
-                <span className="bg-blue-800 text-blue-100 text-xs px-2 py-1 rounded-md font-bold uppercase">
-                  Parking
-                </span>
-              </div>
-
-              <div className="flex space-x-6">
-                <Link
-                  to="/parking/zones"
-                  className="hover:text-blue-200 hover:bg-blue-800 px-3 py-2 rounded-md font-semibold transition-colors"
-                >
-                  Select Zone
-                </Link>
-
-                <Link
-                  to="/parking/map"
-                  className="hover:text-blue-200 hover:bg-blue-800 px-3 py-2 rounded-md font-semibold transition-colors"
-                >
-                  Parking Slots
-                </Link>
-
-                <Link
-                  to="/parking/admin"
-                  className="hover:text-blue-200 hover:bg-blue-800 px-3 py-2 rounded-md font-semibold transition-colors"
-                >
-                  Admin Records
-                </Link>
-              </div>
-            </div>
-          </div>
-        </nav>
+        <UnifiedNavbar 
+          moduleName="Parking"
+          links={[
+            { to: "/parking/zones", label: "Select Zone" },
+            { to: "/parking/map", label: "Parking Slots" },
+            { to: "/parking/admin", label: "Admin Records" }
+          ]}
+        />
       )}
 
       {isSecurityFlow && (
-        <nav className="bg-gradient-to-r from-blue-900 to-blue-700 text-white shadow-md sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-xl tracking-wider">
-                  UniSpot
-                </span>
-                <span className="bg-blue-800 text-blue-100 text-xs px-2 py-1 rounded-md font-bold uppercase">
-                  Security
-                </span>
-              </div>
-
-              <div className="flex space-x-6">
-                <Link
-                  to="/security"
-                  className="hover:text-blue-200 hover:bg-blue-800 px-3 py-2 rounded-md font-semibold transition-colors"
-                >
-                  Staff Management
-                </Link>
-
-                <Link
-                  to="/security/scan"
-                  className="hover:text-blue-200 hover:bg-blue-800 px-3 py-2 rounded-md font-semibold transition-colors"
-                >
-                  QR Scanner
-                </Link>
-              </div>
-            </div>
-          </div>
-        </nav>
+        <UnifiedNavbar 
+          moduleName="Security"
+          links={[
+            { to: "/security", label: "Staff Management" },
+            { to: "/security/scan", label: "QR Scanner" }
+          ]}
+        />
       )}
 
       <Routes>
-        <Route path="/" element={<AdminLockerMap />} />
+        {/* Public Pages */}
+        <Route path="/" element={<HomePage />} />
+
+        {/* Student Portal */}
+        <Route path="/student-register" element={<StudentRegister />} />
+        <Route path="/student-login" element={<StudentLogin />} />
+        <Route path="/student-dashboard" element={<StudentDashboard />} />
+        <Route path="/student-profile" element={<StudentProfile />} />
+        
+        {/* Admin Portal */}
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+
+        {/* Locker Management */}
         <Route path="/AdminLockerMap" element={<AdminLockerMap />} />
         <Route path="/lockers" element={<LockerMap />} />
+        <Route path="/BookLockersStatus" element={<BookLockersStatus />} />
 
         {/* Parking flow */}
         <Route path="/parking" element={<CampusMap />} />

@@ -215,7 +215,7 @@ const StaffRegister = () => {
         <h2 className="text-3xl font-black text-slate-800">System Records</h2>
         <button
           onClick={openAddModal}
-          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+          className="bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
         >
           ➕ Add New Staff
         </button>
@@ -498,7 +498,7 @@ const StaffRegister = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  className="flex-1 px-4 py-3 bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
                 >
                   {loading ? '⏳ Processing...' : isEditMode ? '💾 Update' : '➕ Register'}
                 </button>

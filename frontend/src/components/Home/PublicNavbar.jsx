@@ -1,52 +1,26 @@
-import { Link, useLocation } from "react-router-dom";
+import UnifiedNavbar from "../Shared/UnifiedNavbar";
+import { Link } from "react-router-dom";
 
 const PublicNavbar = () => {
-  const location = useLocation();
-
   return (
-    <nav className="public-navbar">
-      <div className="public-navbar-brand">
-        <h2>UniSpot</h2>
-        <p>Vehicle Parking & Locker Management System</p>
-      </div>
-
-      <div className="public-navbar-links">
-        <Link
-          to="/"
-          className={location.pathname === "/" ? "active-link" : ""}
-        >
-          Home
-        </Link>
-
+    <UnifiedNavbar
+      
+      links={[
+        { to: "#home", label: "Home" },
+        { to: "#about", label: "About" },
+        { to: "#contact", label: "Contact" }
+      ]}
+      rightActions={
         <Link
           to="/student-register"
-          className={location.pathname === "/student-register" ? "active-link" : ""}
+          className="group relative px-6 py-3 md:px-8 md:py-3.5 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-700 hover:via-blue-600 hover:to-blue-700 text-white font-black text-sm md:text-base rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-white/20 backdrop-blur-sm"
         >
-          Register
+          <span className="relative z-10">Get Started</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full opacity-0 group-hover:opacity-30 blur transition-all duration-300"></div>
         </Link>
-
-        <Link
-          to="/student-login"
-          className={location.pathname === "/student-login" ? "active-link" : ""}
-        >
-          Login
-        </Link>
-
-        <Link
-          to="/about"
-          className={location.pathname === "/about" ? "active-link" : ""}
-        >
-          About
-        </Link>
-
-        <Link
-          to="/contact"
-          className={location.pathname === "/contact" ? "active-link" : ""}
-        >
-          Contact
-        </Link>
-      </div>
-    </nav>
+      }
+    />
   );
 };
 
