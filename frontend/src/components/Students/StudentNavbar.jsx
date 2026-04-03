@@ -11,7 +11,7 @@ const StudentNavbar = () => {
 
   return (
     <UnifiedNavbar
-      moduleName="Student Dashboard & Profile Management"
+      
       title="UniSpot Portal"
       links={[
         { to: "/", label: "Home" },

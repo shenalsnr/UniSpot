@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { showAlert } from "../Shared/BeautifulAlert";
+import { showConfirm } from "../Shared/BeautifulConfirm";
 
 const MapDisplay = ({ map }) => {
   const { locationName, rows, lockersPerRow } = map;
@@ -30,7 +32,7 @@ const MapDisplay = ({ map }) => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/bookings/map/${map._id}`);
+        const response = await axios.get(`http://localhost:5000/api/locker/bookings/map/${map._id}`);
         const bookings = response.data;
         setLockers((prev) => 
           prev.map((locker) => {
@@ -59,21 +61,74 @@ const MapDisplay = ({ map }) => {
   const todayDateStr = new Date().toISOString().split("T")[0];
 
   const handleSelect = async (id) => {
+    console.log("🔍 Debug - Locker clicked:", id);
     const locker = lockers.find(l => l.id === id);
+    console.log("🔍 Debug - Locker found:", locker);
+    
     if (locker.selected) {
-      if (!window.confirm("Are you sure you want to cancel this booking?")) return;
+      const confirmed = await showConfirm({
+        title: 'Cancel Booking',
+        message: 'Are you sure you want to cancel this locker booking? This action cannot be undone.',
+        confirmText: 'Yes, Cancel Booking',
+        cancelText: 'Keep Booking',
+        type: 'warning'
+      });
+      
+      if (!confirmed) return;
+      
       try {
-        await axios.delete(`http://localhost:5000/bookings/map/${map._id}/locker/${id}`);
+        const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || '{}');
+        const token = studentInfo.token;
+        console.log("🔍 Debug - Cancel - Token exists:", !!token);
+        
+        await axios.delete(`http://localhost:5000/api/locker/bookings/map/${map._id}/locker/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         setLockers((prev) =>
           prev.map((l) =>
             l.id === id ? { ...l, selected: false, date: "", startTime: "", endTime: "" } : l
           )
         );
+        showAlert('success', 'Booking cancelled successfully!', 'Success');
       } catch (error) {
         console.error("Error cancelling booking:", error);
-        alert("Error cancelling booking.");
+        showAlert('error', 'Error cancelling booking.');
       }
     } else {
+      console.log("🔍 Debug - Opening booking modal for:", id);
+      
+      // Check if student already has any booking before allowing new selection
+      try {
+        const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || '{}');
+        const token = studentInfo.token;
+        console.log("🔍 Debug - Student info from localStorage:", studentInfo);
+        console.log("🔍 Debug - Token exists:", !!token);
+        
+        if (!token) {
+          console.log("❌ Debug - No token found, showing login required");
+          showAlert('error', 'Please login to book a locker', 'Authentication Required');
+          return;
+        }
+        
+        console.log("🔍 Debug - Checking student current booking...");
+        const response = await axios.get(`http://localhost:5000/api/locker/bookings/student/current`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        console.log("🔍 Debug - Student booking check response:", response.data);
+        
+        if (response.data && response.data.hasBooking) {
+          console.log("❌ Debug - Student already has booking, blocking");
+          showAlert('warning', 'You have already booked a locker. Only one locker is allowed per student.');
+          return;
+        }
+        
+        console.log("✅ Debug - No existing booking, opening modal");
+      } catch (error) {
+        console.error("❌ Debug - Error checking student booking:", error);
+        // If endpoint fails, proceed with normal flow (backend will handle validation)
+        console.log("🔍 Debug - Proceeding with booking modal due to endpoint error");
+      }
+      
       // Open booking modal
       setSelectedLockerForBooking(id);
       setBookingDate("");
@@ -83,46 +138,110 @@ const MapDisplay = ({ map }) => {
   };
 
   const confirmBooking = async () => {
+    console.log("🔍 Debug - Confirm booking called");
+    console.log("🔍 Debug - Booking data:", {
+      selectedLocker: selectedLockerForBooking,
+      date: bookingDate,
+      startTime: bookingStartTime,
+      endTime: bookingEndTime,
+      todayDate: todayDateStr
+    });
+    
     if (!bookingDate || !bookingStartTime || !bookingEndTime) {
-      alert("Please select a date, start time, and end time to book.");
+      console.log("❌ Debug - Missing booking data");
+      showAlert('warning', 'Please select a date, start time, and end time to book.');
       return;
     }
-    if (bookingDate < todayDateStr) {
-      alert("You cannot book a locker for a past date.");
+    
+    // Date validation
+    const bookingDateObj = new Date(bookingDate);
+    const todayDateObj = new Date(todayDateStr);
+    todayDateObj.setHours(0, 0, 0, 0); // Set to start of day
+    bookingDateObj.setHours(0, 0, 0, 0); // Set to start of day
+    
+    if (bookingDateObj < todayDateObj) {
+      console.log("❌ Debug - Past date selected:", bookingDateObj, "<", todayDateObj);
+      showAlert('error', 'You cannot book a locker for a past date.');
       return;
     }
+    
+    // Time validation
     if (bookingStartTime < "06:00" || bookingEndTime > "22:00" || bookingStartTime > "22:00" || bookingEndTime < "06:00") {
-      alert("Booking time must be between 06:00 AM and 10:00 PM.");
+      console.log("❌ Debug - Time validation failed");
+      showAlert('warning', 'Booking time must be between 06:00 AM and 10:00 PM.');
       return;
     }
+    
     if (bookingStartTime >= bookingEndTime) {
-      alert("End time must be after start time.");
+      console.log("❌ Debug - End time before start time");
+      showAlert('warning', 'End time must be after start time.');
       return;
     }
+    
     try {
-      await axios.post("http://localhost:5000/bookings", {
+      const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || '{}');
+      const token = studentInfo.token;
+      
+      console.log("🔍 Debug - Student info:", studentInfo);
+      console.log("🔍 Debug - Token:", token);
+      console.log("🔍 Debug - Map ID:", map._id);
+      console.log("🔍 Debug - Locker ID:", selectedLockerForBooking);
+      
+      if (!token) {
+        console.log("❌ Debug - No token for booking");
+        showAlert('error', 'Please login to book a locker', 'Authentication Required');
+        return;
+      }
+      
+      console.log("🔍 Debug - Making booking request...");
+      const response = await axios.post("http://localhost:5000/api/locker/bookings", {
         mapId: map._id,
         lockerId: selectedLockerForBooking,
         date: bookingDate,
         startTime: bookingStartTime,
         endTime: bookingEndTime
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      setLockers((prev) =>
-        prev.map((l) =>
-          l.id === selectedLockerForBooking
-            ? { ...l, selected: true, date: bookingDate, startTime: bookingStartTime, endTime: bookingEndTime }
-            : l
-        )
+      
+      console.log("✅ Debug - Booking response:", response.data);
+      
+      // Refresh bookings to get updated state
+      const bookingsResponse = await axios.get(`http://localhost:5000/api/locker/bookings/map/${map._id}`);
+      const bookings = bookingsResponse.data;
+      setLockers((prev) => 
+        prev.map((locker) => {
+          const booking = bookings.find(b => b.lockerId === locker.id);
+          if (booking) {
+            return { ...locker, selected: true, date: booking.date, startTime: booking.startTime, endTime: booking.endTime };
+          }
+          return { ...locker, selected: false, date: "", startTime: "", endTime: "" };
+        })
       );
+      
       setSelectedLockerForBooking(null);
+      showAlert('success', 'Locker booked successfully.', 'Success');
     } catch (error) {
       console.error("Booking failed:", error);
-      alert(error.response?.data?.message || "Booking failed.");
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+      const errorMessage = error.response?.data?.message || 'Booking failed.';
+      showAlert('error', errorMessage);
     }
   };
 
-  const cancelBooking = () => {
-    setSelectedLockerForBooking(null);
+  const cancelBooking = async () => {
+    const confirmed = await showConfirm({
+      title: 'Cancel Booking',
+      message: 'Are you sure you want to cancel this booking process? Any information you entered will be lost.',
+      confirmText: 'Yes, Cancel',
+      cancelText: 'Continue Booking',
+      type: 'info'
+    });
+    
+    if (confirmed) {
+      setSelectedLockerForBooking(null);
+    }
   };
 
   return (

@@ -16,7 +16,7 @@ const BookLockersStatus = () => {
   useEffect(() => {
     const fetchMaps = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/maps");
+        const res = await axios.get("http://localhost:5000/api/locker/maps");
         setMaps(res.data);
       } catch (err) {
         console.error("Error loading maps:", err);
@@ -35,7 +35,7 @@ const BookLockersStatus = () => {
     const fetchBookings = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/bookings/map/${maps[selectedIndex]._id}`
+          `http://localhost:5000/api/locker/bookings/map/${maps[selectedIndex]._id}`
         );
         setBookings(res.data);
       } catch (err) {

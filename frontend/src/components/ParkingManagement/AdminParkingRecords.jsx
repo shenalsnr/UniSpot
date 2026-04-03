@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import axios from "axios";
+import { showAlert } from "../../components/Shared/BeautifulAlert";
 
 const AdminParkingRecords = () => {
   const [spots, setSpots] = useState([]);
@@ -110,10 +112,10 @@ const AdminParkingRecords = () => {
          setSpots(spots.map(s => s._id === spotId ? { ...s, isOccupied: false, reservedBy: null } : s));
       } else {
          const errorData = await res.json();
-        alert(errorData.message || "Failed to release the spot.");
+        showAlert('error', errorData.message || 'Failed to release spot.');
       }
     } catch (err) {
-      alert("Server connection failed. Is the backend running?");
+        showAlert('error', 'Server connection failed. Is backend running?');
     }
   };
 
@@ -124,10 +126,10 @@ const AdminParkingRecords = () => {
       if (res.ok) {
          setSpots(spots.filter(s => s._id !== spotId));
       } else {
-         alert("Failed to delete the spot.");
+         showAlert('error', 'Failed to delete spot.');
       }
     } catch (err) {
-      alert("Server connection failed.");
+        showAlert('error', 'Server connection failed.');
     }
   };
 
@@ -154,10 +156,10 @@ const AdminParkingRecords = () => {
         fetchSpots(); // refresh
       } else {
         const err = await res.json();
-        alert(err.message || "Failed to create spot");
+        showAlert('error', err.message || 'Failed to create spot');
       }
     } catch (error) {
-      alert("Server connection failed");
+      showAlert('error', 'Server connection failed.');
     }
   };
 
@@ -187,7 +189,7 @@ const AdminParkingRecords = () => {
     e.preventDefault();
     if (editForm.arrivalTime && editForm.leavingTime) {
       if (editForm.leavingTime <= editForm.arrivalTime) {
-        alert("Leaving time must be after arrival time");
+        showAlert('warning', 'Leaving time must be after arrival time');
         return;
       }
     }
@@ -207,13 +209,13 @@ const AdminParkingRecords = () => {
       if (res.ok) {
         setEditModalOpen(false);
         fetchSpots();
-        alert("Spot updated successfully");
+        showAlert('success', 'Spot updated successfully', 'Success');
       } else {
         const err = await res.json();
-        alert(err.message || "Failed to update spot");
+        showAlert('error', err.message || 'Failed to update spot');
       }
     } catch (error) {
-      alert("Server connection failed");
+      showAlert('error', 'Server connection failed.');
     }
   };
 

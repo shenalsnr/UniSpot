@@ -14,7 +14,7 @@ import PageBackground from "../Shared/PageBackground";
   useEffect(() => {
     const fetchMaps = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/maps");
+        const response = await axios.get("http://localhost:5000/api/locker/maps");
         setMaps(response.data);
       } catch (error) {
         console.error("Error fetching maps:", error);

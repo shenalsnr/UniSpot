@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import UnifiedNavbar from "../Shared/UnifiedNavbar";
 import PageBackground from "../Shared/PageBackground";
+import { showAlert } from "../Shared/BeautifulAlert";
+
 const AdminLockerMap = () => {
   const navigate = useNavigate();
 
@@ -27,7 +29,7 @@ const AdminLockerMap = () => {
   // Fetch maps from the backend
   const fetchMaps = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/maps");
+      const response = await axios.get("http://localhost:5000/api/locker/maps");
       setMaps(response.data);
     } catch (error) {
       console.error("Error fetching maps:", error);
@@ -72,20 +74,20 @@ const AdminLockerMap = () => {
   const handleSubmit = async () => {
     // basic validation
     if (!form.locationName || form.rows <= 0 || form.lockersPerRow <= 0) {
-      alert("Please fill all fields correctly");
+      showAlert('warning', 'Please fill all fields correctly');
       return;
     }
 
     try {
       setLoading(true);
 
-      await axios.post("http://localhost:5000/create-map", {
+      await axios.post("http://localhost:5000/api/locker/create-map", {
         locationName: form.locationName,
         rows: Number(form.rows),
         lockersPerRow: Number(form.lockersPerRow)
       });
 
-      alert("Map Created Successfully");
+      showAlert('success', 'Map Created Successfully', 'Success');
 
       // clear form after submit
       setForm({
@@ -99,7 +101,7 @@ const AdminLockerMap = () => {
 
     } catch (error) {
       console.error(error);
-      alert("Error creating map");
+      showAlert('error', 'Error creating map', 'Error');
     } finally {
       setLoading(false);
     }
@@ -108,24 +110,24 @@ const AdminLockerMap = () => {
   // submit update form
   const handleUpdateSubmit = async () => {
     if (!updateForm.locationName || updateForm.rows <= 0 || updateForm.lockersPerRow <= 0) {
-      alert("Please fill all fields correctly");
+      showAlert('warning', 'Please fill all fields correctly');
       return;
     }
 
     try {
       setLoading(true);
-      await axios.put(`http://localhost:5000/update-map/${editingMapId}`, {
+      await axios.put(`http://localhost:5000/api/locker/update-map/${editingMapId}`, {
         locationName: updateForm.locationName,
         rows: Number(updateForm.rows),
         lockersPerRow: Number(updateForm.lockersPerRow)
       });
-      alert("Map Updated Successfully");
+      showAlert('success', 'Map Updated Successfully', 'Success');
 
       setEditingMapId(null);
       await fetchMaps();
     } catch (error) {
       console.error(error);
-      alert("Error updating map");
+      showAlert('error', 'Error updating map', 'Error');
     } finally {
       setLoading(false);
     }
@@ -145,11 +147,11 @@ const AdminLockerMap = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this map?")) return;
     try {
-      await axios.delete(`http://localhost:5000/delete-map/${id}`);
+      await axios.delete(`http://localhost:5000/api/locker/delete-map/${id}`);
       await fetchMaps();
     } catch (error) {
       console.error(error);
-      alert("Error deleting map");
+      showAlert('error', 'Error deleting map', 'Error');
     }
   };
 
