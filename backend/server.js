@@ -26,6 +26,11 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
+// Test endpoint
+app.get("/test", (req, res) => {
+  res.json({ message: "Backend is working!", timestamp: new Date() });
+});
+
 // Error Handling Middleware
 applyErrorMiddleware(app);
 
