@@ -17,6 +17,7 @@ const MapDisplay = ({ map }) => {
         lockers.push({
           id: row + i,
           selected: false,
+          isMine: false,
           date: "",
           startTime: "",
           endTime: ""
@@ -34,13 +35,23 @@ const MapDisplay = ({ map }) => {
       try {
         const response = await axios.get(`http://localhost:5000/api/locker/bookings/map/${map._id}`);
         const bookings = response.data;
+        const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || '{}');
+        const currentStudentId = studentInfo._id;
+
         setLockers((prev) => 
           prev.map((locker) => {
             const booking = bookings.find(b => b.lockerId === locker.id);
             if (booking) {
-              return { ...locker, selected: true, date: booking.date, startTime: booking.startTime, endTime: booking.endTime };
+              return { 
+                ...locker, 
+                selected: true, 
+                isMine: booking.studentId === currentStudentId,
+                date: booking.date, 
+                startTime: booking.startTime, 
+                endTime: booking.endTime 
+              };
             }
-            return { ...locker, selected: false, date: "", startTime: "", endTime: "" };
+            return { ...locker, selected: false, isMine: false, date: "", startTime: "", endTime: "" };
           })
         );
       } catch (error) {
@@ -66,6 +77,11 @@ const MapDisplay = ({ map }) => {
     console.log("🔍 Debug - Locker found:", locker);
     
     if (locker.selected) {
+      if (!locker.isMine) {
+        showAlert('error', 'You can only cancel your own booking.', 'Action Blocked');
+        return;
+      }
+
       const confirmed = await showConfirm({
         title: 'Cancel Booking',
         message: 'Are you sure you want to cancel this locker booking? This action cannot be undone.',
@@ -86,7 +102,7 @@ const MapDisplay = ({ map }) => {
         });
         setLockers((prev) =>
           prev.map((l) =>
-            l.id === id ? { ...l, selected: false, date: "", startTime: "", endTime: "" } : l
+            l.id === id ? { ...l, selected: false, isMine: false, date: "", startTime: "", endTime: "" } : l
           )
         );
         showAlert('success', 'Booking cancelled successfully!', 'Success');
@@ -213,9 +229,16 @@ const MapDisplay = ({ map }) => {
         prev.map((locker) => {
           const booking = bookings.find(b => b.lockerId === locker.id);
           if (booking) {
-            return { ...locker, selected: true, date: booking.date, startTime: booking.startTime, endTime: booking.endTime };
+            return { 
+              ...locker, 
+              selected: true, 
+              isMine: booking.studentId === studentInfo._id,
+              date: booking.date, 
+              startTime: booking.startTime, 
+              endTime: booking.endTime 
+            };
           }
-          return { ...locker, selected: false, date: "", startTime: "", endTime: "" };
+          return { ...locker, selected: false, isMine: false, date: "", startTime: "", endTime: "" };
         })
       );
       
@@ -260,17 +283,21 @@ const MapDisplay = ({ map }) => {
               key={locker.id}
               onClick={() => handleSelect(locker.id)}
               className={`w-16 h-16 rounded-lg text-white font-semibold transition-all duration-300 hover:scale-110 hover:-translate-y-1 flex flex-col items-center justify-center relative
-                ${locker.selected 
-                  ? "bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 shadow-lg shadow-blue-500/50 ring-2 ring-blue-300 ring-offset-2" 
-                  : "bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600 shadow-lg shadow-gray-500/50 hover:from-gray-300 hover:via-gray-400 hover:to-gray-500"
+                ${!locker.selected 
+                  ? "bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600 shadow-lg shadow-gray-500/50 hover:from-gray-300 hover:via-gray-400 hover:to-gray-500"
+                  : locker.isMine 
+                    ? "bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 shadow-lg shadow-blue-500/50 ring-2 ring-blue-300 ring-offset-2"
+                    : "bg-gradient-to-br from-red-500 via-red-600 to-red-700 shadow-lg shadow-red-500/50 opacity-90 cursor-not-allowed"
                 }
               `}
               style={{
-                boxShadow: locker.selected 
-                  ? '0 10px 25px -5px rgba(59, 130, 246, 0.5), 0 8px 10px -6px rgba(59, 130, 246, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)'
-                  : '0 10px 25px -5px rgba(107, 114, 128, 0.5), 0 8px 10px -6px rgba(107, 114, 128, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)'
+                boxShadow: !locker.selected 
+                  ? '0 10px 25px -5px rgba(107, 114, 128, 0.5), 0 8px 10px -6px rgba(107, 114, 128, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)'
+                  : locker.isMine
+                    ? '0 10px 25px -5px rgba(59, 130, 246, 0.5), 0 8px 10px -6px rgba(59, 130, 246, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)'
+                    : '0 10px 25px -5px rgba(239, 68, 68, 0.5), 0 8px 10px -6px rgba(239, 68, 68, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)'
               }}
-              title={locker.selected ? `Booked on ${locker.date}\nFrom: ${locker.startTime}\nTo: ${locker.endTime}` : "Available"}
+              title={locker.selected ? (locker.isMine ? `Your Booking\nDate: ${locker.date}\nFrom: ${locker.startTime}\nTo: ${locker.endTime}` : "Booked by another student") : "Available"}
             >
               <span className="text-xl font-bold drop-shadow-sm">{locker.id}</span>
               {locker.selected && (
@@ -284,13 +311,17 @@ const MapDisplay = ({ map }) => {
         </div>
 
         {/* Color Legend */}
-        <div className="flex justify-center gap-8 mt-6">
+        <div className="flex justify-center flex-wrap gap-4 md:gap-8 mt-6">
           <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg shadow-md border border-gray-200">
             <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600 shadow-lg shadow-gray-500/50"></div>
             <span className="text-gray-700 font-medium">Available</span>
           </div>
           <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg shadow-md border border-gray-200">
             <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 shadow-lg shadow-blue-500/50"></div>
+            <span className="text-gray-700 font-medium">My Booking</span>
+          </div>
+          <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg shadow-md border border-gray-200">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-red-500 via-red-600 to-red-700 shadow-lg shadow-red-500/50"></div>
             <span className="text-gray-700 font-medium">Booked</span>
           </div>
         </div>

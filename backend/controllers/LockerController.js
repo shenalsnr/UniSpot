@@ -2,6 +2,34 @@ import mongoose from "mongoose";
 import LockerMap from "../models/LockerM/LockerModel.js";
 import LockerBooking from "../models/LockerM/BookingModel.js";
 
+// Helper to expire outdated bookings strictly
+export const expireOldBookings = async () => {
+  try {
+    const activeBookings = await LockerBooking.find({ status: "active" });
+    const now = new Date();
+    const toExpireIds = [];
+
+    for (const booking of activeBookings) {
+      if (!booking.date || !booking.endTime) continue;
+      const bookingEndTimeObj = new Date(`${booking.date}T${booking.endTime}:00`);
+      
+      if (now > bookingEndTimeObj) {
+        toExpireIds.push(booking._id);
+      }
+    }
+
+    if (toExpireIds.length > 0) {
+      await LockerBooking.updateMany(
+        { _id: { $in: toExpireIds } },
+        { $set: { status: "expired" } }
+      );
+      console.log(`[Validation] Auto-expired ${toExpireIds.length} bookings on-the-fly.`);
+    }
+  } catch (error) {
+    console.error("[Validation Error] Failed expiring old bookings:", error);
+  }
+};
+
 // Create Map
 export const createMap = async (req, res, next) => {
   try {
@@ -50,6 +78,9 @@ export const deleteMap = async (req, res, next) => {
 // Create a booking
 export const createBooking = async (req, res, next) => {
   try {
+    // ENFORCE EXPIRE LOCALLY FIRST
+    await expireOldBookings();
+
     const { mapId, lockerId, date, startTime, endTime } = req.body;
     
     console.log("🔍 Backend Debug - Request body:", req.body);
@@ -75,22 +106,22 @@ export const createBooking = async (req, res, next) => {
       });
     }
 
-    // Check if locker is already booked
-    const existingBooking = await LockerBooking.findOne({ mapId, lockerId });
+    // Check if locker is already booked (active only)
+    const existingBooking = await LockerBooking.findOne({ mapId, lockerId, status: "active" });
     if (existingBooking) {
       console.log("❌ Backend Debug - Locker already booked:", existingBooking);
-      return res.status(400).json({ message: "Locker is already booked." });
+      return res.status(400).json({ message: "Locker is already booked and active." });
     }
 
-    // Check if student already has a booking (one locker per student rule)
+    // Check if student already has a booking
     console.log("🔍 Backend Debug - Checking existing booking for student:", studentId);
-    const studentBooking = await LockerBooking.findOne({ studentId });
+    const studentBooking = await LockerBooking.findOne({ studentId, status: "active" });
     console.log("🔍 Backend Debug - Found student booking:", studentBooking);
     
     if (studentBooking) {
-      console.log("❌ Backend Debug - Student already has booking, blocking");
+      console.log("❌ Backend Debug - Student already has active booking, blocking");
       return res.status(400).json({ 
-        message: "You have already booked a locker. Only one locker is allowed per student." 
+        message: "You already have an active booking." 
       });
     }
 
@@ -101,7 +132,8 @@ export const createBooking = async (req, res, next) => {
       lockerId, 
       date, 
       startTime, 
-      endTime 
+      endTime,
+      status: "active"
     });
     await newBooking.save();
     console.log("✅ Backend Debug - Booking created successfully:", newBooking);
@@ -115,7 +147,8 @@ export const createBooking = async (req, res, next) => {
 // Get bookings for a map
 export const getBookingsByMap = async (req, res, next) => {
   try {
-    const bookings = await LockerBooking.find({ mapId: req.params.mapId });
+    await expireOldBookings(); // Clean on fetch
+    const bookings = await LockerBooking.find({ mapId: req.params.mapId, status: "active" });
     res.json(bookings);
   } catch (error) {
     next(error);
@@ -125,6 +158,7 @@ export const getBookingsByMap = async (req, res, next) => {
 // Check if student has current booking
 export const getStudentCurrentBooking = async (req, res, next) => {
   try {
+    await expireOldBookings(); // Verify right before checking
     // Get student ID from authenticated user
     const studentId = req.student?._id || req.user?._id;
     
@@ -135,10 +169,10 @@ export const getStudentCurrentBooking = async (req, res, next) => {
       return res.status(401).json({ message: "Student authentication required" });
     }
 
-    // Check if student has any booking
-    const studentBooking = await LockerBooking.findOne({ studentId });
+    // Check if student has any active booking
+    const studentBooking = await LockerBooking.findOne({ studentId, status: "active" });
     
-    console.log("🔍 Debug - Student booking found:", studentBooking);
+    console.log("🔍 Debug - Student active booking found:", studentBooking);
     
     res.json({ 
       hasBooking: !!studentBooking,
@@ -167,6 +201,7 @@ export const getAllBookings = async (req, res, next) => {
 // Delete a booking
 export const deleteBooking = async (req, res, next) => {
   try {
+    await expireOldBookings(); // Safety enforcement check before any logic
     const { mapId, lockerId } = req.params;
     
     console.log("🔍 Debug - Deleting booking for map:", mapId, "locker:", lockerId);
@@ -181,8 +216,8 @@ export const deleteBooking = async (req, res, next) => {
     
     console.log("🔍 Debug - Student attempting to delete booking:", studentId);
 
-    // Find the booking and verify it belongs to the student
-    const booking = await LockerBooking.findOne({ mapId, lockerId, studentId });
+    // Find the active booking and verify it belongs to the student
+    const booking = await LockerBooking.findOne({ mapId, lockerId, studentId, status: "active" });
     if (!booking) {
       console.log("❌ Debug - Booking not found or not owned by student");
       return res.status(404).json({ 
