@@ -41,7 +41,7 @@ const HomePage = () => {
 
             <div className="animate-fade-in [animation-delay:200ms] lg:pl-10">
               <div 
-                className="rounded-[24px] p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-slate-100 relative overflow-hidden group"
+                className="rounded-3xl p-8 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-slate-100 relative overflow-hidden group"
                 style={{ background: 'linear-gradient(346deg, rgba(255, 255, 255, 1) 0%, rgba(146, 180, 224, 1) 21%, rgba(250, 250, 250, 1) 50%, rgba(201, 215, 242, 1) 100%)' }}
               >
                 {/* Padlock Watermark */}
@@ -50,7 +50,7 @@ const HomePage = () => {
                 </div>
 
                 <div className="flex items-center gap-3 mb-8 relative z-10">
-                  <div className="text-[oklch(48.8%_0.243_264.376)]">
+                  <div className="text-blue-700">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-layout-grid"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
                   </div>
                   <h3 className="m-0 text-slate-800 text-[26px] font-extrabold tracking-tight">System Highlights</h3>
