@@ -68,10 +68,10 @@ const StudentDashboard = () => {
             </p>
 
             <div className="flex gap-3.5 flex-wrap mt-2">
-              <Link to="/student-book-locker" className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-blue-900/40 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:opacity-90 border border-blue-400">
+              <Link to="/lockers" className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-blue-900/40 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:opacity-90 border border-blue-400">
                 Book Locker
               </Link>
-              <Link to="/student-book-parking" className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 text-white shadow-lg shadow-blue-900/40 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl border border-blue-400">
+              <Link to="/parking/map" className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 text-white shadow-lg shadow-blue-900/40 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl border border-blue-400">
                 Book Parking Slot
               </Link>
             </div>
