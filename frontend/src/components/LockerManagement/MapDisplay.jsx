@@ -38,17 +38,17 @@ const MapDisplay = ({ map }) => {
         const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || '{}');
         const currentStudentId = studentInfo._id;
 
-        setLockers((prev) => 
+        setLockers((prev) =>
           prev.map((locker) => {
             const booking = bookings.find(b => b.lockerId === locker.id);
             if (booking) {
-              return { 
-                ...locker, 
-                selected: true, 
+              return {
+                ...locker,
+                selected: true,
                 isMine: booking.studentId === currentStudentId,
-                date: booking.date, 
-                startTime: booking.startTime, 
-                endTime: booking.endTime 
+                date: booking.date,
+                startTime: booking.startTime,
+                endTime: booking.endTime
               };
             }
             return { ...locker, selected: false, isMine: false, date: "", startTime: "", endTime: "" };
@@ -75,7 +75,7 @@ const MapDisplay = ({ map }) => {
     console.log("🔍 Debug - Locker clicked:", id);
     const locker = lockers.find(l => l.id === id);
     console.log("🔍 Debug - Locker found:", locker);
-    
+
     if (locker.selected) {
       if (!locker.isMine) {
         showAlert('error', 'You can only cancel your own booking.', 'Action Blocked');
@@ -89,14 +89,14 @@ const MapDisplay = ({ map }) => {
         cancelText: 'Keep Booking',
         type: 'warning'
       });
-      
+
       if (!confirmed) return;
-      
+
       try {
         const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || '{}');
         const token = studentInfo.token;
         console.log("🔍 Debug - Cancel - Token exists:", !!token);
-        
+
         await axios.delete(`http://localhost:5000/api/locker/bookings/map/${map._id}/locker/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -112,39 +112,39 @@ const MapDisplay = ({ map }) => {
       }
     } else {
       console.log("🔍 Debug - Opening booking modal for:", id);
-      
+
       // Check if student already has any booking before allowing new selection
       try {
         const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || '{}');
         const token = studentInfo.token;
         console.log("🔍 Debug - Student info from localStorage:", studentInfo);
         console.log("🔍 Debug - Token exists:", !!token);
-        
+
         if (!token) {
           console.log("❌ Debug - No token found, showing login required");
           showAlert('error', 'Please login to book a locker', 'Authentication Required');
           return;
         }
-        
+
         console.log("🔍 Debug - Checking student current booking...");
         const response = await axios.get(`http://localhost:5000/api/locker/bookings/student/current`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         console.log("🔍 Debug - Student booking check response:", response.data);
-        
+
         if (response.data && response.data.hasBooking) {
           console.log("❌ Debug - Student already has booking, blocking");
           showAlert('warning', 'You have already booked a locker. Only one locker is allowed per student.');
           return;
         }
-        
+
         console.log("✅ Debug - No existing booking, opening modal");
       } catch (error) {
         console.error("❌ Debug - Error checking student booking:", error);
         // If endpoint fails, proceed with normal flow (backend will handle validation)
         console.log("🔍 Debug - Proceeding with booking modal due to endpoint error");
       }
-      
+
       // Open booking modal
       setSelectedLockerForBooking(id);
       setBookingDate("");
@@ -162,53 +162,53 @@ const MapDisplay = ({ map }) => {
       endTime: bookingEndTime,
       todayDate: todayDateStr
     });
-    
+
     if (!bookingDate || !bookingStartTime || !bookingEndTime) {
       console.log("❌ Debug - Missing booking data");
       showAlert('warning', 'Please select a date, start time, and end time to book.');
       return;
     }
-    
+
     // Date validation
     const bookingDateObj = new Date(bookingDate);
     const todayDateObj = new Date(todayDateStr);
     todayDateObj.setHours(0, 0, 0, 0); // Set to start of day
     bookingDateObj.setHours(0, 0, 0, 0); // Set to start of day
-    
+
     if (bookingDateObj < todayDateObj) {
       console.log("❌ Debug - Past date selected:", bookingDateObj, "<", todayDateObj);
       showAlert('error', 'You cannot book a locker for a past date.');
       return;
     }
-    
+
     // Time validation
     if (bookingStartTime < "06:00" || bookingEndTime > "22:00" || bookingStartTime > "22:00" || bookingEndTime < "06:00") {
       console.log("❌ Debug - Time validation failed");
       showAlert('warning', 'Booking time must be between 06:00 AM and 10:00 PM.');
       return;
     }
-    
+
     if (bookingStartTime >= bookingEndTime) {
       console.log("❌ Debug - End time before start time");
       showAlert('warning', 'End time must be after start time.');
       return;
     }
-    
+
     try {
       const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || '{}');
       const token = studentInfo.token;
-      
+
       console.log("🔍 Debug - Student info:", studentInfo);
       console.log("🔍 Debug - Token:", token);
       console.log("🔍 Debug - Map ID:", map._id);
       console.log("🔍 Debug - Locker ID:", selectedLockerForBooking);
-      
+
       if (!token) {
         console.log("❌ Debug - No token for booking");
         showAlert('error', 'Please login to book a locker', 'Authentication Required');
         return;
       }
-      
+
       console.log("🔍 Debug - Making booking request...");
       const response = await axios.post("http://localhost:5000/api/locker/bookings", {
         mapId: map._id,
@@ -219,29 +219,29 @@ const MapDisplay = ({ map }) => {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       console.log("✅ Debug - Booking response:", response.data);
-      
+
       // Refresh bookings to get updated state
       const bookingsResponse = await axios.get(`http://localhost:5000/api/locker/bookings/map/${map._id}`);
       const bookings = bookingsResponse.data;
-      setLockers((prev) => 
+      setLockers((prev) =>
         prev.map((locker) => {
           const booking = bookings.find(b => b.lockerId === locker.id);
           if (booking) {
-            return { 
-              ...locker, 
-              selected: true, 
+            return {
+              ...locker,
+              selected: true,
               isMine: booking.studentId === studentInfo._id,
-              date: booking.date, 
-              startTime: booking.startTime, 
-              endTime: booking.endTime 
+              date: booking.date,
+              startTime: booking.startTime,
+              endTime: booking.endTime
             };
           }
           return { ...locker, selected: false, isMine: false, date: "", startTime: "", endTime: "" };
         })
       );
-      
+
       setSelectedLockerForBooking(null);
       showAlert('success', 'Locker booked successfully.', 'Success');
     } catch (error) {
@@ -261,7 +261,7 @@ const MapDisplay = ({ map }) => {
       cancelText: 'Continue Booking',
       type: 'info'
     });
-    
+
     if (confirmed) {
       setSelectedLockerForBooking(null);
     }
@@ -278,36 +278,36 @@ const MapDisplay = ({ map }) => {
             className="grid gap-4 mx-auto w-max"
             style={{ gridTemplateColumns: `repeat(${lockersPerRow}, minmax(0, 1fr))` }}
           >
-          {lockers.map((locker) => (
-            <button
-              key={locker.id}
-              onClick={() => handleSelect(locker.id)}
-              className={`w-16 h-16 rounded-lg text-white font-semibold transition-all duration-300 hover:scale-110 hover:-translate-y-1 flex flex-col items-center justify-center relative
-                ${!locker.selected 
-                  ? "bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600 shadow-lg shadow-gray-500/50 hover:from-gray-300 hover:via-gray-400 hover:to-gray-500"
-                  : locker.isMine 
-                    ? "bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 shadow-lg shadow-blue-500/50 ring-2 ring-blue-300 ring-offset-2"
-                    : "bg-gradient-to-br from-red-500 via-red-600 to-red-700 shadow-lg shadow-red-500/50 opacity-90 cursor-not-allowed"
-                }
+            {lockers.map((locker) => (
+              <button
+                key={locker.id}
+                onClick={() => handleSelect(locker.id)}
+                className={`w-16 h-16 rounded-lg text-white font-semibold transition-all duration-300 hover:scale-110 hover:-translate-y-1 flex flex-col items-center justify-center relative
+                ${!locker.selected
+                    ? "bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600 shadow-lg shadow-gray-500/50 hover:from-gray-300 hover:via-gray-400 hover:to-gray-500"
+                    : locker.isMine
+                      ? "bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 shadow-lg shadow-blue-500/50 ring-2 ring-blue-300 ring-offset-2"
+                      : "bg-gradient-to-br from-red-500 via-red-600 to-red-700 shadow-lg shadow-red-500/50 opacity-90 cursor-not-allowed"
+                  }
               `}
-              style={{
-                boxShadow: !locker.selected 
-                  ? '0 10px 25px -5px rgba(107, 114, 128, 0.5), 0 8px 10px -6px rgba(107, 114, 128, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)'
-                  : locker.isMine
-                    ? '0 10px 25px -5px rgba(59, 130, 246, 0.5), 0 8px 10px -6px rgba(59, 130, 246, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)'
-                    : '0 10px 25px -5px rgba(239, 68, 68, 0.5), 0 8px 10px -6px rgba(239, 68, 68, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)'
-              }}
-              title={locker.selected ? (locker.isMine ? `Your Booking\nDate: ${locker.date}\nFrom: ${locker.startTime}\nTo: ${locker.endTime}` : "Booked by another student") : "Available"}
-            >
-              <span className="text-xl font-bold drop-shadow-sm">{locker.id}</span>
-              {locker.selected && (
-                <span className="text-[10px] mt-1 opacity-90 font-semibold leading-tight drop-shadow-sm">Booked</span>
-              )}
-              {/* 3D highlight effect */}
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-tr from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-            </button>
-          ))}
-        </div>
+                style={{
+                  boxShadow: !locker.selected
+                    ? '0 10px 25px -5px rgba(107, 114, 128, 0.5), 0 8px 10px -6px rgba(107, 114, 128, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)'
+                    : locker.isMine
+                      ? '0 10px 25px -5px rgba(59, 130, 246, 0.5), 0 8px 10px -6px rgba(59, 130, 246, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)'
+                      : '0 10px 25px -5px rgba(239, 68, 68, 0.5), 0 8px 10px -6px rgba(239, 68, 68, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)'
+                }}
+                title={locker.selected ? (locker.isMine ? `Your Booking\nDate: ${locker.date}\nFrom: ${locker.startTime}\nTo: ${locker.endTime}` : "Booked by another student") : "Available"}
+              >
+                <span className="text-xl font-bold drop-shadow-sm">{locker.id}</span>
+                {locker.selected && (
+                  <span className="text-[10px] mt-1 opacity-90 font-semibold leading-tight drop-shadow-sm">Booked</span>
+                )}
+                {/* 3D highlight effect */}
+                <div className="absolute inset-0 rounded-lg bg-gradient-to-tr from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Color Legend */}
@@ -334,12 +334,12 @@ const MapDisplay = ({ map }) => {
             <h3 className="text-2xl font-bold mb-6 text-gray-800 text-center">
               Book Locker {selectedLockerForBooking}
             </h3>
-            
+
             <div className="flex flex-col gap-4 mb-6">
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Schedule Date</label>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   min={todayDateStr}
                   value={bookingDate}
                   onChange={(e) => setBookingDate(e.target.value)}
@@ -350,8 +350,8 @@ const MapDisplay = ({ map }) => {
               <div className="flex gap-4 w-full">
                 <div className="flex flex-col gap-1 w-1/2">
                   <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Start Time</label>
-                  <input 
-                    type="time" 
+                  <input
+                    type="time"
                     min="06:00"
                     max="22:00"
                     value={bookingStartTime}
@@ -362,8 +362,8 @@ const MapDisplay = ({ map }) => {
 
                 <div className="flex flex-col gap-1 w-1/2">
                   <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide">End Time</label>
-                  <input 
-                    type="time" 
+                  <input
+                    type="time"
                     min="06:00"
                     max="22:00"
                     value={bookingEndTime}
@@ -375,13 +375,13 @@ const MapDisplay = ({ map }) => {
             </div>
 
             <div className="flex justify-between gap-4 mt-2">
-              <button 
+              <button
                 onClick={confirmBooking}
                 className="flex-1 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold py-3 rounded-lg hover:opacity-90 transition shadow hover:shadow-lg"
               >
                 Confirm
               </button>
-              <button 
+              <button
                 onClick={cancelBooking}
                 className="flex-1 bg-gray-300 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-400 transition shadow hover:shadow-lg"
               >

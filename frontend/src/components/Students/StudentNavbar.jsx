@@ -12,7 +12,7 @@ const StudentNavbar = () => {
   return (
     <UnifiedNavbar
       
-      title="UniSpot Portal"
+      
       links={[
         { to: "/", label: "Home" },
         { to: "/student-dashboard", label: "Dashboard" },

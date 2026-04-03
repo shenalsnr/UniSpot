@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 const PublicNavbar = () => {
   return (
     <UnifiedNavbar
-      title="UniSpot"
       
       links={[
         { to: "#home", label: "Home" },
@@ -14,9 +13,11 @@ const PublicNavbar = () => {
       rightActions={
         <Link
           to="/student-register"
-          className="px-5 py-2 md:px-7 md:py-2.5 bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 text-white font-bold rounded-[100px] text-sm md:text-[15px] shadow-sm transition-all hover:-translate-y-0.5"
+          className="group relative px-6 py-3 md:px-8 md:py-3.5 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-700 hover:via-blue-600 hover:to-blue-700 text-white font-black text-sm md:text-base rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-white/20 backdrop-blur-sm"
         >
-          Get Started
+          <span className="relative z-10">Get Started</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full opacity-0 group-hover:opacity-30 blur transition-all duration-300"></div>
         </Link>
       }
     />

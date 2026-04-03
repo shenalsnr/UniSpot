@@ -12,7 +12,7 @@ const AdminNavbar = () => {
   return (
     <UnifiedNavbar
       moduleName="Student Management & Profile Control"
-      title="UniSpot Admin"
+      
       links={[
         { to: "/admin-dashboard", label: "Dashboard" }
       ]}
