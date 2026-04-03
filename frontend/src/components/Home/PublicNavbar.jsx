@@ -7,9 +7,9 @@ const PublicNavbar = () => {
       title="UniSpot"
       
       links={[
-        { to: "/", label: "Home" },
-        { to: "/about", label: "About" },
-        { to: "/contact", label: "Contact" }
+        { to: "#home", label: "Home" },
+        { to: "#about", label: "About" },
+        { to: "#contact", label: "Contact" }
       ]}
       rightActions={
         <Link

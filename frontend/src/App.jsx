@@ -1,7 +1,5 @@
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import HomePage from "./components/Home/HomePage";
-import AboutPage from "./components/Home/AboutPage";
-import ContactPage from "./components/Home/ContactPage";
 
 import StudentRegister from "./components/Students/StudentRegister";
 import StudentLogin from "./components/Students/StudentLogin";
@@ -53,8 +51,6 @@ const App = () => {
       <Routes>
         {/* Public Pages */}
         <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
 
         {/* Student Portal */}
         <Route path="/student-register" element={<StudentRegister />} />

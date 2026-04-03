@@ -270,7 +270,7 @@ const MapDisplay = ({ map }) => {
   return (
     <div className="mb-10 w-full flex flex-col items-center overflow-x-auto mt-10 relative">
       <div className="flex flex-col items-stretch w-max">
-        <h2 className="text-2xl font-bold mb-6 text-white bg-gradient-to-r from-blue-200 via-blue-600 to-blue-600 px-8 py-3 rounded-xl shadow-md tracking-wide text-center">
+        <h2 className="text-2xl font-bold mb-6 text-white bg-[oklch(48.8%_0.243_264.376)] bg-gradient-to-r from-white/80 via-transparent to-white/80 px-8 py-3 rounded-xl shadow-md tracking-wide text-center border border-white/20">
           {locationName}
         </h2>
         <div className="bg-blue-100 border-2 border-blue-300 p-7 rounded-2xl shadow-xl w-full">

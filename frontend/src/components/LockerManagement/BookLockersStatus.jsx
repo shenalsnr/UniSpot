@@ -110,11 +110,11 @@ const BookLockersStatus = () => {
           </button>
         }
       />
-      <PageBackground className="flex flex-col items-center pb-10 w-full pt-10">
+      <PageBackground className="flex flex-col items-center justify-center min-h-[80vh] pb-10 w-full pt-10">
 
       {/* 🔷 MAP NAVIGATION */}
       {maps.length > 0 ? (
-        <div className="flex items-center justify-center w-full max-w-7xl relative">
+        <div className="flex items-center justify-center w-full max-w-5xl relative mx-auto px-12 md:px-20">
 
           <button
             onClick={handlePrev}
@@ -128,7 +128,7 @@ const BookLockersStatus = () => {
           {/* LOCKER GRID */}
           <div className="bg-blue-100 border-2 border-blue-300 p-7 rounded-2xl shadow-xl w-full">
 
-            <h2 className="text-2xl font-bold mb-6 text-white bg-gradient-to-r from-blue-200 via-blue-600 to-blue-600 px-8 py-3 rounded-xl shadow-md tracking-wide text-center">
+            <h2 className="text-2xl font-bold mb-6 text-white bg-[oklch(48.8%_0.243_264.376)] bg-gradient-to-r from-white/80 via-transparent to-white/80 px-8 py-3 rounded-xl shadow-md tracking-wide text-center border border-white/20">
               {maps[selectedIndex]?.locationName}
             </h2>
 
