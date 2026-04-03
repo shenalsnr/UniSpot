@@ -48,7 +48,7 @@ const ParkingMap = () => {
   };
 
   const handleBack = () => {
-    navigate("/");
+    navigate("/parking/zones");
   };
 
   if (!selectedZone) {

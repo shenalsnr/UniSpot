@@ -20,7 +20,7 @@ const HomePage = () => {
               <h1 className="m-0 mb-6 text-5xl md:text-6xl lg:text-[76px] leading-[1.05] font-black tracking-tight text-slate-800">
                 Smart Locker &
                 <br />
-                <span className="text-[oklch(48.8%_0.243_264.376)]">Parking <br className="lg:hidden" /> Management</span>
+                <span className="text-slate-800">Parking <br className="lg:hidden" /> Management</span>
               </h1>
 
               <p className="m-0 mb-10 text-lg md:text-xl leading-relaxed text-slate-500 max-w-[550px] font-medium">
