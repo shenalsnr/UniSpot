@@ -4,7 +4,7 @@ import axios from "axios";
 import MapDisplay from "./MapDisplay";
 import { ChevronLeft, ChevronRight, Home, ArrowLeft } from "lucide-react";
 import UnifiedNavbar from "../Shared/UnifiedNavbar";
-import vec from "../../assets/vec.png";
+
 
 const LockerMap = () => {
   const navigate = useNavigate();

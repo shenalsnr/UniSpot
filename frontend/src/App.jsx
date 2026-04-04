@@ -16,6 +16,7 @@ import CampusMap from "./components/ParkingManagement/CampusMap";
 import ParkingMap from "./components/ParkingManagement/ParkingMap";
 import ParkingBookingForm from "./components/ParkingManagement/ParkingBookingForm";
 import AdminParkingRecords from "./components/ParkingManagement/AdminParkingRecords";
+import MyParkingBooking from "./components/ParkingManagement/MyParkingBooking";
 import SecurityPortal from "./components/SecurityPortal/SecurityPortal";
 import QRScanner from "./components/SecurityPortal/QRScanner";
 import UnifiedNavbar from "./components/Shared/UnifiedNavbar";
@@ -32,7 +33,6 @@ const App = () => {
           moduleName="Parking"
           links={[
             { to: "/parking/zones", label: "Select Zone" },
-            { to: "/parking/map", label: "Parking Slots" },
             { to: "/parking/admin", label: "Admin Records" }
           ]}
         />
@@ -72,10 +72,15 @@ const App = () => {
         <Route path="/parking/map" element={<ParkingMap />} />
         <Route path="/parking/book/:spotId" element={<ParkingBookingForm />} />
         <Route path="/parking/admin" element={<AdminParkingRecords />} />
+        <Route path="/parking/my-booking" element={<MyParkingBooking />} />
 
         {/* Security Portal */}
         <Route path="/security" element={<SecurityPortal />} />
         <Route path="/security/scan" element={<QRScanner />} />
+
+        {/*home*/}
+        <Route path="/home" element={<HomePage />} />
+
       </Routes>
     </div>
   );
