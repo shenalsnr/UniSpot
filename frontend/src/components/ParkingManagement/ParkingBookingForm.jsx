@@ -357,7 +357,7 @@ const ParkingBookingForm = () => {
           <button 
             type="submit" 
             disabled={isSubmitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-lg py-4 px-4 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 mt-4"
+            className="w-full bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 text-white font-extrabold text-lg py-4 px-4 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 mt-4"
           >
             {isSubmitting ? 'Confirming...' : 'Confirm Booking'}
           </button>

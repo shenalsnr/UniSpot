@@ -5,7 +5,9 @@ import { applyMiddleware } from "./middleware/appMiddleware.js";
 import lockerRoutes from "./routes/lockerRoutes.js";
 import parkingRoutes from "./routes/parkingRoutes.js";
 import securityRoutes from "./routes/securityRoutes.js";
+import studentRoutes from "./routes/studentRoutes.js";
 import { applyErrorMiddleware } from "./middleware/errorMiddleware.js";
+import { startLockerCleanupJob } from "./services/lockerCleanupService.js";
 
 dotenv.config();
 
@@ -15,13 +17,19 @@ const app = express();
 applyMiddleware(app);
 
 // Routes
-app.use("/", lockerRoutes);
+app.use("/api/locker", lockerRoutes);
 app.use("/api/parking", parkingRoutes);
 app.use("/api/security", securityRoutes);
+app.use("/api/students", studentRoutes);
 
 // Simple Route
 app.get("/", (req, res) => {
   res.send("API is running...");
+});
+
+// Test endpoint
+app.get("/test", (req, res) => {
+  res.json({ message: "Backend is working!", timestamp: new Date() });
 });
 
 // Error Handling Middleware
@@ -37,4 +45,7 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  
+  // Start background services
+  startLockerCleanupJob();
 });
