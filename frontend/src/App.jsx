@@ -1,4 +1,5 @@
 import { Routes, Route, Link, useLocation } from "react-router-dom";
+import HomePage from "./components/Home/HomePage";
 import AdminLockerMap from "./components/LockerManagement/AdminLockerMap";
 import LockerMap from "./components/LockerManagement/LockerMap";
 
@@ -104,6 +105,10 @@ const App = () => {
         {/* Security Portal */}
         <Route path="/security" element={<SecurityPortal />} />
         <Route path="/security/scan" element={<QRScanner />} />
+
+        {/*home*/}
+        <Route path="/home" element={<HomePage />} />
+
       </Routes>
     </div>
   );
