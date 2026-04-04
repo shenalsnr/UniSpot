@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import jsPDF from 'jspdf';
 import logoSrc from '../../assets/logo.png';
+import studentApi from '../Students/studentApi';
+import { generateParkingReceipt } from '../../utils/pdfGenerator';
 
 const ParkingBookingForm = () => {
   const { spotId } = useParams();
@@ -17,6 +18,7 @@ const ParkingBookingForm = () => {
     email: '',
     studentId: '',
     phone: '',
+    vehicleNumber: '',
     bookingDate: '',
     arrivalTime: '',
     leavingTime: '',
@@ -26,6 +28,7 @@ const ParkingBookingForm = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [studentProfile, setStudentProfile] = useState(null);
 
   useEffect(() => {
     if (!spot && spotId) {
@@ -50,6 +53,39 @@ const ParkingBookingForm = () => {
     }
   }, [spot, spotId, navigate]);
 
+  // Fetch student profile for auto-filling
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const { data } = await studentApi.get("/students/profile");
+        if (data) {
+          setStudentProfile(data);
+          const names = data.name ? data.name.split(' ') : [''];
+          const firstName = names[0] || '';
+          const lastName = names.length > 1 ? names.slice(1).join(' ') : '';
+          
+          let curVehicleNumber = '';
+          if (data.vehicleRegistered && data.vehicle) {
+            curVehicleNumber = `${data.vehicle.regLetters}-${data.vehicle.regNumbers}`;
+          }
+
+          setFormData(prev => ({
+            ...prev,
+            firstName: prev.firstName || firstName,
+            lastName: prev.lastName || lastName,
+            email: prev.email || data.email || '',
+            studentId: prev.studentId || data.studentId || '',
+            phone: prev.phone || data.phone || '',
+            vehicleNumber: prev.vehicleNumber || curVehicleNumber,
+          }));
+        }
+      } catch (error) {
+        console.error("Failed to load student data for autofill", error);
+      }
+    };
+    fetchProfile();
+  }, []);
+
   // Sync spotId from URL if it changes
   useEffect(() => {
     if (spotId && spotId !== formData.spotId) {
@@ -58,89 +94,20 @@ const ParkingBookingForm = () => {
   }, [spotId, formData.spotId]);
 
   const downloadReceipt = () => {
-    const doc = new jsPDF();
+    if (!studentProfile) return;
     
+    // Construct booking data object since this receipt hasn't been saved locally in the exact format yet
+    const bookingData = {
+      slotNumber: spot?.slotNumber,
+      zone: spot?.zone,
+      vehicleType: spot?.vehicleType,
+      vehicleNumber: formData.vehicleNumber,
+      bookingDate: formData.bookingDate,
+      arrivalTime: formData.arrivalTime,
+      leavingTime: formData.leavingTime,
+    };
     
-    doc.setFillColor(255, 255, 255);
-    doc.rect(0, 0, 210, 40, 'F');
-    
-    doc.setFillColor(30, 64, 175);
-    doc.rect(0, 40, 210, 8, 'F');
-
-    const finishPDF = (doc) => {
-      doc.setFontSize(24);
-      doc.setTextColor(30, 64, 175);
-      doc.text('UniSpot Parking', 50, 26);
-      
-      doc.setFontSize(18);
-      doc.setTextColor(0, 0, 0);
-      doc.text('Parking Booking Receipt', 20, 65);
-
-      const refId = 'REF-' + Math.floor(100000 + Math.random() * 900000);
-      
-      doc.setFontSize(12);
-      doc.setTextColor(100, 100, 100);
-      doc.text(`Reference ID: ${refId}`, 20, 75);
-      doc.text(`Booking Date: ${new Date().toLocaleString()}`, 20, 85);
-      
-      doc.setDrawColor(200, 200, 200);
-      doc.setFillColor(248, 250, 252);
-      doc.roundedRect(20, 95, 170, 45, 3, 3, 'FD');
-      
-      doc.setFontSize(14);
-      doc.setTextColor(30, 64, 175);
-      doc.text('Booking Details', 25, 105);
-      
-      doc.setFontSize(11);
-      doc.setTextColor(60, 60, 60);
-      doc.text(`Student Name: ${formData.firstName} ${formData.lastName}`, 25, 115);
-      doc.text(`Student ID: ${formData.studentId}`, 25, 123);
-      doc.text(`Vehicle Type: ${spot?.vehicleType}`, 25, 131);
-      
-      doc.setFillColor(248, 250, 252);
-      doc.roundedRect(20, 145, 170, 50, 3, 3, 'FD');
-      
-      doc.setFontSize(14);
-      doc.setTextColor(30, 64, 175);
-      doc.text('Time & Location', 25, 155);
-      
-      doc.setFontSize(11);
-      doc.setTextColor(60, 60, 60);
-      doc.text(`Slot Number: ${spot?.slotNumber}`, 25, 165);
-      doc.text(`Zone: ${spot?.zone}`, 25, 173);
-      doc.text(`Booking Date: ${formData.bookingDate}`, 25, 181);
-      doc.text(`Time: ${formData.arrivalTime} to ${formData.leavingTime}`, 25, 189);
-      
-      doc.setFillColor(220, 252, 231);
-      doc.rect(20, 205, 170, 15, 'F');
-      doc.setTextColor(22, 101, 52);
-      doc.setFont(undefined, 'bold');
-      doc.text(`Status: CONFIRMED`, 25, 215);
-      
-      doc.save(`Parking_Receipt_${spot?.slotNumber}.pdf`);
-    };
-
-    const img = new Image();
-    img.src = logoSrc;
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-      const dataUrl = canvas.toDataURL('image/png');
-      
-      const ratio = img.height / img.width;
-      const renderWidth = 30;
-      const renderHeight = renderWidth * ratio;
-      const yPos = (40 - renderHeight) / 2;
-      
-      doc.addImage(dataUrl, 'PNG', 15, yPos, renderWidth, renderHeight);
-      finishPDF(doc);
-    };
-    img.onerror = () => {
-      finishPDF(doc);
-    };
+    generateParkingReceipt(bookingData, studentProfile, logoSrc);
   };
 
   const handleChange = (e) => {
@@ -196,6 +163,12 @@ const ParkingBookingForm = () => {
       newErrors.phone = "Phone Number is required.";
     } else if (!phoneRegex.test(formData.phone)) {
       newErrors.phone = "Please enter a valid 10-digit phone number.";
+    }
+
+    if (!formData.vehicleNumber.trim()) {
+      newErrors.vehicleNumber = "Vehicle Number is required.";
+    } else if (!/^[A-Za-z0-9-]+$/.test(formData.vehicleNumber.replace(/\s+/g, ''))) {
+      newErrors.vehicleNumber = "Please enter a valid vehicle number format.";
     }
 
     setErrors(newErrors);
@@ -352,6 +325,15 @@ const ParkingBookingForm = () => {
               className={`w-full border-2 rounded-lg px-4 py-3 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/20 ${errors.phone ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
             />
             {errors.phone && <p className="text-red-500 text-xs font-bold mt-2">{errors.phone}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">Vehicle Number</label>
+            <input 
+              type="text" name="vehicleNumber" value={formData.vehicleNumber} onChange={handleChange} placeholder="e.g. ABC-1234"
+              className={`w-full border-2 rounded-lg px-4 py-3 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/20 ${errors.vehicleNumber ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
+            />
+            {errors.vehicleNumber && <p className="text-red-500 text-xs font-bold mt-2">{errors.vehicleNumber}</p>}
           </div>
 
           <button 
