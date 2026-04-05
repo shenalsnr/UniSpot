@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Home, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import UnifiedNavbar from "../Shared/UnifiedNavbar";
-import PageBackground from "../Shared/PageBackground";
+
 import { showAlert } from "../Shared/BeautifulAlert";
 
 const AdminLockerMap = () => {
