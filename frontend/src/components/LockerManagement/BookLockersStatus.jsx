@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Home, ArrowLeft } from "lucide-react";
 import UnifiedNavbar from "../Shared/UnifiedNavbar";
 
-
 const BookLockersStatus = () => {
   const navigate = useNavigate();
 
