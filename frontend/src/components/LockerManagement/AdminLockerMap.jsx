@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Home, ArrowLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight, Home, ArrowLeft, Wrench } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import UnifiedNavbar from "../Shared/UnifiedNavbar";
@@ -163,7 +163,7 @@ const AdminLockerMap = () => {
         rightActions={
           <button
             onClick={() => navigate("/")}
-            className="px-4 py-2 bg-blue-700 text-white font-bold rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)] hover:shadow-[0_0_20px_rgba(59,130,246,0.8)] border border-blue-300 transition-all hover:scale-105 hover:opacity-90 flex items-center gap-2"
+            className="px-4 py-2 bg-blue-500 text-white font-bold rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)] hover:shadow-[0_0_20px_rgba(59,130,246,0.8)] border border-blue-300 transition-all hover:scale-105 hover:opacity-90 flex items-center gap-2"
           >
            <ArrowLeft size={18} /> Back
           </button>
@@ -182,8 +182,8 @@ const AdminLockerMap = () => {
         </div>
         
         {/* Professional Border Accents */}
-        <div className="fixed top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-blue-500 to-transparent opacity-20"></div>
-        <div className="fixed bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-indigo-500 to-transparent opacity-20"></div>
+        <div className="fixed top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-blue-400 to-transparent opacity-20"></div>
+        <div className="fixed bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-blue-400 to-transparent opacity-20"></div>
 
         {/* Page Header */}
         <div className="relative z-10 mb-12 text-center">
@@ -191,8 +191,8 @@ const AdminLockerMap = () => {
             Admin Locker Management
           </h1>
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-blue-50 to-indigo-50 rounded-full border border-blue-200">
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-            <span className="text-sm font-semibold text-blue-700">System Configuration Panel</span>
+            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+            <span className="text-sm font-semibold text-blue-400">System Configuration Panel</span>
           </div>
         </div>
 
@@ -201,9 +201,9 @@ const AdminLockerMap = () => {
         {/* Left Side: Table View */}
         <div className="flex-1 bg-white/95 backdrop-blur-sm border-2 border-slate-200/50 shadow-2xl rounded-2xl p-8 flex flex-col relative overflow-hidden">
           {/* Professional Header */}
-          <div className="absolute top-0 left-0 right-0 h-2 bg-linear-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
+          <div className="absolute top-0 left-0 right-0 h-2 bg-linear-to-r from-blue-400 "></div>
           
-          <h2 className="text-2xl font-black bg-linear-to-r from-slate-800 to-blue-800 bg-clip-text text-transparent mb-6 text-center">
+          <h2 className="text-2xl font-black bg-linear-to-r from-slate-800 to-blue-400 bg-clip-text text-transparent mb-6 text-center">
             Configured Maps
           </h2>
           <p className="text-center text-slate-600 mb-8">Manage and monitor all locker configurations</p>
@@ -232,6 +232,7 @@ const AdminLockerMap = () => {
                         >
                           Update
                         </button>
+                        
                         <button
                           onClick={() => handleDelete(map._id)}
                           className="bg-gradient-to-r from-red-50 to-red-100 text-red-600 hover:text-red-700 hover:from-red-100 hover:to-red-200 font-bold px-5 py-2 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md"

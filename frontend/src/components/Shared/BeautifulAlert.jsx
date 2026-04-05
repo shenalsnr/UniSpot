@@ -167,7 +167,9 @@ export const showAlert = (type, message, title = null, duration = 5000) => {
         message={message}
         duration={duration}
         onClose={() => {
-          document.body.removeChild(alertContainer);
+          if (document.body.contains(alertContainer)) {
+            document.body.removeChild(alertContainer);
+          }
           alertInstance = null;
         }}
         show={true}
