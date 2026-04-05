@@ -54,13 +54,7 @@ const LockerMap = () => {
             >
               <ArrowLeft size={18} /> Back
             </button>
-            <button
-              onClick={() => navigate("/")}
-              className="px-4 py-2 bg-white text-blue-900 font-bold rounded-full shadow-[0_0_15px_rgba(255,255,255,0.6)] hover:bg-gray-100 border-2 border-blue-200 transition-all hover:scale-105 flex items-center justify-center p-2.5"
-              title="Home"
-            >
-              <Home size={20} />
-            </button>
+            
           </>
         }
       />

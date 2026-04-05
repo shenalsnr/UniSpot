@@ -163,7 +163,7 @@ const AdminLockerMap = () => {
         rightActions={
           <button
             onClick={() => navigate("/")}
-            className="px-4 py-2 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)] hover:shadow-[0_0_20px_rgba(59,130,246,0.8)] border border-blue-300 transition-all hover:scale-105 hover:opacity-90 flex items-center gap-2"
+            className="px-4 py-2 bg-blue-700 text-white font-bold rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)] hover:shadow-[0_0_20px_rgba(59,130,246,0.8)] border border-blue-300 transition-all hover:scale-105 hover:opacity-90 flex items-center gap-2"
           >
            <ArrowLeft size={18} /> Back
           </button>
@@ -171,7 +171,7 @@ const AdminLockerMap = () => {
       />
       <div className="flex flex-col items-center pb-20 w-full pt-16 min-h-screen relative bg-white">
         {/* Professional White Background */}
-        <div className="fixed inset-0 bg-gradient-to-br from-white via-slate-50 to-white"></div>
+        <div className="fixed inset-0 bg-linear-to-br from-white via-slate-50 to-white"></div>
         
         {/* Subtle Geometric Pattern */}
         <div className="fixed inset-0 opacity-3 pointer-events-none">
@@ -182,15 +182,15 @@ const AdminLockerMap = () => {
         </div>
         
         {/* Professional Border Accents */}
-        <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-20"></div>
-        <div className="fixed bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-20"></div>
+        <div className="fixed top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-blue-500 to-transparent opacity-20"></div>
+        <div className="fixed bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-indigo-500 to-transparent opacity-20"></div>
 
         {/* Page Header */}
         <div className="relative z-10 mb-12 text-center">
-          <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-slate-800 to-blue-800 bg-clip-text text-transparent mb-4">
+          <h1 className="text-4xl md:text-5xl font-black bg-linear-to-r from-slate-800 to-blue-800 bg-clip-text text-transparent mb-4">
             Admin Locker Management
           </h1>
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full border border-blue-200">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-blue-50 to-indigo-50 rounded-full border border-blue-200">
             <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
             <span className="text-sm font-semibold text-blue-700">System Configuration Panel</span>
           </div>
@@ -201,9 +201,9 @@ const AdminLockerMap = () => {
         {/* Left Side: Table View */}
         <div className="flex-1 bg-white/95 backdrop-blur-sm border-2 border-slate-200/50 shadow-2xl rounded-2xl p-8 flex flex-col relative overflow-hidden">
           {/* Professional Header */}
-          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
+          <div className="absolute top-0 left-0 right-0 h-2 bg-linear-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
           
-          <h2 className="text-2xl font-black bg-gradient-to-r from-slate-800 to-blue-800 bg-clip-text text-transparent mb-6 text-center">
+          <h2 className="text-2xl font-black bg-linear-to-r from-slate-800 to-blue-800 bg-clip-text text-transparent mb-6 text-center">
             Configured Maps
           </h2>
           <p className="text-center text-slate-600 mb-8">Manage and monitor all locker configurations</p>
@@ -211,7 +211,7 @@ const AdminLockerMap = () => {
           <div className="flex-1 overflow-x-auto">
             {maps.length > 0 ? (
               <table className="w-full text-left border-collapse min-w-max text-lg">
-                <thead className="sticky top-0 bg-gradient-to-r from-slate-50 to-blue-50 shadow-sm z-10 text-slate-700">
+                <thead className="sticky top-0 bg-linear-to-r from-slate-50 to-blue-50 shadow-sm z-10 text-slate-700">
                   <tr>
                     <th className="p-4 border-b-2 font-bold w-1/3 uppercase tracking-wide text-sm">Location Name</th>
                     <th className="p-4 border-b-2 font-bold w-1/5 uppercase tracking-wide text-sm">Rows</th>
