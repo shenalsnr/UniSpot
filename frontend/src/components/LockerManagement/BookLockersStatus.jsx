@@ -3,8 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Home, ArrowLeft } from "lucide-react";
 import UnifiedNavbar from "../Shared/UnifiedNavbar";
-import PageBackground from "../Shared/PageBackground";
-import vec from "../../assets/vec.png";
+
+
 const BookLockersStatus = () => {
   const navigate = useNavigate();
 
