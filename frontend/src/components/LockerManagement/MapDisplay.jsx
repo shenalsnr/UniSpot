@@ -18,6 +18,8 @@ const MapDisplay = ({ map }) => {
           id: row + i,
           selected: false,
           isMine: false,
+          status: 'available', // Add status field
+          maintenanceReason: '',
           date: "",
           startTime: "",
           endTime: ""
@@ -31,35 +33,56 @@ const MapDisplay = ({ map }) => {
   const [lockers, setLockers] = useState(generateLockers());
 
   useEffect(() => {
-    const fetchBookings = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/locker/bookings/map/${map._id}`);
-        const bookings = response.data;
+        const [bookingsRes, maintenanceRes] = await Promise.allSettled([
+          axios.get(`http://localhost:5000/api/locker/bookings/map/${map._id}`),
+          axios.get(`http://localhost:5000/api/lockers?mapId=${map._id}`)
+        ]);
+
+        const bookings = bookingsRes.status === 'fulfilled' ? bookingsRes.value.data : [];
         const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || '{}');
         const currentStudentId = studentInfo._id;
 
+        // Build maintenance status lookup
+        let maintenanceMap = {};
+        if (maintenanceRes.status === 'fulfilled' && maintenanceRes.value.data?.success) {
+          maintenanceRes.value.data.data.forEach(l => {
+            maintenanceMap[l.id] = l.status;
+          });
+        }
+
         setLockers((prev) =>
           prev.map((locker) => {
+            // Maintenance takes priority
+            if (maintenanceMap[locker.id] === 'maintenance') {
+              return { ...locker, status: 'maintenance', selected: false, isMine: false, date: '', startTime: '', endTime: '' };
+            }
+            // Booking status
             const booking = bookings.find(b => b.lockerId === locker.id);
             if (booking) {
+              // Handle different formats of studentId (string, ObjectId, or nested object)
+              const bookingStudentId = typeof booking.studentId === 'object' && booking.studentId._id ? booking.studentId._id.toString() : booking.studentId?.toString?.() || booking.studentId;
+              const isMyBooking = bookingStudentId === currentStudentId || bookingStudentId === currentStudentId?.toString?.();
               return {
                 ...locker,
+                status: 'available',
                 selected: true,
-                isMine: booking.studentId === currentStudentId,
+                isMine: isMyBooking,
                 date: booking.date,
                 startTime: booking.startTime,
                 endTime: booking.endTime
               };
             }
-            return { ...locker, selected: false, isMine: false, date: "", startTime: "", endTime: "" };
+            return { ...locker, status: 'available', selected: false, isMine: false, date: '', startTime: '', endTime: '' };
           })
         );
       } catch (error) {
-        console.error("Error fetching bookings:", error);
+        console.error("Error fetching locker data:", error);
       }
     };
     if (map && map._id) {
-      fetchBookings();
+      fetchData();
     }
   }, [map, map._id]);
 
@@ -75,6 +98,12 @@ const MapDisplay = ({ map }) => {
     console.log("🔍 Debug - Locker clicked:", id);
     const locker = lockers.find(l => l.id === id);
     console.log("🔍 Debug - Locker found:", locker);
+
+    // Prevent booking of maintenance lockers
+    if (locker.status === 'maintenance') {
+      showAlert('error', 'This locker is blocked for maintenance and cannot be booked.', 'Maintenance Block');
+      return;
+    }
 
     if (locker.selected) {
       if (!locker.isMine) {
@@ -229,10 +258,14 @@ const MapDisplay = ({ map }) => {
         prev.map((locker) => {
           const booking = bookings.find(b => b.lockerId === locker.id);
           if (booking) {
+            // Handle different formats of studentId (string, ObjectId, or nested object)
+            const bookingStudentId = typeof booking.studentId === 'object' && booking.studentId._id ? booking.studentId._id.toString() : booking.studentId?.toString?.() || booking.studentId;
+            const studentInfoId = studentInfo._id?.toString?.() || studentInfo._id;
+            const isMyBooking = bookingStudentId === studentInfoId || bookingStudentId === studentInfo._id;
             return {
               ...locker,
               selected: true,
-              isMine: booking.studentId === studentInfo._id,
+              isMine: isMyBooking,
               date: booking.date,
               startTime: booking.startTime,
               endTime: booking.endTime
@@ -268,68 +301,100 @@ const MapDisplay = ({ map }) => {
   };
 
   return (
-    <div className="mb-10 w-full flex flex-col items-center overflow-x-auto mt-10 relative">
-      <div className="flex flex-col items-stretch w-max">
-        <h2 className="text-2xl font-bold mb-6 text-white bg-[oklch(48.8%_0.243_264.376)] bg-gradient-to-r from-white/80 via-transparent to-white/80 px-8 py-3 rounded-xl shadow-md tracking-wide text-center border border-white/20">
-          {locationName}
-        </h2>
-        <div className="bg-blue-100 border-2 border-blue-300 p-7 rounded-2xl shadow-xl w-full">
-          <div
-            className="grid gap-4 mx-auto w-max"
-            style={{ gridTemplateColumns: `repeat(${lockersPerRow}, minmax(0, 1fr))` }}
-          >
-            {lockers.map((locker) => (
-              <button
-                key={locker.id}
-                onClick={() => handleSelect(locker.id)}
-                className={`w-16 h-16 rounded-lg text-white font-semibold transition-all duration-300 hover:scale-110 hover:-translate-y-1 flex flex-col items-center justify-center relative
-                ${!locker.selected
-                    ? "bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600 shadow-lg shadow-gray-500/50 hover:from-gray-300 hover:via-gray-400 hover:to-gray-500"
-                    : locker.isMine
-                      ? "bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 shadow-lg shadow-blue-500/50 ring-2 ring-blue-300 ring-offset-2"
-                      : "bg-gradient-to-br from-red-500 via-red-600 to-red-700 shadow-lg shadow-red-500/50 opacity-90 cursor-not-allowed"
-                  }
-              `}
-                style={{
-                  boxShadow: !locker.selected
-                    ? '0 10px 25px -5px rgba(107, 114, 128, 0.5), 0 8px 10px -6px rgba(107, 114, 128, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)'
-                    : locker.isMine
-                      ? '0 10px 25px -5px rgba(59, 130, 246, 0.5), 0 8px 10px -6px rgba(59, 130, 246, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)'
-                      : '0 10px 25px -5px rgba(239, 68, 68, 0.5), 0 8px 10px -6px rgba(239, 68, 68, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)'
-                }}
-                title={locker.selected ? (locker.isMine ? `Your Booking\nDate: ${locker.date}\nFrom: ${locker.startTime}\nTo: ${locker.endTime}` : "Booked by another student") : "Available"}
-              >
-                <span className="text-xl font-bold drop-shadow-sm">{locker.id}</span>
-                {locker.selected && (
-                  <span className="text-[10px] mt-1 opacity-90 font-semibold leading-tight drop-shadow-sm">Booked</span>
-                )}
-                {/* 3D highlight effect */}
-                <div className="absolute inset-0 rounded-lg bg-gradient-to-tr from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-              </button>
-            ))}
-          </div>
-        </div>
+    <div className="w-full">
+      {/* ── Locker Grid ── */}
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-6 2xl:grid-cols-6 gap-6">
+        {lockers.map((locker) => {
+          const getCardStyle = () => {
+            if (locker.status === 'maintenance')
+              return {
+                card: 'border-yellow-200 bg-yellow-50/80 shadow-yellow-100',
+                badge: 'bg-yellow-100 text-yellow-800 border border-yellow-300',
+                icon: '',
+                label: 'Maintenance',
+                glow: ''
+              };
+            if (locker.selected)
+              return {
+                card: locker.isMine
+                  ? 'border-blue-200 bg-blue-50/80 shadow-blue-100'
+                  : 'border-red-200 bg-red-50/80 shadow-red-100',
+                badge: locker.isMine
+                  ? 'bg-blue-100 text-blue-800 border border-blue-300'
+                  : 'bg-red-100 text-red-700 border border-red-300',
+                icon: '',
+                label: locker.isMine ? 'My Booking' : 'Booked',
+                glow: ''
+              };
+            return {
+              card: 'border-blue-200 bg-blue-50/80 shadow-blue-100',
+              badge: 'bg-blue-100 text-blue-700 border border-blue-300',
+              icon: '',
+              label: 'Available',
+              glow: ''
+            };
+          };
 
-        {/* Color Legend */}
-        <div className="flex justify-center flex-wrap gap-4 md:gap-8 mt-6">
-          <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg shadow-md border border-gray-200">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600 shadow-lg shadow-gray-500/50"></div>
-            <span className="text-gray-700 font-medium">Available</span>
-          </div>
-          <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg shadow-md border border-gray-200">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 shadow-lg shadow-blue-500/50"></div>
-            <span className="text-gray-700 font-medium">My Booking</span>
-          </div>
-          <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg shadow-md border border-gray-200">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-red-500 via-red-600 to-red-700 shadow-lg shadow-red-500/50"></div>
-            <span className="text-gray-700 font-medium">Booked</span>
-          </div>
-        </div>
+          const style = getCardStyle();
+
+          return (
+            <div
+              key={locker.id}
+              className={`border-2 rounded-3xl p-6 transition-all duration-300 hover:scale-105 hover:-translate-y-1 ${style.card} ${style.glow} flex flex-col gap-3 min-h-50`}
+            >
+              {/* Locker ID + status badge */}
+              <div className="flex items-start justify-between">
+                <h3 className="text-2xl font-black text-slate-800">{locker.id}</h3>
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${style.badge} flex items-center gap-1`}>
+                  <span>{style.icon}</span>
+                  {style.label}
+                </span>
+              </div>
+
+              {/* Booking details */}
+              {locker.selected && locker.isMine && (
+                <div className="text-sm text-blue-700 bg-blue-100 rounded-lg px-2 py-1 leading-snug">
+                  <div>Date: {locker.date}</div>
+                  <div>Time: {locker.startTime} - {locker.endTime}</div>
+                </div>
+              )}
+
+              {/* Action button */}
+              <div className="mt-auto">
+                {locker.status === 'maintenance' ? (
+                  <button disabled className="w-full py-3 rounded-xl bg-slate-200 text-slate-400 text-sm font-bold cursor-not-allowed flex items-center justify-center gap-1">
+                    Maintenance
+                  </button>
+                ) : locker.selected ? (
+                  locker.isMine ? (
+                    <button
+                      onClick={() => handleSelect(locker.id)}
+                      className="w-full py-3 rounded-xl bg-linear-to-r from-red-500 to-rose-600 text-white text-sm font-bold hover:from-red-600 hover:to-rose-700 transition-all duration-300 hover:scale-105 shadow-md shadow-red-300/40 flex items-center justify-center gap-1"
+                    >
+                      Cancel Booking
+                    </button>
+                  ) : (
+                    <button disabled className="w-full py-3 rounded-xl bg-slate-200 text-slate-400 text-sm font-bold cursor-not-allowed flex items-center justify-center gap-1">
+                      Booked
+                    </button>
+                  )
+                ) : (
+                  <button
+                    onClick={() => handleSelect(locker.id)}
+                    className="w-full py-3 rounded-xl bg-linear-to-r from-blue-500 to-blue-500 text-white text-sm font-bold hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 hover:scale-105 shadow-md shadow-blue-300/40 flex items-center justify-center gap-1"
+                  >
+                    Book Locker
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Booking Modal (Transparent Overlay) */}
       {selectedLockerForBooking && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white/90 p-8 rounded-2xl shadow-2xl w-full max-w-sm border-2 border-blue-500 backdrop-blur-md">
             <h3 className="text-2xl font-bold mb-6 text-gray-800 text-center">
               Book Locker {selectedLockerForBooking}
@@ -377,7 +442,7 @@ const MapDisplay = ({ map }) => {
             <div className="flex justify-between gap-4 mt-2">
               <button
                 onClick={confirmBooking}
-                className="flex-1 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold py-3 rounded-lg hover:opacity-90 transition shadow hover:shadow-lg"
+                className="flex-1 bg-blue-500 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition shadow hover:shadow-lg"
               >
                 Confirm
               </button>

@@ -3,13 +3,25 @@ import mongoose from "mongoose";
 import dotenv from 'dotenv';
 import { applyMiddleware } from "./middleware/appMiddleware.js";
 import lockerRoutes from "./routes/lockerRoutes.js";
+import lockerMaintenanceRoutes from "./routes/lockerMaintenanceRoutes.js";
 import parkingRoutes from "./routes/parkingRoutes.js";
 import securityRoutes from "./routes/securityRoutes.js";
 import studentRoutes from "./routes/studentRoutes.js";
 import { applyErrorMiddleware } from "./middleware/errorMiddleware.js";
 import { startLockerCleanupJob } from "./services/lockerCleanupService.js";
 
-dotenv.config();
+// Import models to ensure they're registered with mongoose
+import Student from "./models/Student.js";
+import ParkingSpot from "./models/ParkingSpot.js";
+import SecurityStaff from "./models/SecurityStaff.js";
+
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 
@@ -18,9 +30,13 @@ applyMiddleware(app);
 
 // Routes
 app.use("/api/locker", lockerRoutes);
+app.use("/api/lockers", lockerMaintenanceRoutes);
 app.use("/api/parking", parkingRoutes);
 app.use("/api/security", securityRoutes);
 app.use("/api/students", studentRoutes);
+
+
+
 
 // Simple Route
 app.get("/", (req, res) => {

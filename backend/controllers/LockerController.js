@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import LockerMap from "../models/LockerM/LockerModel.js";
 import LockerBooking from "../models/LockerM/BookingModel.js";
+import Locker from "../models/LockerM/Locker.js";
+import Student from "../models/Student.js";
 
 // Helper to expire outdated bookings strictly
 export const expireOldBookings = async () => {
@@ -113,6 +115,13 @@ export const createBooking = async (req, res, next) => {
       return res.status(400).json({ message: "Locker is already booked and active." });
     }
 
+    // Check if locker is under maintenance
+    const locker = await Locker.findOne({ id: lockerId, mapId });
+    if (locker && locker.status === 'maintenance') {
+      console.log("❌ Backend Debug - Locker under maintenance:", locker);
+      return res.status(400).json({ message: "Locker is under maintenance and cannot be booked." });
+    }
+
     // Check if student already has a booking
     console.log("🔍 Backend Debug - Checking existing booking for student:", studentId);
     const studentBooking = await LockerBooking.findOne({ studentId, status: "active" });
@@ -144,11 +153,40 @@ export const createBooking = async (req, res, next) => {
   }
 };
 
+const hydrateStudentInfo = async (booking) => {
+  const bookingObj = booking.toObject ? booking.toObject() : { ...booking };
+  let student = null;
+
+  if (bookingObj.studentId) {
+    if (typeof bookingObj.studentId === "object") {
+      if (bookingObj.studentId.name) {
+        student = bookingObj.studentId;
+      } else if (bookingObj.studentId._id && mongoose.Types.ObjectId.isValid(bookingObj.studentId._id)) {
+        student = await Student.findById(bookingObj.studentId._id).select("name studentId email faculty").lean();
+      }
+    } else {
+      const studentIdValue = String(bookingObj.studentId);
+      if (mongoose.Types.ObjectId.isValid(studentIdValue)) {
+        student = await Student.findById(studentIdValue).select("name studentId email faculty").lean();
+      }
+    }
+  }
+
+  bookingObj.student = student || null;
+  return bookingObj;
+};
+
 // Get bookings for a map
 export const getBookingsByMap = async (req, res, next) => {
   try {
     await expireOldBookings(); // Clean on fetch
-    const bookings = await LockerBooking.find({ mapId: req.params.mapId, status: "active" });
+    const rawBookings = await LockerBooking.find({ mapId: req.params.mapId, status: "active" })
+      .populate({
+        path: "studentId",
+        select: "name studentId email faculty",
+        model: "Student"
+      });
+    const bookings = await Promise.all(rawBookings.map(hydrateStudentInfo));
     res.json(bookings);
   } catch (error) {
     next(error);
@@ -188,9 +226,17 @@ export const getStudentCurrentBooking = async (req, res, next) => {
 export const getAllBookings = async (req, res, next) => {
   try {
     console.log("🔍 Debug - Fetching all bookings from database");
-    const allBookings = await LockerBooking.find({});
+    const rawBookings = await LockerBooking.find({})
+      .populate({
+        path: "studentId",
+        select: "name studentId email faculty",
+        model: "Student"
+      })
+      .sort({ createdAt: -1 }); // Sort by newest first
+    const allBookings = await Promise.all(rawBookings.map(hydrateStudentInfo));
     console.log("🔍 Debug - Total bookings found:", allBookings.length);
-    console.log("🔍 Debug - All bookings:", allBookings);
+    console.log("🔍 Debug - Sample booking with student data:", JSON.stringify(allBookings[0], null, 2));
+    console.log("🔍 Debug - Student model registered:", !!mongoose.models.Student);
     res.json(allBookings);
   } catch (error) {
     console.error("❌ Debug - Error fetching all bookings:", error);
