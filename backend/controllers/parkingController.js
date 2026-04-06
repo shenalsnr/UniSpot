@@ -62,6 +62,12 @@ export const reserveParkingSpot = async (req, res, next) => {
         .json({ success: false, message: "Parking spot not found" });
     }
 
+    if (spot.isUnderMaintenance) {
+      return res
+        .status(400)
+        .json({ success: false, message: "This parking slot is currently under maintenance" });
+    }
+
     // Single active booking check
     const userId = req.body.userId || 'Anonymous';
     if (userId !== 'Anonymous') {
@@ -116,11 +122,16 @@ export const releaseParkingSpot = async (req, res, next) => {
         .json({ success: false, message: "Parking spot not found" });
     }
 
+    // Clear occupied fields
     spot.isOccupied = false;
     spot.reservedBy = null;
     spot.bookingDate = null;
     spot.arrivalTime = null;
     spot.leavingTime = null;
+    spot.vehicleNumber = null;
+
+    // Clear maintenance state if applicable
+    spot.isUnderMaintenance = false;
 
     const updatedSpot = await spot.save();
     res.status(200).json({ success: true, data: updatedSpot });
@@ -243,6 +254,31 @@ export const cancelParkingSpot = async (req, res, next) => {
 
     const updatedSpot = await spot.save();
     res.status(200).json({ success: true, data: updatedSpot, status: 'cancelled' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const toggleMaintenance = async (req, res, next) => {
+  try {
+    const spot = await ParkingSpot.findById(req.params.id);
+
+    if (!spot) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Parking spot not found" });
+    }
+
+    if (spot.isOccupied) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Cannot maintain an occupied spot. Release it first." });
+    }
+
+    spot.isUnderMaintenance = !spot.isUnderMaintenance;
+
+    const updatedSpot = await spot.save();
+    res.status(200).json({ success: true, data: updatedSpot });
   } catch (error) {
     next(error);
   }

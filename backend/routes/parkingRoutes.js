@@ -9,7 +9,8 @@ import {
   updateParkingSpot,
   getMyActiveBooking,
   getActiveBookingByStudent,
-  cancelParkingSpot
+  cancelParkingSpot,
+  toggleMaintenance
 } from "../controllers/parkingController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -39,6 +40,10 @@ router.route("/:id/release")
 // Route to cancel a specific parking spot booking (student side)
 router.route("/:id/cancel")
   .put(cancelParkingSpot);
+
+// Route to toggle maintenance status for a specific spot
+router.route("/:id/maintain")
+  .put(toggleMaintenance);
 
 // Route to get, update and delete a specific parking spot
 router.route("/:id")

@@ -43,7 +43,7 @@ const ParkingMap = () => {
   }, [spots, selectedZone]);
 
   const handleSpotSelect = (spot) => {
-    if (spot.isOccupied) return;
+    if (spot.isOccupied || spot.isUnderMaintenance) return;
     navigate(`/parking/book/${spot._id}`, { state: { spot } });
   };
 
@@ -99,8 +99,12 @@ const ParkingMap = () => {
             Available
           </div>
           <div className="flex items-center">
-            <div className="w-4 h-4 rounded bg-gray-300 mr-2 shadow-sm"></div>
+            <div className="w-4 h-4 rounded bg-green-500 mr-2 shadow-sm"></div>
             Occupied
+          </div>
+          <div className="flex items-center">
+            <div className="w-4 h-4 rounded bg-red-500 mr-2 shadow-sm"></div>
+            Maintenance
           </div>
         </div>
 
@@ -127,24 +131,33 @@ const ParkingMap = () => {
                   className={`
                     relative h-32 rounded-xl flex flex-col items-center justify-center transition-all duration-200 border-2
                     ${
-                      spot.isOccupied
-                        ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed opacity-70"
+                      spot.isUnderMaintenance
+                        ? "bg-red-50 border-red-200 text-red-700 cursor-not-allowed opacity-80"
+                        : spot.isOccupied
+                        ? "bg-green-50 border-green-200 text-green-700 cursor-not-allowed opacity-80"
                         : "bg-blue-50 border-blue-200 text-blue-700 cursor-pointer hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:shadow-lg hover:-translate-y-1"
                     }
                   `}
+                  title={spot.isUnderMaintenance ? "This slot is under maintenance" : ""}
                 >
                   <span className="text-2xl font-black">{spot.slotNumber}</span>
                   <span className="text-xs font-semibold uppercase tracking-wider mt-1 opacity-80">
                     {spot.zone}
                   </span>
 
-                  {spot.isOccupied && (
-                    <div className="absolute inset-0 bg-gray-200/50 backdrop-blur-[1px] rounded-lg flex items-center justify-center">
-                      <span className="bg-gray-800 text-white text-[10px] px-2 py-1 flex rounded-md font-bold uppercase tracking-wider">
-                        Reserved
+                  {spot.isUnderMaintenance ? (
+                    <div className="absolute inset-0 bg-red-200/40 backdrop-blur-[1px] rounded-lg flex items-center justify-center">
+                      <span className="bg-red-700 text-white text-[10px] px-2 py-1 flex rounded-md font-bold uppercase tracking-wider shadow-sm">
+                        Maintenance
                       </span>
                     </div>
-                  )}
+                  ) : spot.isOccupied ? (
+                    <div className="absolute inset-0 bg-green-200/50 backdrop-blur-[1px] rounded-lg flex items-center justify-center">
+                      <span className="bg-green-800 text-white text-[10px] px-2 py-1 flex rounded-md font-bold uppercase tracking-wider">
+                        Occupied
+                      </span>
+                    </div>
+                  ) : null}
                 </div>
               ))}
             </div>
