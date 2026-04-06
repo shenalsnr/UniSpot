@@ -98,7 +98,7 @@ const BookLockersStatus = () => {
             {/* Booking Statistics */}
             <div className="bg-white rounded-3xl shadow-xl p-8 mb-6 border border-slate-200/60">
               <h3 className="text-2xl font-bold text-slate-900 mb-5">Booking Statistics</h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-blue-50/90 rounded-3xl p-5 border border-blue-100 shadow-sm">
                   <div className="text-2xl font-black text-blue-700">{filteredBookings.length}</div>
                   <div className="text-sm text-blue-800 mt-2">
@@ -116,16 +116,6 @@ const BookLockersStatus = () => {
                     {filteredBookings.filter(b => b.status !== 'active').length}
                   </div>
                   <div className="text-sm text-red-800 mt-2">Expired Bookings</div>
-                </div>
-                <div className="bg-purple-50/90 rounded-3xl p-5 border border-purple-100 shadow-sm">
-                  <div className="text-2xl font-black text-purple-700">
-                    {new Set(
-                      filteredBookings
-                        .map((b) => b.student?.studentId || (typeof b.studentId === 'object' ? b.studentId.studentId : b.studentId))
-                        .filter(Boolean)
-                    ).size}
-                  </div>
-                  <div className="text-sm text-purple-800 mt-2">Unique Students</div>
                 </div>
               </div>
             </div>
