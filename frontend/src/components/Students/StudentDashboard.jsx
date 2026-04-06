@@ -74,7 +74,7 @@ const StudentDashboard = () => {
               <Link to="/parking/zones" className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 text-white shadow-lg shadow-blue-900/40 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl border border-blue-400">
                 Book Parking Slot
               </Link>
-              <Link to="/parking/my-booking" className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-white text-blue-700 shadow-lg shadow-blue-900/20 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl border border-blue-200">
+              <Link to="/parking/my-booking" className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 text-white shadow-lg shadow-blue-900/40 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl border border-blue-400">
                 My Parking Booking
               </Link>
             </div>
