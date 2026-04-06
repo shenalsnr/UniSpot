@@ -14,6 +14,11 @@ const parkingSpotSchema = new mongoose.Schema(
       default: false,
     },
 
+    isUnderMaintenance: {
+      type: Boolean,
+      default: false,
+    },
+
     reservedBy: {
       type: String,
       default: null,

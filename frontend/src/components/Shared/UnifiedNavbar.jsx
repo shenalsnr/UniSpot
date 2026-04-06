@@ -1,13 +1,18 @@
 import { Link, useLocation } from "react-router-dom";
 import logo from "../../assets/logo.png";
 
-const UnifiedNavbar = ({ title = "", moduleName, links = [], rightActions, centerModule = false }) => {
+const UnifiedNavbar = ({ title = "", moduleName, links = [], leftActions, rightActions, centerModule = false }) => {
   const location = useLocation();
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-[oklch(48.8%_0.243_264.376)] bg-gradient-to-r from-blue-600/95 via-blue-500/95 to-blue-600/95 border-b border-white/30 shadow-2xl px-4 md:px-8 py-3 md:py-4 flex justify-between items-center transition-all relative backdrop-blur-sm">
       {/* Left Area: Logo and Module Name */}
       <div className="flex items-center gap-4">
+        {leftActions && (
+          <div className="flex items-center">
+            {leftActions}
+          </div>
+        )}
         <div className="flex items-center gap-3 bg-gradient-to-r from-white/90 via-white/95 to-white/90 backdrop-blur-sm rounded-full px-6 py-3 border border-white/30 shadow-lg">
           <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-all duration-300 group">
             <div className="relative">

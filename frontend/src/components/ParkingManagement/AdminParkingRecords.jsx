@@ -109,7 +109,7 @@ const AdminParkingRecords = () => {
     try {
       const res = await fetch(`http://localhost:5000/api/parking/${spotId}/release`, { method: 'PUT' });
       if (res.ok) {
-         setSpots(spots.map(s => s._id === spotId ? { ...s, isOccupied: false, reservedBy: null } : s));
+         setSpots(spots.map(s => s._id === spotId ? { ...s, isOccupied: false, isUnderMaintenance: false, reservedBy: null, bookingDate: null, arrivalTime: null, leavingTime: null, vehicleNumber: null } : s));
       } else {
          const errorData = await res.json();
         showAlert('error', errorData.message || 'Failed to release spot.');
@@ -130,6 +130,33 @@ const AdminParkingRecords = () => {
       }
     } catch (err) {
         showAlert('error', 'Server connection failed.');
+    }
+  };
+
+  const handleMaintainSpot = async (spot, e) => {
+    e.stopPropagation();
+    if (spot.isOccupied) {
+      showAlert('error', 'Cannot enter maintenance when a spot is occupied. Release it first or wait until booking expires.');
+      return;
+    }
+    if (spot.isUnderMaintenance) {
+      return; // Already under maintenance, must be released via 'Release' button
+    }
+    
+    const action = 'mark maintenance for';
+    if (!window.confirm(`Are you sure you want to ${action} this spot?`)) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/parking/${spot._id}/maintain`, { method: 'PUT' });
+      if (res.ok) {
+         setSpots(spots.map(s => s._id === spot._id ? { ...s, isUnderMaintenance: !s.isUnderMaintenance } : s));
+         showAlert('success', `Status updated successfully.`);
+      } else {
+         const errorData = await res.json();
+         showAlert('error', errorData.message || 'Failed to update maintenance status.');
+      }
+    } catch (err) {
+        showAlert('error', 'Server connection failed. Is backend running?');
     }
   };
 
@@ -264,13 +291,17 @@ const AdminParkingRecords = () => {
                         </span>
                       </td>
                       <td className="py-5 px-6">
-                        {spot.isOccupied ? (
+                        {spot.isUnderMaintenance ? (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">
-                            <span className="w-2 h-2 rounded-full bg-red-500"></span> Occupied
+                            <span className="w-2 h-2 rounded-full bg-red-500"></span> Maintenance
+                          </span>
+                        ) : spot.isOccupied ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
+                            <span className="w-2 h-2 rounded-full bg-green-500"></span> Occupied
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Available
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
+                            <span className="w-2 h-2 rounded-full bg-blue-500"></span> Available
                           </span>
                         )}
                       </td>
@@ -279,11 +310,12 @@ const AdminParkingRecords = () => {
                       </td>
                       <td className="py-5 px-6 text-center space-x-3">
                         <button 
-                          onClick={(e) => { e.stopPropagation(); handleViewClick(spot); }}
-                          className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 px-3 py-1.5 rounded text-sm font-bold transition-colors"
-                          title="View Details"
+                          onClick={(e) => handleMaintainSpot(spot, e)}
+                          className={`${spot.isOccupied || spot.isUnderMaintenance ? 'text-gray-300 cursor-not-allowed' : 'text-purple-500 hover:text-purple-700 hover:bg-purple-100'} px-3 py-1.5 rounded text-sm font-bold transition-colors`}
+                          title={spot.isUnderMaintenance ? "Use Release action to unmark maintenance" : "Mark as Maintenance"}
+                          disabled={spot.isOccupied || spot.isUnderMaintenance}
                         >
-                          View
+                          Maintain
                         </button>
                         <button 
                           onClick={(e) => handleEditClick(spot, e)}
@@ -292,11 +324,11 @@ const AdminParkingRecords = () => {
                         >
                           Edit
                         </button>
-                        {spot.isOccupied ? (
+                        {spot.isOccupied || spot.isUnderMaintenance ? (
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleDeleteOrRelease(spot._id); }}
                             className="text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded text-sm font-bold transition-colors"
-                            title="Force Release Spot"
+                            title="Release Spot"
                           >
                             Release
                           </button>
@@ -390,9 +422,9 @@ const AdminParkingRecords = () => {
                   <p className="font-mono text-sm text-gray-800">{selectedSpot._id}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400 font-bold uppercase">Created Date</p>
+                  <p className="text-xs text-gray-400 font-bold uppercase">Booked Date & Time</p>
                   <p className="font-medium text-gray-800">
-                    {selectedSpot.createdAt ? new Date(selectedSpot.createdAt).toLocaleString() : 'N/A'}
+                    {selectedSpot.bookingDate ? new Date(selectedSpot.bookingDate).toLocaleString() : 'N/A'}
                   </p>
                 </div>
               </div>
@@ -414,10 +446,12 @@ const AdminParkingRecords = () => {
                 <div>
                   <p className="text-xs text-gray-400 font-bold uppercase">Status</p>
                   <p className="font-medium">
-                    {selectedSpot.isOccupied ? (
-                      <span className="text-red-600 font-bold">Occupied</span>
+                    {selectedSpot.isUnderMaintenance ? (
+                      <span className="text-red-600 font-bold">Maintenance</span>
+                    ) : selectedSpot.isOccupied ? (
+                      <span className="text-green-600 font-bold">Occupied</span>
                     ) : (
-                      <span className="text-emerald-600 font-bold">Available</span>
+                      <span className="text-blue-600 font-bold">Available</span>
                     )}
                   </p>
                 </div>
