@@ -5,6 +5,8 @@ import { showAlert } from "../../components/Shared/BeautifulAlert";
 const AdminParkingRecords = () => {
   const [spots, setSpots] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState('All');
   const [showModal, setShowModal] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -212,6 +214,28 @@ const AdminParkingRecords = () => {
     setViewModalOpen(false);
   };
 
+  const filteredSpots = spots.filter(spot => {
+    // Search query matching
+    const searchLower = searchQuery.toLowerCase();
+    const statusText = spot.isUnderMaintenance 
+      ? 'maintenance' 
+      : (spot.isOccupied ? 'occupied' : 'available');
+    
+    const matchesSearch = 
+      (spot.slotNumber || '').toLowerCase().includes(searchLower) ||
+      (spot.zone || '').toLowerCase().includes(searchLower) ||
+      statusText.includes(searchLower) ||
+      (spot.reservedBy || '').toLowerCase().includes(searchLower);
+
+    // Filter dropdown matching
+    let matchesFilter = true;
+    if (filterStatus === 'Available') matchesFilter = !spot.isOccupied && !spot.isUnderMaintenance;
+    if (filterStatus === 'Occupied') matchesFilter = spot.isOccupied;
+    if (filterStatus === 'Maintenance') matchesFilter = spot.isUnderMaintenance;
+
+    return matchesSearch && matchesFilter;
+  });
+
   const handleUpdateSpot = async (e) => {
     e.preventDefault();
     if (editForm.arrivalTime && editForm.leavingTime) {
@@ -255,14 +279,42 @@ const AdminParkingRecords = () => {
         </div>
 
         <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100">
-          <div className="p-6 border-b border-gray-100 bg-blue-50/40 flex justify-between items-center">
-            <h2 className="text-xl font-bold text-blue-900">System Records</h2>
-            <button 
-              onClick={openAddModal}
-              className="bg-white text-blue-600 border border-blue-200 px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-[oklch(48.8%_0.243_264.376)] hover:text-white transition-colors"
-            >
-              + Add New Spot
-            </button>
+          <div className="p-6 border-b border-gray-100 bg-blue-50/40">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+              <h2 className="text-xl font-bold text-blue-900">System Records</h2>
+              <button 
+                onClick={openAddModal}
+                className="bg-white text-blue-600 border border-blue-200 px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-[oklch(48.8%_0.243_264.376)] hover:text-white transition-colors whitespace-nowrap"
+              >
+                + Add New Spot
+              </button>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 mt-5">
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search by Spot ID, Zone, Status, or Student ID..."
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[oklch(48.8%_0.243_264.376)] text-sm font-medium"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <select 
+                className="border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-bold bg-white focus:outline-none focus:ring-2 focus:ring-[oklch(48.8%_0.243_264.376)] text-gray-700 min-w-[150px]"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+              >
+                <option value="All">All Statuses</option>
+                <option value="Available">Available</option>
+                <option value="Occupied">Occupied</option>
+                <option value="Maintenance">Maintenance</option>
+              </select>
+            </div>
           </div>
           
           <div className="overflow-x-auto">
@@ -280,7 +332,7 @@ const AdminParkingRecords = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {spots.map((spot) => (
+                  {filteredSpots.map((spot) => (
                     <tr key={spot._id} onClick={() => handleViewClick(spot)} className="hover:bg-blue-50/60 transition-colors duration-150 cursor-pointer">
                       <td className="py-5 px-6 font-bold text-blue-900 text-lg">
                         {spot.slotNumber}
@@ -348,6 +400,13 @@ const AdminParkingRecords = () => {
                     <tr>
                       <td colSpan="5" className="py-16 text-center text-gray-400 font-semibold text-lg">
                         No database records found.
+                      </td>
+                    </tr>
+                  )}
+                  {spots.length > 0 && filteredSpots.length === 0 && (
+                    <tr>
+                      <td colSpan="5" className="py-16 text-center text-gray-400 font-semibold text-lg">
+                        No parking records found.
                       </td>
                     </tr>
                   )}
