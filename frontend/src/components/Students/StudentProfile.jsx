@@ -205,6 +205,28 @@ const StudentProfile = () => {
     }
   };
 
+  const deleteProfileHandler = async () => {
+    const confirmed = window.confirm(
+      "⚠️ WARNING: This will permanently delete your profile and all associated data. This action cannot be undone. Are you sure?"
+    );
+
+    if (!confirmed) return;
+
+    const doubleConfirm = window.confirm(
+      "This is your last chance! Your profile will be permanently deleted. Continue?"
+    );
+
+    if (!doubleConfirm) return;
+
+    try {
+      await studentApi.delete("/students/profile");
+      localStorage.removeItem("studentInfo");
+      window.location.href = "/";
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to delete profile");
+    }
+  };
+
   const downloadQrHandler = () => {
     if (!student?.qrCode) return;
 
@@ -239,224 +261,304 @@ const StudentProfile = () => {
     <>
       <StudentNavbar />
 
-      <PageBackground className="p-4 md:p-8 md:px-12 lg:px-24">
-        <div className="mb-6 relative z-10">
-          <h1 className="m-0 text-3xl md:text-4xl text-white font-extrabold tracking-tight drop-shadow-md">
+      <PageBackground className="p-4 md:p-8 md:px-12 lg:px-24 min-h-screen">
+        <div className="mb-8 relative z-10 p-6 md:p-8 rounded-2xl bg-black/40 border-2 border-cyan-400/80 backdrop-blur-xl shadow-2xl shadow-cyan-500/40">
+          <div className="inline-block mb-4 px-4 py-2 rounded-full bg-black/80 border border-cyan-400/60 backdrop-blur-lg">
+            <p className="m-0 text-xs font-bold uppercase tracking-widest text-cyan-300 drop-shadow-lg">
+              ⚡ Student Dashboard
+            </p>
+          </div>
+          <h1 className="m-0 text-4xl md:text-5xl text-cyan-400 font-extrabold tracking-tight drop-shadow-lg" style={{textShadow: '0 0 10px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3)'}}>
             My Profile
           </h1>
-          <p className="mt-2 text-blue-50 font-medium text-lg drop-shadow-sm">
-            Update your profile details and manage your vehicle information.
+          <p className="mt-4 text-cyan-200 font-medium text-base max-w-2xl drop-shadow-lg">
+            📝 Manage your personal information, vehicle details, and security credentials
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6">
-          <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-            <h2 className="mt-0 mb-5 text-slate-900 text-xl font-bold">Profile Details</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-6">
+          {/* Profile Details Card */}
+          <div className="p-7 bg-gradient-to-br from-blue-50/95 to-indigo-50/95 backdrop-blur-xl border border-blue-200/60 rounded-2xl shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-blue-300/80 group">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                <span className="text-white text-lg">👤</span>
+              </div>
+              <h2 className="m-0 text-slate-900 text-xl font-extrabold">Profile Details</h2>
+            </div>
 
             {profileMessage && (
-              <p className="bg-green-100 text-green-800 px-4 py-3 rounded-xl font-semibold mb-4 text-center text-sm">
-                {profileMessage}
+              <p className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 px-4 py-3 rounded-xl font-semibold mb-4 text-center text-sm border border-green-300/50 shadow-md">
+                ✅ {profileMessage}
               </p>
             )}
 
             {photoError && (
-              <p className="bg-red-100 text-red-700 px-4 py-3 rounded-xl font-semibold mb-4 text-center text-sm">
-                {photoError}
+              <p className="bg-gradient-to-r from-red-100 to-pink-100 text-red-700 px-4 py-3 rounded-xl font-semibold mb-4 text-center text-sm border border-red-300/50 shadow-md">
+                ⚠️ {photoError}
               </p>
             )}
 
             <form className="flex flex-col gap-4" onSubmit={updateProfileHandler}>
-              <input
-                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
-                type="text"
-                name="name"
-                value={profileData.name}
-                onChange={profileChangeHandler}
-                placeholder="Name"
-              />
-              <input
-                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
-                type="text"
-                name="phone"
-                value={profileData.phone}
-                onChange={profileChangeHandler}
-                placeholder="Phone"
-              />
-              <input
-                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
-                type="text"
-                name="address"
-                value={profileData.address}
-                onChange={profileChangeHandler}
-                placeholder="Address"
-              />
-              <input
-                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
-                type="text"
-                name="faculty"
-                value={profileData.faculty}
-                onChange={profileChangeHandler}
-                placeholder="Faculty"
-              />
-              <input
-                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
-                type="email"
-                name="email"
-                value={profileData.email}
-                onChange={profileChangeHandler}
-                placeholder="Email"
-              />
+              {/* Name Input */}
+              <div className="group">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">Full Name</label>
+                <input
+                  className="w-full px-4 py-3 rounded-xl border-2 border-blue-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-blue-50 focus:ring-4 focus:ring-blue-500/20 group-hover:border-blue-300"
+                  type="text"
+                  name="name"
+                  value={profileData.name}
+                  onChange={profileChangeHandler}
+                  placeholder="Your full name"
+                />
+              </div>
 
-              <div className="rounded-2xl border border-blue-100 bg-blue-50/40 p-4">
-                <label className="block text-sm font-bold text-slate-700 mb-2">
-                  Change Photo
-                </label>
+              {/* Phone Input */}
+              <div className="group">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">📱 Phone</label>
+                <input
+                  className="w-full px-4 py-3 rounded-xl border-2 border-blue-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-blue-50 focus:ring-4 focus:ring-blue-500/20 group-hover:border-blue-300"
+                  type="text"
+                  name="phone"
+                  value={profileData.phone}
+                  onChange={profileChangeHandler}
+                  placeholder="Contact number"
+                />
+              </div>
+
+              {/* Address Input */}
+              <div className="group">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">🏠 Address</label>
+                <input
+                  className="w-full px-4 py-3 rounded-xl border-2 border-blue-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-blue-50 focus:ring-4 focus:ring-blue-500/20 group-hover:border-blue-300"
+                  type="text"
+                  name="address"
+                  value={profileData.address}
+                  onChange={profileChangeHandler}
+                  placeholder="Your address"
+                />
+              </div>
+
+              {/* Faculty Input */}
+              <div className="group">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">🎓 Faculty</label>
+                <input
+                  className="w-full px-4 py-3 rounded-xl border-2 border-blue-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-blue-50 focus:ring-4 focus:ring-blue-500/20 group-hover:border-blue-300"
+                  type="text"
+                  name="faculty"
+                  value={profileData.faculty}
+                  onChange={profileChangeHandler}
+                  placeholder="Your faculty"
+                />
+              </div>
+
+              {/* Email Input */}
+              <div className="group">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">📧 Email</label>
+                <input
+                  className="w-full px-4 py-3 rounded-xl border-2 border-blue-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-blue-50 focus:ring-4 focus:ring-blue-500/20 group-hover:border-blue-300"
+                  type="email"
+                  name="email"
+                  value={profileData.email}
+                  onChange={profileChangeHandler}
+                  placeholder="Your email"
+                />
+              </div>
+
+              {/* Photo Upload */}
+              <div className="rounded-xl border-2 border-dashed border-blue-300/60 bg-gradient-to-br from-blue-50/60 to-indigo-50/60 p-4 transition-all duration-200 hover:border-blue-400 hover:from-blue-50 hover:to-indigo-50">
+                <label className="block text-sm font-bold text-slate-700 mb-2.5">📸 Change Photo</label>
 
                 <input
                   key={fileInputKey}
-                  className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-white text-sm text-slate-900 outline-none"
+                  className="w-full px-4 py-2.5 rounded-lg border-2 border-blue-200 bg-white text-sm text-slate-900 outline-none transition-all cursor-pointer file:mr-3 file:rounded-full file:border-0 file:bg-gradient-to-r file:from-blue-500 file:to-indigo-600 file:text-white file:px-4 file:py-1.5 file:font-bold file:cursor-pointer hover:border-blue-400"
                   type="file"
                   name="photo"
                   accept="image/png,image/jpeg,image/jpg"
                   onChange={profileChangeHandler}
                 />
 
-                <p className="mt-2 text-xs text-slate-500">
-                  Allowed: JPG, JPEG, PNG | Maximum size: 5MB
+                <p className="mt-2 text-xs text-slate-500 font-medium">
+                  ✓ JPG, JPEG, PNG | Max: 5MB
                 </p>
 
                 {photoPreview && (
-                  <div className="mt-4 flex flex-col items-center gap-3">
+                  <div className="mt-4 flex flex-col items-center gap-3 p-4 bg-white/60 rounded-xl border border-blue-200/50">
                     <img
                       src={photoPreview}
                       alt="Student Preview"
-                      className="w-40 h-40 md:w-48 md:h-48 object-cover rounded-2xl mx-auto block border-4 border-white shadow-lg drop-shadow-sm"
+                      className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-xl border-3 border-white shadow-lg"
                     />
                     <button
                       type="button"
                       onClick={removeSelectedPhoto}
-                      className="px-4 py-2 rounded-xl bg-red-100 text-red-700 font-bold hover:bg-red-200 transition-all"
+                      className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-pink-600 text-white font-bold text-sm hover:shadow-lg transition-all hover:-translate-y-0.5"
                     >
-                      Remove Selected Change
+                      ✕ Remove
                     </button>
                   </div>
                 )}
               </div>
 
+              {/* Update Button */}
               <button
                 type="submit"
-                className="w-full mt-2 bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-blue-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/30 hover:opacity-90"
+                className="w-full mt-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/30 rounded-xl px-4 py-3.5 font-bold text-lg transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/50 active:scale-95 border border-blue-500/50"
               >
-                Update Profile
+                ✔ Update Profile
               </button>
             </form>
           </div>
 
-          <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-            <h2 className="mt-0 mb-5 text-slate-900 text-xl font-bold">Vehicle Details</h2>
+          {/* Vehicle Details Card */}
+          <div className="p-7 bg-gradient-to-br from-purple-50/95 to-pink-50/95 backdrop-blur-xl border border-purple-200/60 rounded-2xl shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-purple-300/80 group">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+                <span className="text-white text-lg">🚗</span>
+              </div>
+              <h2 className="m-0 text-slate-900 text-xl font-extrabold">Vehicle Details</h2>
+            </div>
 
             {vehicleMessage && (
-              <p className="bg-green-100 text-green-800 px-4 py-3 rounded-xl font-semibold mb-4 text-center text-sm">
-                {vehicleMessage}
+              <p className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 px-4 py-3 rounded-xl font-semibold mb-4 text-center text-sm border border-green-300/50 shadow-md">
+                ✅ {vehicleMessage}
               </p>
             )}
 
-            <div className="inline-block mb-4 px-4 py-2 rounded-full bg-gradient-to-br from-blue-100 to-blue-50 text-blue-700 text-sm font-bold border border-blue-200">
-              {student.vehicleRegistered ? "Vehicle Registered" : "No Vehicle Registered"}
+            <div className="inline-block mb-4 px-4 py-2 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 text-sm font-bold border border-purple-200/50 shadow-sm">
+              {student.vehicleRegistered ? "🚗 Vehicle Registered" : "❌ No Vehicle Registered"}
             </div>
 
-            <div className="mb-4 rounded-2xl border border-dashed border-blue-300 bg-blue-50/70 px-4 py-3">
-              <p className="m-0 text-xs font-bold uppercase tracking-wide text-blue-700 mb-1">
-                Live Vehicle Number Preview
+            <div className="mb-5 rounded-xl border-2 border-dashed border-purple-300/60 bg-gradient-to-br from-purple-50/60 to-pink-50/60 px-4 py-3 transition-all duration-200">
+              <p className="m-0 text-xs font-bold uppercase tracking-wider text-purple-700 mb-1.5">
+                📋 License Plate Preview
               </p>
-              <p className="m-0 text-lg font-extrabold tracking-[0.18em] text-slate-900">
+              <p className="m-0 text-2xl font-extrabold tracking-[0.2em] text-slate-900 font-mono drop-shadow">
                 {vehiclePreview}
               </p>
             </div>
 
             <form className="flex flex-col gap-4" onSubmit={saveVehicleHandler}>
-              <input
-                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
-                type="text"
-                name="model"
-                value={vehicleData.model}
-                onChange={vehicleChangeHandler}
-                placeholder="Vehicle Model"
-              />
-              <input
-                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
-                type="text"
-                name="color"
-                value={vehicleData.color}
-                onChange={vehicleChangeHandler}
-                placeholder="Vehicle Color"
-              />
-              <input
-                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
-                type="text"
-                name="regLetters"
-                value={vehicleData.regLetters}
-                onChange={vehicleChangeHandler}
-                placeholder="Letters (2-3)"
-                maxLength={3}
-              />
-              <input
-                className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
-                type="text"
-                name="regNumbers"
-                value={vehicleData.regNumbers}
-                onChange={vehicleChangeHandler}
-                placeholder="Numbers (4 digits)"
-                maxLength={4}
-              />
+              {/* Model Input */}
+              <div className="group">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">🏭 Vehicle Model</label>
+                <input
+                  className="w-full px-4 py-3 rounded-xl border-2 border-purple-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-purple-600 focus:bg-purple-50 focus:ring-4 focus:ring-purple-500/20 group-hover:border-purple-300"
+                  type="text"
+                  name="model"
+                  value={vehicleData.model}
+                  onChange={vehicleChangeHandler}
+                  placeholder="e.g., Toyota Prius"
+                />
+              </div>
+
+              {/* Color Input */}
+              <div className="group">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">🎨 Vehicle Color</label>
+                <input
+                  className="w-full px-4 py-3 rounded-xl border-2 border-purple-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-purple-600 focus:bg-purple-50 focus:ring-4 focus:ring-purple-500/20 group-hover:border-purple-300"
+                  type="text"
+                  name="color"
+                  value={vehicleData.color}
+                  onChange={vehicleChangeHandler}
+                  placeholder="e.g., Silver, Blue"
+                />
+              </div>
+
+              {/* Registration Letters */}
+              <div className="group">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">📝 Letter Plate</label>
+                <input
+                  className="w-full px-4 py-3 rounded-xl border-2 border-purple-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-purple-600 focus:bg-purple-50 focus:ring-4 focus:ring-purple-500/20 group-hover:border-purple-300 uppercase tracking-widest font-mono"
+                  type="text"
+                  name="regLetters"
+                  value={vehicleData.regLetters}
+                  onChange={vehicleChangeHandler}
+                  placeholder="e.g., ABC"
+                  maxLength={3}
+                />
+              </div>
+
+              {/* Registration Numbers */}
+              <div className="group">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">🔢 Number Plate</label>
+                <input
+                  className="w-full px-4 py-3 rounded-xl border-2 border-purple-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-purple-600 focus:bg-purple-50 focus:ring-4 focus:ring-purple-500/20 group-hover:border-purple-300 tracking-[0.3em] font-mono"
+                  type="text"
+                  name="regNumbers"
+                  value={vehicleData.regNumbers}
+                  onChange={vehicleChangeHandler}
+                  placeholder="e.g., 1234"
+                  maxLength={4}
+                />
+              </div>
+
+              {/* Save Button */}
               <button
                 type="submit"
-                className="w-full mt-2 bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-blue-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/30 hover:opacity-90"
+                className="w-full mt-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-600/30 rounded-xl px-4 py-3.5 font-bold text-lg transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.02] hover:shadow-xl hover:shadow-purple-600/50 active:scale-95 border border-purple-500/50"
               >
-                {student.vehicleRegistered ? "Update Vehicle" : "Add Vehicle"}
+                {student.vehicleRegistered ? "🔄 Update Vehicle" : "➕ Add Vehicle"}
               </button>
             </form>
 
             {student.vehicleRegistered && (
               <button
-                className="mt-4 w-full bg-gradient-to-br from-red-600 to-red-500 text-white shadow-lg shadow-red-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-red-700"
+                className="mt-4 w-full bg-gradient-to-r from-red-500 to-orange-600 text-white shadow-lg shadow-red-600/30 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.02] hover:shadow-xl hover:shadow-red-600/50 active:scale-95 border border-red-400/50"
                 onClick={removeVehicleHandler}
               >
-                Remove Vehicle
+                🗑️ Remove Vehicle
               </button>
             )}
           </div>
 
-          <div className="flex flex-col gap-6">
-            <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl text-center">
-              <h2 className="mt-0 mb-4 text-slate-900 text-xl font-bold">Current Photo</h2>
-              {photoPreview ? (
-                <img
-                  src={photoPreview}
-                  alt="Student"
-                  className="w-40 h-40 md:w-48 md:h-48 object-cover rounded-2xl mx-auto block border-4 border-white shadow-lg drop-shadow-sm"
-                />
-              ) : (
-                <p className="text-slate-500">No photo available</p>
-              )}
+          {/* QR Code Card Only */}
+          <div className="p-7 bg-gradient-to-br from-amber-50/95 to-yellow-50/95 backdrop-blur-xl border border-amber-200/60 rounded-2xl shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-300/80 text-center group">
+            <div className="flex items-center justify-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center">
+                <span className="text-white text-lg">🔐</span>
+              </div>
+              <h2 className="m-0 text-slate-900 text-xl font-extrabold">Security QR Code</h2>
             </div>
 
-            <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl text-center">
-              <h2 className="mt-0 mb-4 text-slate-900 text-xl font-bold">QR Code</h2>
+            <p className="m-0 text-xs text-slate-600 font-medium mb-4">Your unique identity code for parking security</p>
+            <div className="flex justify-center p-6 bg-white rounded-xl border border-amber-200/50">
               <img
                 src={student.qrCode}
                 alt="QR Code"
-                className="w-[180px] h-[180px] object-contain bg-white p-3 rounded-2xl mx-auto border-4 border-white shadow-lg drop-shadow-sm"
+                className="w-[160px] h-[160px] object-contain drop-shadow-lg"
               />
-              <button
-                type="button"
-                onClick={downloadQrHandler}
-                className="mt-4 w-full bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-blue-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/30 hover:opacity-90"
-              >
-                Download QR Code
-              </button>
             </div>
+
+            <button
+              type="button"
+              onClick={downloadQrHandler}
+              className="w-full bg-gradient-to-r from-amber-600 to-yellow-600 text-white shadow-lg shadow-amber-600/30 rounded-xl px-4 py-3.5 font-bold text-lg transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.02] hover:shadow-xl hover:shadow-amber-600/50 active:scale-95 border border-amber-500/50"
+            >
+              ⬇️ Download QR Code
+            </button>
           </div>
+        </div>
+
+        {/* Delete Profile Section */}
+        <div className="mt-10 p-6 md:p-8 rounded-2xl bg-black/40 border-2 border-red-500/70 backdrop-blur-xl shadow-2xl shadow-red-500/30">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center">
+              <span className="text-white text-lg">🗑️</span>
+            </div>
+            <h2 className="m-0 text-red-400 text-xl font-extrabold">Danger Zone</h2>
+          </div>
+          
+          <p className="m-0 text-red-200 font-medium text-sm mb-4">
+            ⚠️ Permanently delete your account and all associated data. This action cannot be undone.
+          </p>
+
+          <button
+            type="button"
+            onClick={deleteProfileHandler}
+            className="w-full bg-gradient-to-r from-red-700 to-red-900 text-white shadow-lg shadow-red-600/50 rounded-xl px-4 py-4 font-bold text-lg transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.02] hover:shadow-xl hover:shadow-red-600/70 active:scale-95 border-2 border-red-500/60"
+          >
+            🚨 Delete My Account Permanently
+          </button>
         </div>
       </PageBackground>
     </>

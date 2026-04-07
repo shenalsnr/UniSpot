@@ -9,6 +9,7 @@ import {
   requestPasswordOtp,
   resetPasswordWithOtp,
   getStudentByQr,
+  deleteStudentProfile,
 } from "../controllers/studentController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
@@ -28,5 +29,6 @@ router.get("/profile", protect, getStudentProfile);
 router.put("/profile", protect, upload.single("photo"), updateStudentProfile);
 router.put("/vehicle", protect, addOrUpdateVehicle);
 router.delete("/vehicle", protect, removeVehicle);
+router.delete("/profile", protect, deleteStudentProfile);
 
 export default router;

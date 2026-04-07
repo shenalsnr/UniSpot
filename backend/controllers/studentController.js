@@ -486,6 +486,28 @@ const getStudentByQr = async (req, res) => {
   }
 };
 
+// Delete student profile
+const deleteStudentProfile = async (req, res) => {
+  try {
+    const studentId = req.student._id;
+
+    const student = await Student.findById(studentId);
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    // Delete the student
+    await Student.findByIdAndDelete(studentId);
+
+    res.json({
+      message: "Account deleted successfully. We're sorry to see you go!",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export {
   registerStudent,
   loginStudent,
@@ -496,4 +518,5 @@ export {
   requestPasswordOtp,
   resetPasswordWithOtp,
   getStudentByQr,
+  deleteStudentProfile,
 };
