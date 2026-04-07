@@ -37,6 +37,9 @@ initSocket(server); // Initialize Socket.io on the server instance
 // Middleware
 applyMiddleware(app);
 
+// Static file serving for uploads (Simplified for reliability)
+app.use("/uploads", express.static("uploads"));
+
 // Routes
 app.use("/api/locker", lockerRoutes);
 app.use("/api/lockers", lockerMaintenanceRoutes);
@@ -45,9 +48,6 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/security", securityRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/admin", adminRoutes);
-
-
-
 
 // Simple Route
 app.get("/", (req, res) => {
