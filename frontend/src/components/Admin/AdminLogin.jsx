@@ -31,7 +31,7 @@ const AdminLogin = () => {
   return (
     <>
       <PublicNavbar />
-      <PageBackground className="flex justify-center items-center p-8">
+      
         <form 
           className="w-full max-w-[500px] p-8 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-xl flex flex-col gap-4 animate-fade-in relative z-10" 
           onSubmit={submitHandler}
@@ -93,7 +93,7 @@ const AdminLogin = () => {
             </p>
           </div>
         </form>
-      </PageBackground>
+      
     </>
   );
 };

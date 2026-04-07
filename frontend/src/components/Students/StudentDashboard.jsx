@@ -32,6 +32,17 @@ const StudentDashboard = () => {
     return "bg-gradient-to-br from-red-600 to-red-500";
   };
 
+  const downloadQRCode = () => {
+    if (!student?.qrCode) return;
+    
+    const link = document.createElement('a');
+    link.href = student.qrCode;
+    link.download = `${student.studentId}_QR_Code.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (errorMessage) {
     return (
       <>
@@ -155,6 +166,15 @@ const StudentDashboard = () => {
           <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl text-center">
             <h3 className="mt-0 mb-4 text-slate-900 text-xl font-bold text-left">QR Code</h3>
             <img src={student.qrCode} alt="QR Code" className="w-[160px] h-[160px] object-contain bg-white p-3 rounded-2xl border-4 border-white/75 shadow-md mx-auto" />
+            <button
+              onClick={downloadQRCode}
+              className="mt-4 w-full bg-gradient-to-br from-blue-600 to-blue-500 text-white rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/30 hover:opacity-90 flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Download QR
+            </button>
             <p className="mt-3 text-xs text-slate-500">This QR is generated based on your student ID.</p>
           </div>
         </div>
