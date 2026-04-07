@@ -38,7 +38,7 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gray-200">
-      {isParkingFlow && (
+      {isParkingFlow && !isAdminPage && (
         <UnifiedNavbar 
           moduleName="Parking"
           links={[

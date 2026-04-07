@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import AdminNavbar from "./AdminNavbar";
+import AdminLayout from "./AdminLayout";
 import adminApi from "./adminApi";
 
 
@@ -296,8 +296,7 @@ const AdminDashboard = () => {
   );
 
   return (
-    <>
-      <AdminNavbar />
+    <AdminLayout>
 
       {/* Restore Points Modal */}
       {showRestoreModal && selectedStudent && (
@@ -308,8 +307,7 @@ const AdminDashboard = () => {
         />
       )}
 
-      
-        {/* Header */}
+      {/* Header */}
         <div className="bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 text-white rounded-[26px] p-6 md:p-8 shadow-xl shadow-blue-900/20 mb-6">
           <h1 className="m-0 mb-2 text-3xl md:text-4xl font-extrabold tracking-tight">
             Admin Dashboard
@@ -501,8 +499,7 @@ const AdminDashboard = () => {
             )}
           </div>
         </div>
-      
-    </>
+    </AdminLayout>
   );
 };
 

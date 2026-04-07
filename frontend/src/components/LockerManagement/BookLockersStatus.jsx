@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import UnifiedNavbar from "../Shared/UnifiedNavbar";
+import AdminLayout from "../Admin/AdminLayout";
 
 const BookLockersStatus = () => {
   const navigate = useNavigate();
@@ -52,21 +52,8 @@ const BookLockersStatus = () => {
   }
 
   return (
-    <>
-      <UnifiedNavbar
-        moduleName="BOOKING STATUS"
-        centerModule={true}
-        rightActions={
-          <button
-            onClick={() => navigate("/AdminLockerMap")}
-            className="px-4 py-2 bg-blue-700 text-white font-bold rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)] hover:shadow-[0_0_20px_rgba(59,130,246,0.8)] border border-blue-300 transition-all hover:scale-105 hover:opacity-90 flex items-center gap-2"
-            title="Go Back"
-          >
-            <ArrowLeft size={18} /> Back
-          </button>
-        }
-      />
-      <div className="flex flex-col items-center pb-20 w-full pt-16 min-h-screen relative bg-white">
+    <AdminLayout>
+      <div className="flex flex-col items-center pb-20 w-full min-h-screen relative bg-white">
         {/* Professional White Background */}
         <div className="fixed inset-0 bg-linear-to-br from-white via-slate-50 to-white"></div>
         
@@ -82,16 +69,28 @@ const BookLockersStatus = () => {
         <div className="fixed top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-blue-500 to-transparent opacity-20"></div>
         <div className="fixed bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-indigo-500 to-transparent opacity-20"></div>
 
-        
+        {/* Main Header Topic */}
+        <div className="w-full max-w-7xl mx-auto px-8 mt-10 mb-8 relative z-10">
+          <div className="bg-[oklch(48.8%_0.243_264.376)] text-white rounded-[26px] p-8 shadow-xl shadow-blue-500/20 border border-white/10 overflow-hidden relative">
+            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+            <div className="relative z-10">
+              <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2 uppercase">Booking Status</h1>
+              <div className="flex items-center gap-2 text-white/80 font-medium">
+                <span className="w-8 h-px bg-white/30"></span>
+                <p>Overview of currently occupied and reserved lockers</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div className="w-full max-w-7xl mx-auto px-8 relative z-10">
           <div className="bg-white/95 backdrop-blur-sm border-2 border-slate-200/50 p-10 rounded-3xl shadow-2xl w-full">
             <div className="mb-8 text-center">
-              <h2 className="text-3xl font-black bg-linear-to-r from-slate-800 to-blue-800 bg-clip-text text-transparent mb-3">
-                Complete Booking Database
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">
+                Booking Database
               </h2>
               <p className="text-sm text-slate-500 max-w-2xl mx-auto">
-                All locker booking records stored in the database, including active and expired bookings.
+                Comprehensive log of all academic locker assignments and current availability status.
               </p>
             </div>
 
@@ -255,7 +254,7 @@ const BookLockersStatus = () => {
           </div>
         </div>
       </div>
-    </>
+    </AdminLayout>
   );
 };
 
