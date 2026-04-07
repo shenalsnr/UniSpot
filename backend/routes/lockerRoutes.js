@@ -8,7 +8,9 @@ import {
   getBookingsByMap,
   deleteBooking,
   getStudentCurrentBooking,
-  getAllBookings
+  getAllBookings,
+  getStudentBookings,
+  deleteBookingById
 } from "../controllers/LockerController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -24,7 +26,9 @@ router.delete("/delete-map/:id", deleteMap);
 router.post("/bookings", protect, createBooking);
 router.get("/bookings/map/:mapId", getBookingsByMap);
 router.get("/bookings/student/current", protect, getStudentCurrentBooking);
+router.get("/bookings/student/my-bookings", protect, getStudentBookings);
 router.get("/bookings/all", getAllBookings);
 router.delete("/bookings/map/:mapId/locker/:lockerId", protect, deleteBooking);
+router.delete("/bookings/:id", protect, deleteBookingById);
 
 export default router;

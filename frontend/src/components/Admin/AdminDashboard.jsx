@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import AdminNavbar from "./AdminNavbar";
 import adminApi from "./adminApi";
-import PageBackground from "../Shared/PageBackground";
+
 
 // ── Parking points colour helper ─────────────────────────────────────────────
 const getPointsColor = (points) => {

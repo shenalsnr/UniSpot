@@ -22,6 +22,7 @@ import SecurityPortal from "./components/SecurityPortal/SecurityPortal";
 import QRScanner from "./components/SecurityPortal/QRScanner";
 import UnifiedNavbar from "./components/Shared/UnifiedNavbar";
 import LockerMaintenance from "./components/LockerManagement/LockerMaintenance";
+import MyBookLocker from "./components/LockerManagement/MyBookLocker";
 
 const App = () => {
   const location = useLocation();
@@ -83,6 +84,7 @@ const App = () => {
         <Route path="/BookLockersStatus" element={<BookLockersStatus />} />
         <Route path="/LockerMaintenance" element={<LockerMaintenance />} />
         <Route path="/admin/locker-maintenance" element={<LockerMaintenance />} />
+         <Route path="/MyBookLocker" element={<MyBookLocker/>} />
 
         {/* Parking flow */}
         <Route path="/parking" element={<CampusMap />} />

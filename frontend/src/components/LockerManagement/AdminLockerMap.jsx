@@ -185,16 +185,7 @@ const AdminLockerMap = () => {
         <div className="fixed top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-blue-400 to-transparent opacity-20"></div>
         <div className="fixed bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-blue-400 to-transparent opacity-20"></div>
 
-        {/* Page Header */}
-        <div className="relative z-10 mb-12 text-center">
-          <h1 className="text-4xl md:text-5xl font-black bg-linear-to-r from-slate-800 to-blue-800 bg-clip-text text-transparent mb-4">
-            Admin Locker Management
-          </h1>
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-blue-50 to-indigo-50 rounded-full border border-blue-200">
-            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-            <span className="text-sm font-semibold text-blue-400">System Configuration Panel</span>
-          </div>
-        </div>
+      
 
       <div className="flex flex-col md:flex-row gap-8 max-w-[95%] 2xl:max-w-1400 mx-auto w-full px-8 relative z-10">
 

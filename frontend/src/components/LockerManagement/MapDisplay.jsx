@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { showAlert } from "../Shared/BeautifulAlert";
 import { showConfirm } from "../Shared/BeautifulConfirm";
+import { showBooking } from "../Shared/BeautifulBooking";
 
 const MapDisplay = ({ map }) => {
   const { locationName, rows, lockersPerRow } = map;
@@ -86,12 +87,6 @@ const MapDisplay = ({ map }) => {
     }
   }, [map, map._id]);
 
-  // Booking Modal State
-  const [selectedLockerForBooking, setSelectedLockerForBooking] = useState(null);
-  const [bookingDate, setBookingDate] = useState("");
-  const [bookingStartTime, setBookingStartTime] = useState("");
-  const [bookingEndTime, setBookingEndTime] = useState("");
-
   const todayDateStr = new Date().toISOString().split("T")[0];
 
   const handleSelect = async (id) => {
@@ -174,55 +169,53 @@ const MapDisplay = ({ map }) => {
         console.log("🔍 Debug - Proceeding with booking modal due to endpoint error");
       }
 
-      // Open booking modal
-      setSelectedLockerForBooking(id);
-      setBookingDate("");
-      setBookingStartTime("");
-      setBookingEndTime("");
+      // Use the new BeautifulBooking popup
+      try {
+        const bookingData = await showBooking(id, todayDateStr);
+        console.log("✅ Debug - Booking data received:", bookingData);
+
+        // Validate booking data
+        if (!bookingData.date || !bookingData.startTime || !bookingData.endTime) {
+          showAlert('warning', 'Please select a date, start time, and end time to book.');
+          return;
+        }
+
+        // Date validation
+        const bookingDateObj = new Date(bookingData.date);
+        const todayDateObj = new Date(todayDateStr);
+        todayDateObj.setHours(0, 0, 0, 0); // Set to start of day
+        bookingDateObj.setHours(0, 0, 0, 0); // Set to start of day
+
+        if (bookingDateObj < todayDateObj) {
+          console.log("❌ Debug - Past date selected:", bookingDateObj, "<", todayDateObj);
+          showAlert('error', 'You cannot book a locker for a past date.');
+          return;
+        }
+
+        // Time validation
+        if (bookingData.startTime < "06:00" || bookingData.endTime > "22:00" || bookingData.startTime > "22:00" || bookingData.endTime < "06:00") {
+          console.log("❌ Debug - Time validation failed");
+          showAlert('warning', 'Booking time must be between 06:00 AM and 10:00 PM.');
+          return;
+        }
+
+        if (bookingData.startTime >= bookingData.endTime) {
+          console.log("❌ Debug - End time before start time");
+          showAlert('warning', 'End time must be after start time.');
+          return;
+        }
+
+        // Proceed with booking
+        await processBooking(id, bookingData);
+
+      } catch (error) {
+        console.log("🔍 Debug - Booking cancelled or failed:", error.message);
+        // User cancelled the booking or an error occurred
+      }
     }
   };
 
-  const confirmBooking = async () => {
-    console.log("🔍 Debug - Confirm booking called");
-    console.log("🔍 Debug - Booking data:", {
-      selectedLocker: selectedLockerForBooking,
-      date: bookingDate,
-      startTime: bookingStartTime,
-      endTime: bookingEndTime,
-      todayDate: todayDateStr
-    });
-
-    if (!bookingDate || !bookingStartTime || !bookingEndTime) {
-      console.log("❌ Debug - Missing booking data");
-      showAlert('warning', 'Please select a date, start time, and end time to book.');
-      return;
-    }
-
-    // Date validation
-    const bookingDateObj = new Date(bookingDate);
-    const todayDateObj = new Date(todayDateStr);
-    todayDateObj.setHours(0, 0, 0, 0); // Set to start of day
-    bookingDateObj.setHours(0, 0, 0, 0); // Set to start of day
-
-    if (bookingDateObj < todayDateObj) {
-      console.log("❌ Debug - Past date selected:", bookingDateObj, "<", todayDateObj);
-      showAlert('error', 'You cannot book a locker for a past date.');
-      return;
-    }
-
-    // Time validation
-    if (bookingStartTime < "06:00" || bookingEndTime > "22:00" || bookingStartTime > "22:00" || bookingEndTime < "06:00") {
-      console.log("❌ Debug - Time validation failed");
-      showAlert('warning', 'Booking time must be between 06:00 AM and 10:00 PM.');
-      return;
-    }
-
-    if (bookingStartTime >= bookingEndTime) {
-      console.log("❌ Debug - End time before start time");
-      showAlert('warning', 'End time must be after start time.');
-      return;
-    }
-
+  const processBooking = async (lockerId, bookingData) => {
     try {
       const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || '{}');
       const token = studentInfo.token;
@@ -230,7 +223,7 @@ const MapDisplay = ({ map }) => {
       console.log("🔍 Debug - Student info:", studentInfo);
       console.log("🔍 Debug - Token:", token);
       console.log("🔍 Debug - Map ID:", map._id);
-      console.log("🔍 Debug - Locker ID:", selectedLockerForBooking);
+      console.log("🔍 Debug - Locker ID:", lockerId);
 
       if (!token) {
         console.log("❌ Debug - No token for booking");
@@ -241,10 +234,10 @@ const MapDisplay = ({ map }) => {
       console.log("🔍 Debug - Making booking request...");
       const response = await axios.post("http://localhost:5000/api/locker/bookings", {
         mapId: map._id,
-        lockerId: selectedLockerForBooking,
-        date: bookingDate,
-        startTime: bookingStartTime,
-        endTime: bookingEndTime
+        lockerId: lockerId,
+        date: bookingData.date,
+        startTime: bookingData.startTime,
+        endTime: bookingData.endTime
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -275,7 +268,6 @@ const MapDisplay = ({ map }) => {
         })
       );
 
-      setSelectedLockerForBooking(null);
       showAlert('success', 'Locker booked successfully.', 'Success');
     } catch (error) {
       console.error("Booking failed:", error);
@@ -283,20 +275,6 @@ const MapDisplay = ({ map }) => {
       console.error("Error status:", error.response?.status);
       const errorMessage = error.response?.data?.message || 'Booking failed.';
       showAlert('error', errorMessage);
-    }
-  };
-
-  const cancelBooking = async () => {
-    const confirmed = await showConfirm({
-      title: 'Cancel Booking',
-      message: 'Are you sure you want to cancel this booking process? Any information you entered will be lost.',
-      confirmText: 'Yes, Cancel',
-      cancelText: 'Continue Booking',
-      type: 'info'
-    });
-
-    if (confirmed) {
-      setSelectedLockerForBooking(null);
     }
   };
 
@@ -391,71 +369,6 @@ const MapDisplay = ({ map }) => {
           );
         })}
       </div>
-
-      {/* Booking Modal (Transparent Overlay) */}
-      {selectedLockerForBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white/90 p-8 rounded-2xl shadow-2xl w-full max-w-sm border-2 border-blue-500 backdrop-blur-md">
-            <h3 className="text-2xl font-bold mb-6 text-gray-800 text-center">
-              Book Locker {selectedLockerForBooking}
-            </h3>
-
-            <div className="flex flex-col gap-4 mb-6">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Schedule Date</label>
-                <input
-                  type="date"
-                  min={todayDateStr}
-                  value={bookingDate}
-                  onChange={(e) => setBookingDate(e.target.value)}
-                  className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm bg-white"
-                />
-              </div>
-
-              <div className="flex gap-4 w-full">
-                <div className="flex flex-col gap-1 w-1/2">
-                  <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Start Time</label>
-                  <input
-                    type="time"
-                    min="06:00"
-                    max="22:00"
-                    value={bookingStartTime}
-                    onChange={(e) => setBookingStartTime(e.target.value)}
-                    className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm bg-white"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1 w-1/2">
-                  <label className="text-sm font-semibold text-gray-600 uppercase tracking-wide">End Time</label>
-                  <input
-                    type="time"
-                    min="06:00"
-                    max="22:00"
-                    value={bookingEndTime}
-                    onChange={(e) => setBookingEndTime(e.target.value)}
-                    className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm bg-white"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-between gap-4 mt-2">
-              <button
-                onClick={confirmBooking}
-                className="flex-1 bg-blue-500 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition shadow hover:shadow-lg"
-              >
-                Confirm
-              </button>
-              <button
-                onClick={cancelBooking}
-                className="flex-1 bg-gray-300 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-400 transition shadow hover:shadow-lg"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

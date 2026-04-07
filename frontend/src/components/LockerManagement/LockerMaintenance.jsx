@@ -219,14 +219,7 @@ const LockerMaintenance = () => {
       />
 
       <div className="min-h-screen bg-linear-to-br from-white via-slate-50 to-white pt-24 pb-16 px-8">
-        {/* ── Page Header ── */}
-        <div className="max-w-7xl mx-auto mb-12 text-center">
-          <h1 className="text-4xl md:text-5xl font-black bg-linear-to-r from-slate-800 to-blue-800 bg-clip-text text-transparent">
-            Locker Maintenance
-          </h1>
-          <p className="text-slate-500 text-sm md:text-base font-medium mt-3">Block and unblock lockers · Changes reflect instantly for all students</p>
-        </div>
-
+       
         <div className="max-w-7xl mx-auto space-y-6">
           {/* ── Stats Bar ── */}
           <div className="bg-white rounded-3xl shadow-xl p-6 border border-slate-200/70">

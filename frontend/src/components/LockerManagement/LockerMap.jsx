@@ -56,13 +56,7 @@ const LockerMap = () => {
         <div className="fixed bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-blue-500 to-transparent opacity-20"></div>
 
         <div className="relative pt-20 pb-12 px-8">
-          {/* ── Page Header ── */}
-          <div className="max-w-7xl mx-auto mb-10 text-center">
-            <h1 className="text-4xl md:text-5xl font-black bg-linear-to-r from-slate-800 to-blue-800 bg-clip-text text-transparent mb-3">
-              Locker Maps
-            </h1>
-            <p className="text-slate-500 text-sm md:text-base font-medium">View and explore locker locations across campus</p>
-          </div>
+          
 
           <div className="max-w-full mx-auto space-y-8">
             {/* ── Controls ── */}

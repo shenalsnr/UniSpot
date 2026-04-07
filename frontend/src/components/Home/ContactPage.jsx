@@ -1,5 +1,5 @@
 import PublicNavbar from "./PublicNavbar";
-import PageBackground from "../Shared/PageBackground";
+
 
 const ContactPage = () => {
   return (

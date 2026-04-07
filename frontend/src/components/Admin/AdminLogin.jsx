@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import adminApi from "./adminApi";
 import PublicNavbar from "../Home/PublicNavbar";
-import PageBackground from "../Shared/PageBackground";
+
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");

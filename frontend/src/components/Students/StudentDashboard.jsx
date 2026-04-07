@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import studentApi from "./studentApi";
 import StudentNavbar from "./StudentNavbar";
-import PageBackground from "../Shared/PageBackground";
+
 
 const StudentDashboard = () => {
   const [student, setStudent] = useState(null);
@@ -36,9 +36,9 @@ const StudentDashboard = () => {
     return (
       <>
         <StudentNavbar />
-        <PageBackground className="flex justify-center items-center p-4 md:p-8">
+        
           <div className="bg-red-100 text-red-700 px-6 py-4 rounded-xl font-semibold shadow-sm">{errorMessage}</div>
-        </PageBackground>
+        
       </>
     );
   }
@@ -47,9 +47,9 @@ const StudentDashboard = () => {
     return (
       <>
         <StudentNavbar />
-        <PageBackground className="flex justify-center items-center p-4 md:p-8">
+        
           <div className="p-8 text-center font-bold text-white text-lg bg-black/20 rounded-2xl backdrop-blur-sm">Loading dashboard...</div>
-        </PageBackground>
+        
       </>
     );
   }
@@ -58,8 +58,8 @@ const StudentDashboard = () => {
     <>
       <StudentNavbar />
 
-      <PageBackground className="p-4 md:p-8">
-        <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-500 text-white rounded-[26px] p-6 md:p-8 shadow-xl shadow-blue-600/20 grid grid-cols-1 md:grid-cols-[1.3fr_0.7fr] items-center gap-6 mb-6">
+      
+        <div className="bg-linear-to-br from-blue-600 via-blue-700 to-blue-500 text-white rounded-[26px] p-6 md:p-8 shadow-xl shadow-blue-600/20 grid grid-cols-1 md:grid-cols-[1.3fr_0.7fr] items-center gap-6 mb-6">
           <div className="flex flex-col gap-4">
             <h1 className="m-0 mb-1 text-3xl md:text-4xl font-extrabold tracking-tight">Welcome back, {student.name}</h1>
             <p className="m-0 leading-relaxed max-w-[700px] opacity-95 text-blue-50">
@@ -75,7 +75,11 @@ const StudentDashboard = () => {
                 Book Parking Slot
               </Link>
               <Link to="/parking/my-booking" className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 text-white shadow-lg shadow-blue-900/40 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl border border-blue-400">
-                My Parking Booking
+                My Booking park
+              </Link>
+
+               <Link to="/MYbookLocker" className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 text-white shadow-lg shadow-blue-900/40 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl border border-blue-400">
+                My Booking locker
               </Link>
             </div>
           </div>
@@ -160,7 +164,7 @@ const StudentDashboard = () => {
             Manage Profile
           </Link>
         </div>
-      </PageBackground>
+      
     </>
   );
 };
