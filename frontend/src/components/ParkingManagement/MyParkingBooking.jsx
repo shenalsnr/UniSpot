@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import studentApi from '../Students/studentApi';
-import PageBackground from '../Shared/PageBackground';
+import axios from 'axios';
+
 import logoSrc from '../../assets/logo.png';
 import { generateParkingReceipt } from '../../utils/pdfGenerator';
 
@@ -18,6 +19,16 @@ const MyParkingBooking = () => {
   useEffect(() => {
     const fetchBookingData = async () => {
       try {
+        // First, test basic connectivity to backend
+        try {
+          await axios.get('http://localhost:5000/test', { timeout: 5000 });
+        } catch (connectErr) {
+          console.error('Backend connectivity test failed:', connectErr);
+          setError("Cannot connect to backend server. Please ensure it's running.");
+          setLoading(false);
+          return;
+        }
+
         // Fetch profile
         const profileRes = await studentApi.get('/students/profile');
         if (!profileRes.data) {
@@ -30,14 +41,47 @@ const MyParkingBooking = () => {
 
         // Fetch active booking (slot stays occupied even when expired)
         try {
-          const bookingRes = await studentApi.get('/parking/my-active');
+          const timestamp = Date.now();
+          const bookingRes = await studentApi.get(`/parking/my-active?t=${timestamp}`, {
+            headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' },
+            timeout: 10000
+          });
           setBooking(bookingRes.data.data);
           setBookingStatus(bookingRes.data.bookingStatus || 'active');
           setActualArrivalTime(bookingRes.data.actualArrivalTime || null);
         } catch (bookingErr) {
-          setBooking(null);
-          setBookingStatus('active');
-          setActualArrivalTime(null);
+          console.error('Primary booking fetch failed:', bookingErr);
+          
+          // Fallback: Try direct axios call with explicit auth
+          try {
+            const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || '{}');
+            const token = studentInfo.token;
+            
+            if (token) {
+              const timestamp = Date.now();
+              const directRes = await axios.get(`http://localhost:5000/api/parking/my-active?t=${timestamp}`, {
+                headers: { 
+                  'Authorization': `Bearer ${token}`,
+                  'Cache-Control': 'no-cache', 
+                  'Pragma': 'no-cache' 
+                },
+                timeout: 10000
+              });
+              setBooking(directRes.data.data);
+              setBookingStatus(directRes.data.bookingStatus || 'active');
+              setActualArrivalTime(directRes.data.actualArrivalTime || null);
+            } else {
+              console.log('No token found in localStorage');
+              setBooking(null);
+              setBookingStatus('active');
+              setActualArrivalTime(null);
+            }
+          } catch (fallbackErr) {
+            console.error('Fallback booking fetch failed:', fallbackErr);
+            setBooking(null);
+            setBookingStatus('active');
+            setActualArrivalTime(null);
+          }
         }
       } catch (err) {
         console.error("Failed to fetch data:", err);
@@ -82,9 +126,9 @@ const MyParkingBooking = () => {
   if (loading) {
     return (
       <>
-        <PageBackground className="flex justify-center items-center p-4 md:p-8">
+        
           <div className="p-8 text-center font-bold text-white text-lg bg-black/20 rounded-2xl backdrop-blur-sm">Loading booking details...</div>
-        </PageBackground>
+    
       </>
     );
   }
@@ -92,9 +136,9 @@ const MyParkingBooking = () => {
   if (error) {
     return (
       <>
-        <PageBackground className="flex justify-center items-center p-4 md:p-8">
+        
           <div className="bg-red-100 text-red-700 px-6 py-4 rounded-xl font-semibold shadow-sm">{error}</div>
-        </PageBackground>
+        
       </>
     );
   }
@@ -106,7 +150,7 @@ const MyParkingBooking = () => {
 
   return (
     <>
-      <PageBackground className="p-6 md:p-10 font-sans">
+      
         <div className="max-w-3xl mx-auto">
           <div className="mb-8">
             <h1 className="text-4xl font-extrabold text-blue-900 drop-shadow-sm mb-2">My Parking Booking</h1>
@@ -235,7 +279,7 @@ const MyParkingBooking = () => {
             </div>
           )}
         </div>
-      </PageBackground>
+      
     </>
   );
 };

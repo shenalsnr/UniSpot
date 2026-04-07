@@ -1,5 +1,4 @@
 import PublicNavbar from "./PublicNavbar";
-import PageBackground from "../Shared/PageBackground";
 
 const AboutPage = () => {
   return (

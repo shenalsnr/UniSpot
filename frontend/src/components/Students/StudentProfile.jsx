@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import StudentNavbar from "./StudentNavbar";
 import studentApi from "./studentApi";
-import PageBackground from "../Shared/PageBackground";
+
 
 const StudentProfile = () => {
   const [student, setStudent] = useState(null);

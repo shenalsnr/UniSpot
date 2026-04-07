@@ -82,16 +82,7 @@ const BookLockersStatus = () => {
         <div className="fixed top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-blue-500 to-transparent opacity-20"></div>
         <div className="fixed bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-indigo-500 to-transparent opacity-20"></div>
 
-        {/* Page Header */}
-        <div className="relative z-10 mb-12 text-center">
-          <h1 className="text-4xl md:text-5xl font-black bg-linear-to-r from-slate-800 to-blue-800 bg-clip-text text-transparent mb-4">
-            All Locker Bookings
-          </h1>
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-blue-50 to-indigo-50 rounded-full border border-blue-200">
-            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-            <span className="text-sm font-semibold text-blue-700">Complete booking history from database</span>
-          </div>
-        </div>
+        
 
         <div className="w-full max-w-7xl mx-auto px-8 relative z-10">
           <div className="bg-white/95 backdrop-blur-sm border-2 border-slate-200/50 p-10 rounded-3xl shadow-2xl w-full">
@@ -107,7 +98,7 @@ const BookLockersStatus = () => {
             {/* Booking Statistics */}
             <div className="bg-white rounded-3xl shadow-xl p-8 mb-6 border border-slate-200/60">
               <h3 className="text-2xl font-bold text-slate-900 mb-5">Booking Statistics</h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-blue-50/90 rounded-3xl p-5 border border-blue-100 shadow-sm">
                   <div className="text-2xl font-black text-blue-700">{filteredBookings.length}</div>
                   <div className="text-sm text-blue-800 mt-2">
@@ -125,16 +116,6 @@ const BookLockersStatus = () => {
                     {filteredBookings.filter(b => b.status !== 'active').length}
                   </div>
                   <div className="text-sm text-red-800 mt-2">Expired Bookings</div>
-                </div>
-                <div className="bg-purple-50/90 rounded-3xl p-5 border border-purple-100 shadow-sm">
-                  <div className="text-2xl font-black text-purple-700">
-                    {new Set(
-                      filteredBookings
-                        .map((b) => b.student?.studentId || (typeof b.studentId === 'object' ? b.studentId.studentId : b.studentId))
-                        .filter(Boolean)
-                    ).size}
-                  </div>
-                  <div className="text-sm text-purple-800 mt-2">Unique Students</div>
                 </div>
               </div>
             </div>

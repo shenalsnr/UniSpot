@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import PublicNavbar from "./PublicNavbar";
-import logo from "../../assets/logo.png";
-import PageBackground from "../Shared/PageBackground";
+
 import { UserPlus, Car, QrCode, RefreshCcw, Target, Lock } from "lucide-react";
 
 const HomePage = () => {
