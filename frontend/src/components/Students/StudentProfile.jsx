@@ -154,9 +154,9 @@ const StudentProfile = () => {
     return (
       <>
         <StudentNavbar />
-        <PageBackground className="flex justify-center items-center p-4 md:p-8">
+        
           <div className="p-8 text-center font-bold text-white text-lg bg-black/20 rounded-2xl backdrop-blur-sm">Loading profile...</div>
-        </PageBackground>
+        
       </>
     );
   }
@@ -165,7 +165,7 @@ const StudentProfile = () => {
     <>
       <StudentNavbar />
 
-      <PageBackground className="p-4 md:p-8 md:px-12 lg:px-24">
+     
         <div className="mb-6 relative z-10">
           <h1 className="m-0 text-3xl md:text-4xl text-white font-extrabold tracking-tight drop-shadow-md">My Profile</h1>
           <p className="mt-2 text-blue-50 font-medium text-lg drop-shadow-sm">Update your profile details and manage your vehicle information.</p>
@@ -296,7 +296,7 @@ const StudentProfile = () => {
             </div>
           </div>
         </div>
-      </PageBackground>
+      
     </>
   );
 };
