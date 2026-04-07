@@ -1,4 +1,4 @@
-import { Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route, Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import HomePage from "./components/Home/HomePage";
 
 import StudentRegister from "./components/Students/StudentRegister";
@@ -8,6 +8,7 @@ import StudentProfile from "./components/Students/StudentProfile";
 
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import AdminLogin from "./components/Admin/AdminLogin";
+import AdminStaffModule from "./components/Admin/AdminStaffModule";
 
 import AdminLockerMap from "./components/LockerManagement/AdminLockerMap";
 import LockerMap from "./components/LockerManagement/LockerMap";
@@ -20,6 +21,8 @@ import AdminParkingRecords from "./components/ParkingManagement/AdminParkingReco
 import MyParkingBooking from "./components/ParkingManagement/MyParkingBooking";
 import SecurityPortal from "./components/SecurityPortal/SecurityPortal";
 import QRScanner from "./components/SecurityPortal/QRScanner";
+import StaffLayout from "./components/Staff/StaffLayout";
+import StaffDashboard from "./components/Staff/StaffDashboard";
 import UnifiedNavbar from "./components/Shared/UnifiedNavbar";
 import LockerMaintenance from "./components/LockerManagement/LockerMaintenance";
 import MyBookLocker from "./components/LockerManagement/MyBookLocker";
@@ -78,6 +81,12 @@ const App = () => {
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
+        {/* Staff Portal - Nested Routes */}
+        <Route path="/staff-dashboard" element={<StaffLayout />}>
+          <Route index element={<StaffDashboard />} />
+          <Route path="scanner" element={<QRScanner />} />
+        </Route>
+
         {/* Locker Management */}
         <Route path="/AdminLockerMap" element={<AdminLockerMap />} />
         <Route path="/lockers" element={<LockerMap />} />
@@ -92,6 +101,7 @@ const App = () => {
         <Route path="/parking/map" element={<ParkingMap />} />
         <Route path="/parking/book/:spotId" element={<ParkingBookingForm />} />
         <Route path="/parking/admin" element={<AdminParkingRecords />} />
+        <Route path="/parking/admin/staff" element={<AdminStaffModule />} />
         <Route path="/parking/my-booking" element={<MyParkingBooking />} />
 
         {/* Security Portal */}
