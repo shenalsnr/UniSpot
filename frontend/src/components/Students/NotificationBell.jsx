@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import studentApi from "./studentApi";
+import { io } from "socket.io-client";
 
 // ─── Notification type icon helper ──────────────────────────────────────────
 const getTypeIcon = (type) => {
@@ -100,12 +101,57 @@ const NotificationBell = () => {
     }
   }, []);
 
-  // Initial fetch + polling (every 30s for "real-time readiness")
+  // Initial fetch + polling (every 30s as fallback)
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [fetchNotifications]);
+
+  // ── Real-time notifications via Socket.io ──────────────────────────────────
+  useEffect(() => {
+    // Get student info for the room name
+    const studentInfo = JSON.parse(localStorage.getItem("studentInfo") || "{}");
+    const studentId = studentInfo.studentId;
+
+    if (!studentId) return;
+
+    // Connect to backend (using the same base URL as the API, minus /api)
+    const socket = io("http://localhost:5000");
+
+    socket.on("connect", () => {
+      console.log("[Socket] Connected to server");
+      // Join the private student room
+      socket.emit("join_student", studentId);
+    });
+
+    socket.on("new_notification", (notif) => {
+      console.log("[Socket] New notification received:", notif);
+      
+      // Add to state instantly
+      setNotifications((prev) => {
+        // Prevent duplicates (just in case)
+        if (prev.some(n => n._id === notif._id)) return prev;
+        return [notif, ...prev];
+      });
+      
+      // Increment unread count
+      setUnreadCount((prev) => prev + 1);
+
+      // Play a subtle sound or trigger browser notification if desired
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(notif.title, { body: notif.message });
+      }
+    });
+
+    socket.on("disconnect", () => {
+      console.log("[Socket] Disconnected from server");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   // ── Close on outside click ─────────────────────────────────────────────────
   useEffect(() => {

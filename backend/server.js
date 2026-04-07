@@ -12,6 +12,8 @@ import adminRoutes from "./routes/adminRoutes.js";
 import { applyErrorMiddleware } from "./middleware/errorMiddleware.js";
 import { startLockerCleanupJob } from "./services/lockerCleanupService.js";
 import { startParkingCleanupJob } from "./services/parkingCleanupService.js";
+import http from 'http';
+import { initSocket } from "./utils/socket.js";
 
 // Import models to ensure they're registered with mongoose
 import Student from "./models/Student.js";
@@ -29,6 +31,8 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
+const server = http.createServer(app);
+initSocket(server); // Initialize Socket.io on the server instance
 
 // Middleware
 applyMiddleware(app);
@@ -60,16 +64,17 @@ applyErrorMiddleware(app);
 
 // Connect Database
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB Connected Successfully"))
+  .then(() => {
+    console.log("MongoDB Connected Successfully");
+    
+    // Start Server only after DB connection
+    const PORT = process.env.PORT || 5000;
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      
+      // Start background services after DB connection
+      startLockerCleanupJob();
+      startParkingCleanupJob();
+    });
+  })
   .catch((err) => console.log("MongoDB Connection Error:", err));
-
-// Start Server
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  
-  // Start background services
-  startLockerCleanupJob();
-  startParkingCleanupJob();
-});

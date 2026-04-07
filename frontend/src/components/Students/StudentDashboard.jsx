@@ -2,6 +2,78 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import studentApi from "./studentApi";
 import StudentNavbar from "./StudentNavbar";
+import { io } from "socket.io-client";
+
+const DashboardNotifications = () => {
+    const [notifications, setNotifications] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchNotifications = async () => {
+        try {
+            const { data } = await studentApi.get("/notifications/");
+            if (data.success) {
+                setNotifications(data.data.slice(0, 5)); // Show only top 5
+            }
+        } catch (err) {
+            console.error("Dashboard notification fetch error:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchNotifications();
+        
+        // Socket.io for real-time
+        const studentInfo = JSON.parse(localStorage.getItem("studentInfo") || "{}");
+        const studentId = studentInfo.studentId;
+        if (!studentId) return;
+
+        const socket = io("http://localhost:5000");
+        socket.on("connect", () => {
+            console.log("[Dashboard Notification Socket] Connected for student:", studentId);
+            socket.emit("join_student", studentId);
+        });
+
+        socket.on("new_notification", (notif) => {
+            console.log("[Dashboard Notification Socket] New notification received:", notif);
+            setNotifications(prev => {
+                if (prev.some(n => n._id === notif._id)) return prev;
+                return [notif, ...prev].slice(0, 5);
+            });
+        });
+
+        return () => socket.disconnect();
+    }, []);
+
+    if (loading) return <div className="text-slate-400 py-4">Loading notifications...</div>;
+    if (notifications.length === 0) return (
+        <div className="flex flex-col items-center justify-center py-6 text-slate-400 italic text-sm">
+            <span className="text-3xl mb-2 opacity-50">🔔</span>
+            <p>No recent notifications.</p>
+        </div>
+    );
+
+    return (
+        <div className="grid grid-cols-1 gap-3">
+            {notifications.map(n => (
+                <div key={n._id} className={`p-4 rounded-2xl border flex gap-4 items-start translate-all duration-300 ${n.isRead ? 'bg-slate-50 border-slate-100 opacity-75' : 'bg-blue-50/50 border-blue-100 shadow-xs'}`}>
+                    <div className="text-xl p-2 bg-white rounded-xl shadow-xs border border-slate-100 flex-shrink-0">
+                        {n.type === 'booking_success' ? '🚗' : n.type === 'booking_reminder' ? '⏰' : n.type === 'booking_expired' ? '⚠️' : '📌'}
+                    </div>
+                    <div className="flex-1 text-left min-w-0">
+                        <p className={`font-bold text-sm truncate ${n.isRead ? 'text-slate-600' : 'text-blue-900'}`}>{n.title}</p>
+                        <p className="text-xs text-slate-500 mt-1 line-clamp-2">{n.message}</p>
+                    </div>
+                    <div className="text-[10px] text-slate-400 font-medium whitespace-nowrap mt-1 flex flex-col items-end gap-1">
+                        <span>{new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        {!n.isRead && <span className="w-2 h-2 bg-blue-600 rounded-full"></span>}
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
 
 
 const StudentDashboard = () => {
@@ -176,6 +248,18 @@ const StudentDashboard = () => {
               Download QR
             </button>
             <p className="mt-3 text-xs text-slate-500">This QR is generated based on your student ID.</p>
+          </div>
+
+          {/* New Recent Notifications Section */}
+          <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl col-span-1 md:col-span-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-slate-900 text-xl font-bold">Recent Notifications</h3>
+              <div className="bg-blue-600/10 text-blue-600 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-blue-600/20">
+                Live Updates Active
+              </div>
+            </div>
+            
+            <DashboardNotifications />
           </div>
         </div>
 
