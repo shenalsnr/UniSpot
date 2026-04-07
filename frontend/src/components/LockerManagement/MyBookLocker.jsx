@@ -33,7 +33,11 @@ const MyBookLocker = () => {
           const bookingRes = await axios.get('http://localhost:5000/api/locker/bookings/student/my-bookings', {
             headers: { Authorization: `Bearer ${token}` }
           });
-          setBookings(bookingRes.data || []);
+          
+          // Only show active bookings - auto-remove expired/past bookings from this view
+          const allBookings = bookingRes.data || [];
+          const activeBookings = allBookings.filter(booking => booking.status === 'active');
+          setBookings(activeBookings);
         } catch (bookingErr) {
           console.error("Error fetching bookings:", bookingErr);
           setBookings([]);
@@ -114,9 +118,9 @@ Generated on: ${new Date().toLocaleString()}
   if (loading) {
     return (
       <>
-        <PageBackground className="flex justify-center items-center p-4 md:p-8">
+       
           <div className="p-8 text-center font-bold text-white text-lg bg-black/20 rounded-2xl backdrop-blur-sm">Loading your locker bookings...</div>
-        </PageBackground>
+        
       </>
     );
   }
@@ -124,16 +128,16 @@ Generated on: ${new Date().toLocaleString()}
   if (error) {
     return (
       <>
-        <PageBackground className="flex justify-center items-center p-4 md:p-8">
+       
           <div className="bg-red-100 text-red-700 px-6 py-4 rounded-xl font-semibold shadow-sm">{error}</div>
-        </PageBackground>
+        
       </>
     );
   }
 
   return (
     <>
-      <PageBackground className="p-6 md:p-10 font-sans">
+     
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
             <h1 className="text-4xl font-extrabold text-blue-900 drop-shadow-sm mb-2">My Locker Bookings</h1>
@@ -252,7 +256,7 @@ Generated on: ${new Date().toLocaleString()}
             </div>
           )}
         </div>
-      </PageBackground>
+      
     </>
   );
 };

@@ -3,10 +3,12 @@ import LockerMap from "../models/LockerM/LockerModel.js";
 import LockerBooking from "../models/LockerM/BookingModel.js";
 import Locker from "../models/LockerM/Locker.js";
 import Student from "../models/Student.js";
+import { createStudentNotification } from "../utils/notificationHelper.js";
 
 // Helper to expire outdated bookings strictly
 export const expireOldBookings = async () => {
   try {
+    // Optimized: Fetch without populate first to save memory and time
     const activeBookings = await LockerBooking.find({ status: "active" });
     const now = new Date();
     const toExpireIds = [];
@@ -15,8 +17,52 @@ export const expireOldBookings = async () => {
       if (!booking.date || !booking.endTime) continue;
       const bookingEndTimeObj = new Date(`${booking.date}T${booking.endTime}:00`);
       
+      // 1. Send 1-Hour Reminder
+      const oneHourBefore = new Date(bookingEndTimeObj.getTime() - 60 * 60 * 1000);
+      if (now >= oneHourBefore && now < bookingEndTimeObj && !booking.reminderSent) {
+        try {
+          // Lazy-load student info only when a notification is actually triggered
+          const studentRef = await Student.findById(booking.studentId).select("studentId").lean();
+          if (studentRef && studentRef.studentId) {
+            await createStudentNotification(
+              studentRef.studentId,
+              "Locker Expiry Reminder",
+              `Reminder: Your booking for Locker ${booking.lockerId} will expire in 1 hour (${booking.endTime}).`,
+              "booking_reminder",
+              { lockerId: booking.lockerId, endTime: booking.endTime }
+            );
+            booking.reminderSent = true;
+            await booking.save();
+          }
+        } catch (err) {
+          console.error("❌ Reminder notification error:", err);
+        }
+      }
+
+      // 2. Handle Expiry
       if (now > bookingEndTimeObj) {
         toExpireIds.push(booking._id);
+        
+        // Send Expiry Notification if not already sent
+        if (!booking.expiryNotified) {
+          try {
+            // Lazy-load student info only when a notification is actually triggered
+            const studentRef = await Student.findById(booking.studentId).select("studentId").lean();
+            if (studentRef && studentRef.studentId) {
+              await createStudentNotification(
+                studentRef.studentId,
+                "Locker Booking Expired",
+                `Your booking for Locker ${booking.lockerId} has expired.`,
+                "booking_expired",
+                { lockerId: booking.lockerId, expiredAt: booking.endTime }
+              );
+              booking.expiryNotified = true;
+              await booking.save();
+            }
+          } catch (err) {
+            console.error("❌ Expiry notification error:", err);
+          }
+        }
       }
     }
 
@@ -80,9 +126,6 @@ export const deleteMap = async (req, res, next) => {
 // Create a booking
 export const createBooking = async (req, res, next) => {
   try {
-    // ENFORCE EXPIRE LOCALLY FIRST
-    await expireOldBookings();
-
     const { mapId, lockerId, date, startTime, endTime } = req.body;
     
     console.log("🔍 Backend Debug - Request body:", req.body);
@@ -146,6 +189,23 @@ export const createBooking = async (req, res, next) => {
     });
     await newBooking.save();
     console.log("✅ Backend Debug - Booking created successfully:", newBooking);
+
+    // Send Real-Time Notification
+    try {
+      const student = await Student.findById(studentId);
+      if (student) {
+        await createStudentNotification(
+          student.studentId, // We use the student's string ID for notifications
+          "Locker Booking Confirmed",
+          `Success! Locker ${lockerId} is booked for ${date} (${startTime} - ${endTime}).`,
+          "booking_success",
+          { lockerId, date, startTime, endTime, bookingId: newBooking._id }
+        );
+      }
+    } catch (notifErr) {
+      console.error("❌ Error sending booking notification:", notifErr);
+    }
+
     res.json(newBooking);
   } catch (error) {
     console.error("❌ Backend Debug - Server error:", error);
@@ -176,10 +236,8 @@ const hydrateStudentInfo = async (booking) => {
   return bookingObj;
 };
 
-// Get bookings for a map
 export const getBookingsByMap = async (req, res, next) => {
   try {
-    await expireOldBookings(); // Clean on fetch
     const rawBookings = await LockerBooking.find({ mapId: req.params.mapId, status: "active" })
       .populate({
         path: "studentId",
@@ -196,7 +254,6 @@ export const getBookingsByMap = async (req, res, next) => {
 // Check if student has current booking
 export const getStudentCurrentBooking = async (req, res, next) => {
   try {
-    await expireOldBookings(); // Verify right before checking
     // Get student ID from authenticated user
     const studentId = req.student?._id || req.user?._id;
     
@@ -247,8 +304,6 @@ export const getAllBookings = async (req, res, next) => {
 // Get all bookings for the authenticated student
 export const getStudentBookings = async (req, res, next) => {
   try {
-    await expireOldBookings(); // Clean up expired bookings first
-    
     // Get student ID from authenticated user
     const studentId = req.student?._id || req.user?._id;
     
@@ -299,8 +354,6 @@ export const getStudentBookings = async (req, res, next) => {
 // Delete a booking by ID (for cancellation from MyBookLocker page)
 export const deleteBookingById = async (req, res, next) => {
   try {
-    await expireOldBookings(); // Safety enforcement check
-    
     const bookingId = req.params.id;
     
     // Get student ID from authenticated user
@@ -332,7 +385,6 @@ export const deleteBookingById = async (req, res, next) => {
 // Delete a booking
 export const deleteBooking = async (req, res, next) => {
   try {
-    await expireOldBookings(); // Safety enforcement check before any logic
     const { mapId, lockerId } = req.params;
     
     console.log("Deleting booking for map:", mapId, "locker:", lockerId);
