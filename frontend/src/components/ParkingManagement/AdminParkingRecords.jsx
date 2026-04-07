@@ -3,6 +3,8 @@ import axios from "axios";
 import { showAlert } from "../../components/Shared/BeautifulAlert";
 import AdminLayout from "../../components/Admin/AdminLayout";
 
+const AVAILABLE_ZONES = ["Zone 01", "Zone 02", "Zone 03", "Zone 03.02", "Zone 08", "Zone 08.02"];
+
 const AdminParkingRecords = () => {
   const [spots, setSpots] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,7 +17,7 @@ const AdminParkingRecords = () => {
   const [editForm, setEditForm] = useState(null);
   const [newSpot, setNewSpot] = useState({
     slotNumber: '',
-    zone: 'Default',
+    zone: '',
     latitude: 6.9001,
     longitude: 79.8001,
     vehicleType: 'Car'
@@ -44,10 +46,31 @@ const AdminParkingRecords = () => {
     return `Z${zoneNum}-S${nextNum}`;
   };
 
+  const handleZoneChange = async (zone) => {
+    if (!zone) {
+      setNewSpot({ ...newSpot, zone: '', slotNumber: '' });
+      return;
+    }
+    
+    try {
+      const res = await axios.get(`http://localhost:5000/api/parking/next-slot-number?zone=${encodeURIComponent(zone)}`);
+      if (res.data.success) {
+        setNewSpot({
+          ...newSpot,
+          zone,
+          slotNumber: res.data.data.nextSlotNumber
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching next slot number:", error);
+      showAlert('error', 'Could not generate slot number. Please try again.');
+    }
+  };
+
   const openAddModal = () => {
     setNewSpot({
-      slotNumber: '', // Will be handled if needed, or just let backend handle
-      zone: 'Default',
+      slotNumber: '',
+      zone: '',
       latitude: 6.9001,
       longitude: 79.8001,
       vehicleType: 'Car'
@@ -407,8 +430,29 @@ const AdminParkingRecords = () => {
             <h2 className="text-2xl font-bold text-blue-900 mb-6">Create Parking Spot</h2>
             <form onSubmit={handleCreateSpot} className="space-y-4">
               <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Zone</label>
+                <select 
+                  required
+                  value={newSpot.zone} 
+                  onChange={e => handleZoneChange(e.target.value)} 
+                  className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                >
+                  <option value="">Select a Zone</option>
+                  {AVAILABLE_ZONES.map(z => (
+                    <option key={z} value={z}>{z}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Slot Number (Auto-Generated)</label>
-                <input readOnly type="text" value={newSpot.slotNumber} className="w-full border p-2 rounded bg-gray-100 text-gray-500 cursor-not-allowed font-mono font-bold" />
+                <input 
+                  readOnly 
+                  type="text" 
+                  value={newSpot.slotNumber} 
+                  placeholder={newSpot.zone ? "Generating..." : "Select zone first"}
+                  className="w-full border p-2 rounded bg-gray-100 text-gray-500 cursor-not-allowed font-mono font-bold" 
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -423,7 +467,7 @@ const AdminParkingRecords = () => {
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Vehicle Type</label>
-                <select value={newSpot.vehicleType} onChange={e => setNewSpot({...newSpot, vehicleType: e.target.value})} className="w-full border p-2 rounded">
+                <select value={newSpot.vehicleType} onChange={e => setNewSpot({...newSpot, vehicleType: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none">
                   <option value="Car">Car</option>
                   <option value="Motorcycle">Motorcycle</option>
                   <option value="Bicycle">Bicycle</option>
@@ -431,7 +475,13 @@ const AdminParkingRecords = () => {
               </div>
               <div className="flex justify-end gap-3 mt-6">
                 <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2 text-gray-500 font-bold hover:bg-gray-100 rounded">Cancel</button>
-                <button type="submit" className="px-5 py-2 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold rounded hover:opacity-90">Save Spot</button>
+                <button 
+                  type="submit" 
+                  disabled={!newSpot.zone || !newSpot.slotNumber}
+                  className="px-5 py-2 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold rounded hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Save Spot
+                </button>
               </div>
             </form>
           </div>

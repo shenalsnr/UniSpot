@@ -66,6 +66,46 @@ export const createParkingSpot = async (req, res, next) => {
 };
 
 
+export const getNextSlotNumber = async (req, res, next) => {
+  try {
+    const { zone } = req.query;
+    if (!zone) {
+      return res.status(400).json({ success: false, message: "Zone is required" });
+    }
+
+    const spots = await ParkingSpot.find({ zone });
+    
+    // Prefix for the slot number (e.g., "Zone 01" -> "Z01", "Zone 03.02" -> "Z03.02")
+    // Using simple replace for consistency, keeping dots if present
+    const zonePart = zone.replace("Zone ", "Z");
+    
+    const existingNumbers = spots.map(s => {
+      const match = s.slotNumber.match(/-S(\d+)$/);
+      return match ? parseInt(match[1], 10) : null;
+    }).filter(n => n !== null).sort((a,b) => a - b);
+
+    let nextNumInt = 1;
+    for (let i = 0; i < existingNumbers.length; i++) {
+        if (existingNumbers[i] === nextNumInt) {
+            nextNumInt++;
+        } else if (existingNumbers[i] > nextNumInt) {
+            break;
+        }
+    }
+    
+    const nextNumStr = nextNumInt.toString().padStart(2, '0');
+    const nextSlotNumber = `${zonePart}-S${nextNumStr}`;
+
+    res.status(200).json({
+      success: true,
+      data: { nextSlotNumber }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 export const reserveParkingSpot = async (req, res, next) => {
   try {
     const spot = await ParkingSpot.findById(req.params.id);
