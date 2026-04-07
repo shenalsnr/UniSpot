@@ -239,7 +239,92 @@ export const getAllBookings = async (req, res, next) => {
     console.log("🔍 Debug - Student model registered:", !!mongoose.models.Student);
     res.json(allBookings);
   } catch (error) {
-    console.error("❌ Debug - Error fetching all bookings:", error);
+    console.error("Debug - Error fetching all bookings:", error);
+    next(error);
+  }
+};
+
+// Get all bookings for the authenticated student
+export const getStudentBookings = async (req, res, next) => {
+  try {
+    await expireOldBookings(); // Clean up expired bookings first
+    
+    // Get student ID from authenticated user
+    const studentId = req.student?._id || req.user?._id;
+    
+    console.log("Fetching bookings for student:", studentId);
+    
+    if (!studentId) {
+      return res.status(401).json({ message: "Student authentication required" });
+    }
+
+    // Find all bookings for this student (both active and expired)
+    const rawBookings = await LockerBooking.find({ studentId })
+      .populate({
+        path: "studentId",
+        select: "name studentId email faculty",
+        model: "Student"
+      })
+      .sort({ createdAt: -1 }); // Sort by newest first
+
+    // Get location names for each booking
+    const bookingsWithLocation = await Promise.all(
+      rawBookings.map(async (booking) => {
+        const bookingObj = await hydrateStudentInfo(booking);
+        
+        // Get location name from map
+        if (bookingObj.mapId) {
+          try {
+            const map = await LockerMap.findById(bookingObj.mapId).select('locationName').lean();
+            bookingObj.locationName = map?.locationName || 'Unknown Location';
+          } catch (err) {
+            bookingObj.locationName = 'Unknown Location';
+          }
+        } else {
+          bookingObj.locationName = 'Unknown Location';
+        }
+        
+        return bookingObj;
+      })
+    );
+    
+    console.log(`Found ${bookingsWithLocation.length} bookings for student ${studentId}`);
+    res.json(bookingsWithLocation);
+  } catch (error) {
+    console.error("Error fetching student bookings:", error);
+    next(error);
+  }
+};
+
+// Delete a booking by ID (for cancellation from MyBookLocker page)
+export const deleteBookingById = async (req, res, next) => {
+  try {
+    await expireOldBookings(); // Safety enforcement check
+    
+    const bookingId = req.params.id;
+    
+    // Get student ID from authenticated user
+    const studentId = req.student?._id || req.user?._id;
+    
+    if (!studentId) {
+      return res.status(401).json({ message: "Student authentication required" });
+    }
+
+    console.log(`Student ${studentId} attempting to cancel booking ${bookingId}`);
+
+    // Find the booking and verify it belongs to the student
+    const booking = await LockerBooking.findOne({ _id: bookingId, studentId });
+    if (!booking) {
+      return res.status(404).json({ 
+        message: "Booking not found or you don't have permission to cancel this booking." 
+      });
+    }
+
+    await LockerBooking.findByIdAndDelete(bookingId);
+    console.log(`Booking ${bookingId} cancelled successfully by student ${studentId}`);
+    res.json({ message: "Booking cancelled successfully" });
+  } catch (error) {
+    console.error("Error cancelling booking:", error);
     next(error);
   }
 };
@@ -250,33 +335,33 @@ export const deleteBooking = async (req, res, next) => {
     await expireOldBookings(); // Safety enforcement check before any logic
     const { mapId, lockerId } = req.params;
     
-    console.log("🔍 Debug - Deleting booking for map:", mapId, "locker:", lockerId);
+    console.log("Deleting booking for map:", mapId, "locker:", lockerId);
     
     // Get student ID from authenticated user
     const studentId = req.student?._id || req.user?._id;
     
     if (!studentId) {
-      console.log("❌ Debug - No student ID found for deletion");
+      console.log("No student ID found for deletion");
       return res.status(401).json({ message: "Student authentication required" });
     }
     
-    console.log("🔍 Debug - Student attempting to delete booking:", studentId);
+    console.log("Student attempting to delete booking:", studentId);
 
     // Find the active booking and verify it belongs to the student
     const booking = await LockerBooking.findOne({ mapId, lockerId, studentId, status: "active" });
     if (!booking) {
-      console.log("❌ Debug - Booking not found or not owned by student");
+      console.log("Booking not found or not owned by student");
       return res.status(404).json({ 
         message: "Booking not found or you don't have permission to cancel this booking." 
       });
     }
 
-    console.log("✅ Debug - Found booking to delete:", booking);
+    console.log("Found booking to delete:", booking);
     await LockerBooking.findByIdAndDelete(booking._id);
-    console.log("✅ Debug - Booking deleted successfully");
+    console.log("Booking deleted successfully");
     res.json({ message: "Booking cancelled successfully" });
   } catch (error) {
-    console.error("❌ Debug - Error deleting booking:", error);
+    console.error("Error deleting booking:", error);
     next(error);
   }
 };
