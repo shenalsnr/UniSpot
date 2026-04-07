@@ -43,6 +43,18 @@ const StudentDashboard = () => {
     document.body.removeChild(link);
   };
 
+  const formatDate = (dateValue) => {
+    if (!dateValue) return "Not available";
+
+    return new Date(dateValue).toLocaleString("en-LK", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   if (errorMessage) {
     return (
       <>
@@ -219,6 +231,50 @@ const StudentDashboard = () => {
             >
               Download QR Code
             </button>
+          </div>
+
+          <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl md:col-span-2">
+            <h3 className="mt-0 mb-4 text-slate-900 text-xl font-bold">
+              Personal Activity
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="rounded-2xl bg-blue-50/70 border border-blue-100 px-4 py-4">
+                <p className="m-0 text-xs font-bold uppercase tracking-wide text-blue-700 mb-1">
+                  Account Created
+                </p>
+                <p className="m-0 text-slate-800 font-semibold">
+                  {formatDate(student.createdAt)}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-blue-50/70 border border-blue-100 px-4 py-4">
+                <p className="m-0 text-xs font-bold uppercase tracking-wide text-blue-700 mb-1">
+                  Profile Last Updated
+                </p>
+                <p className="m-0 text-slate-800 font-semibold">
+                  {formatDate(student.profileUpdatedAt)}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-blue-50/70 border border-blue-100 px-4 py-4">
+                <p className="m-0 text-xs font-bold uppercase tracking-wide text-blue-700 mb-1">
+                  Vehicle Last Updated
+                </p>
+                <p className="m-0 text-slate-800 font-semibold">
+                  {formatDate(student.vehicleUpdatedAt)}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-blue-50/70 border border-blue-100 px-4 py-4">
+                <p className="m-0 text-xs font-bold uppercase tracking-wide text-blue-700 mb-1">
+                  Password Last Changed
+                </p>
+                <p className="m-0 text-slate-800 font-semibold">
+                  {formatDate(student.passwordChangedAt)}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
