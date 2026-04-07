@@ -23,6 +23,7 @@ import SecurityPortal from "./components/SecurityPortal/SecurityPortal";
 import QRScanner from "./components/SecurityPortal/QRScanner";
 import UnifiedNavbar from "./components/Shared/UnifiedNavbar";
 import LockerMaintenance from "./components/LockerManagement/LockerMaintenance";
+import ErrorBoundary from "./components/Shared/ErrorBoundary";
 
 const App = () => {
   const location = useLocation();
@@ -43,7 +44,7 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gray-200">
-      {isParkingFlow && (
+      {isParkingFlow && !isAdminPage && (
         <UnifiedNavbar
           moduleName="Parking"
           links={[
@@ -73,41 +74,43 @@ const App = () => {
         />
       )}
 
-      <Routes>
-        {/* Public Pages */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/home" element={<HomePage />} />
+      <ErrorBoundary>
+        <Routes>
+          {/* Public Pages */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/home" element={<HomePage />} />
 
-        {/* Student Portal */}
-        <Route path="/student-register" element={<StudentRegister />} />
-        <Route path="/student-login" element={<StudentLogin />} />
-        <Route path="/student-forgot-password" element={<StudentForgotPassword />} />
-        <Route path="/student-dashboard" element={<StudentDashboard />} />
-        <Route path="/student-profile" element={<StudentProfile />} />
+          {/* Student Portal */}
+          <Route path="/student-register" element={<StudentRegister />} />
+          <Route path="/student-login" element={<StudentLogin />} />
+          <Route path="/student-forgot-password" element={<StudentForgotPassword />} />
+          <Route path="/student-dashboard" element={<StudentDashboard />} />
+          <Route path="/student-profile" element={<StudentProfile />} />
 
-        {/* Admin Portal */}
-        <Route path="/admin-login" element={<AdminLogin />} />
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          {/* Admin Portal */}
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
-        {/* Locker Management */}
-        <Route path="/AdminLockerMap" element={<AdminLockerMap />} />
-        <Route path="/lockers" element={<LockerMap />} />
-        <Route path="/BookLockersStatus" element={<BookLockersStatus />} />
-        <Route path="/LockerMaintenance" element={<LockerMaintenance />} />
-        <Route path="/admin/locker-maintenance" element={<LockerMaintenance />} />
+          {/* Locker Management */}
+          <Route path="/AdminLockerMap" element={<AdminLockerMap />} />
+          <Route path="/lockers" element={<LockerMap />} />
+          <Route path="/BookLockersStatus" element={<BookLockersStatus />} />
+          <Route path="/LockerMaintenance" element={<LockerMaintenance />} />
+          <Route path="/admin/locker-maintenance" element={<LockerMaintenance />} />
 
-        {/* Parking flow */}
-        <Route path="/parking" element={<CampusMap />} />
-        <Route path="/parking/zones" element={<CampusMap />} />
-        <Route path="/parking/map" element={<ParkingMap />} />
-        <Route path="/parking/book/:spotId" element={<ParkingBookingForm />} />
-        <Route path="/parking/admin" element={<AdminParkingRecords />} />
-        <Route path="/parking/my-booking" element={<MyParkingBooking />} />
+          {/* Parking flow */}
+          <Route path="/parking" element={<CampusMap />} />
+          <Route path="/parking/zones" element={<CampusMap />} />
+          <Route path="/parking/map" element={<ParkingMap />} />
+          <Route path="/parking/book/:spotId" element={<ParkingBookingForm />} />
+          <Route path="/parking/admin" element={<AdminParkingRecords />} />
+          <Route path="/parking/my-booking" element={<MyParkingBooking />} />
 
-        {/* Security Portal */}
-        <Route path="/security" element={<SecurityPortal />} />
-        <Route path="/security/scan" element={<QRScanner />} />
-      </Routes>
+          {/* Security Portal */}
+          <Route path="/security" element={<SecurityPortal />} />
+          <Route path="/security/scan" element={<QRScanner />} />
+        </Routes>
+      </ErrorBoundary>
     </div>
   );
 };

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import { showAlert } from "../../components/Shared/BeautifulAlert";
+import AdminLayout from "../../components/Admin/AdminLayout";
+
+const AVAILABLE_ZONES = ["Zone 01", "Zone 02", "Zone 03", "Zone 03.02", "Zone 08", "Zone 08.02"];
 
 const AdminParkingRecords = () => {
   const [spots, setSpots] = useState([]);
@@ -14,20 +17,12 @@ const AdminParkingRecords = () => {
   const [editForm, setEditForm] = useState(null);
   const [newSpot, setNewSpot] = useState({
     slotNumber: '',
-    zone: 'Zone 01',
+    zone: '',
     latitude: 6.9001,
     longitude: 79.8001,
     vehicleType: 'Car'
   });
 
-  const zoneCoordinates = {
-    'Zone 01': { latitude: 6.9001, longitude: 79.8001 },
-    'Zone 02': { latitude: 6.9002, longitude: 79.8002 },
-    'Zone 03': { latitude: 6.9003, longitude: 79.8003 },
-    'Zone 03.02': { latitude: 6.9004, longitude: 79.8004 },
-    'Zone 08': { latitude: 6.9005, longitude: 79.8005 },
-    'Zone 08.02': { latitude: 6.9006, longitude: 79.8006 }
-  };
 
   const generateSlotNumber = (zoneLabel, currentSpots) => {
     const zoneNum = zoneLabel.replace(/\D/g, '');
@@ -51,26 +46,33 @@ const AdminParkingRecords = () => {
     return `Z${zoneNum}-S${nextNum}`;
   };
 
-  const handleZoneChange = (e) => {
-    const selectedZone = e.target.value;
-    const coords = zoneCoordinates[selectedZone];
-    setNewSpot({
-      ...newSpot,
-      zone: selectedZone,
-      latitude: coords.latitude,
-      longitude: coords.longitude,
-      slotNumber: generateSlotNumber(selectedZone, spots)
-    });
+  const handleZoneChange = async (zone) => {
+    if (!zone) {
+      setNewSpot({ ...newSpot, zone: '', slotNumber: '' });
+      return;
+    }
+    
+    try {
+      const res = await axios.get(`http://localhost:5000/api/parking/next-slot-number?zone=${encodeURIComponent(zone)}`);
+      if (res.data.success) {
+        setNewSpot({
+          ...newSpot,
+          zone,
+          slotNumber: res.data.data.nextSlotNumber
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching next slot number:", error);
+      showAlert('error', 'Could not generate slot number. Please try again.');
+    }
   };
 
   const openAddModal = () => {
-    const initialZone = 'Zone 01';
-    const coords = zoneCoordinates[initialZone];
     setNewSpot({
-      slotNumber: generateSlotNumber(initialZone, spots),
-      zone: initialZone,
-      latitude: coords.latitude,
-      longitude: coords.longitude,
+      slotNumber: '',
+      zone: '',
+      latitude: 6.9001,
+      longitude: 79.8001,
       vehicleType: 'Car'
     });
     setShowModal(true);
@@ -271,11 +273,21 @@ const AdminParkingRecords = () => {
   };
 
   return (
+    <AdminLayout>
     <div className="min-h-screen bg-slate-50 p-6 md:p-10 font-sans text-gray-800">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-10 pl-2">
-          <h1 className="text-4xl font-extrabold text-blue-800 tracking-tight">Admin Console</h1>
-          <p className="text-gray-500 font-medium mt-2">Manage all parking spot records and occupancy status</p>
+        {/* Main Header Topic */}
+        <div className="mb-10 relative z-10">
+          <div className="bg-[oklch(48.8%_0.243_264.376)] text-white rounded-[26px] p-8 shadow-xl shadow-blue-500/20 border border-white/10 overflow-hidden relative">
+            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+            <div className="relative z-10">
+              <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2 uppercase">Parking Records</h1>
+              <div className="flex items-center gap-2 text-white/80 font-medium">
+                <span className="w-8 h-px bg-white/30"></span>
+                <p>Comprehensive log of campus vehicle occupancy & status</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100">
@@ -298,7 +310,7 @@ const AdminParkingRecords = () => {
                 </div>
                 <input
                   type="text"
-                  placeholder="Search by Spot ID, Zone, Status, or Student ID..."
+                  placeholder="Search by Spot ID, Status, or Student ID..."
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[oklch(48.8%_0.243_264.376)] text-sm font-medium"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -325,7 +337,6 @@ const AdminParkingRecords = () => {
                 <thead className="bg-gray-50 text-gray-500 text-xs font-extrabold uppercase tracking-widest border-b-2 border-gray-200">
                   <tr>
                     <th className="py-5 px-6">Spot ID</th>
-                    <th className="py-5 px-6">Zone Area</th>
                     <th className="py-5 px-6">Current Status</th>
                     <th className="py-5 px-6">Reserved By (Student ID)</th>
                     <th className="py-5 px-6 text-center">Admin Actions</th>
@@ -337,11 +348,7 @@ const AdminParkingRecords = () => {
                       <td className="py-5 px-6 font-bold text-blue-900 text-lg">
                         {spot.slotNumber}
                       </td>
-                      <td className="py-5 px-6">
-                        <span className="inline-block bg-slate-100 text-slate-700 text-xs px-3 py-1.5 rounded-full font-bold uppercase tracking-wider">
-                          {spot.zone}
-                        </span>
-                      </td>
+
                       <td className="py-5 px-6">
                         {spot.isUnderMaintenance ? (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">
@@ -423,20 +430,31 @@ const AdminParkingRecords = () => {
             <h2 className="text-2xl font-bold text-blue-900 mb-6">Create Parking Spot</h2>
             <form onSubmit={handleCreateSpot} className="space-y-4">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">Slot Number (Auto-Generated)</label>
-                <input readOnly type="text" value={newSpot.slotNumber} className="w-full border p-2 rounded bg-gray-100 text-gray-500 cursor-not-allowed font-mono font-bold" />
-              </div>
-              <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Zone</label>
-                <select value={newSpot.zone} onChange={handleZoneChange} className="w-full border p-2 rounded">
-                  <option value="Zone 01">Zone 01</option>
-                  <option value="Zone 02">Zone 02</option>
-                  <option value="Zone 03">Zone 03</option>
-                  <option value="Zone 03.02">Zone 03.02</option>
-                  <option value="Zone 08">Zone 08</option>
-                  <option value="Zone 08.02">Zone 08.02</option>
+                <select 
+                  required
+                  value={newSpot.zone} 
+                  onChange={e => handleZoneChange(e.target.value)} 
+                  className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                >
+                  <option value="">Select a Zone</option>
+                  {AVAILABLE_ZONES.map(z => (
+                    <option key={z} value={z}>{z}</option>
+                  ))}
                 </select>
               </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Slot Number (Auto-Generated)</label>
+                <input 
+                  readOnly 
+                  type="text" 
+                  value={newSpot.slotNumber} 
+                  placeholder={newSpot.zone ? "Generating..." : "Select zone first"}
+                  className="w-full border p-2 rounded bg-gray-100 text-gray-500 cursor-not-allowed font-mono font-bold" 
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Latitude</label>
@@ -449,7 +467,7 @@ const AdminParkingRecords = () => {
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Vehicle Type</label>
-                <select value={newSpot.vehicleType} onChange={e => setNewSpot({...newSpot, vehicleType: e.target.value})} className="w-full border p-2 rounded">
+                <select value={newSpot.vehicleType} onChange={e => setNewSpot({...newSpot, vehicleType: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none">
                   <option value="Car">Car</option>
                   <option value="Motorcycle">Motorcycle</option>
                   <option value="Bicycle">Bicycle</option>
@@ -457,7 +475,13 @@ const AdminParkingRecords = () => {
               </div>
               <div className="flex justify-end gap-3 mt-6">
                 <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2 text-gray-500 font-bold hover:bg-gray-100 rounded">Cancel</button>
-                <button type="submit" className="px-5 py-2 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold rounded hover:opacity-90">Save Spot</button>
+                <button 
+                  type="submit" 
+                  disabled={!newSpot.zone || !newSpot.slotNumber}
+                  className="px-5 py-2 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold rounded hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Save Spot
+                </button>
               </div>
             </form>
           </div>
@@ -499,8 +523,8 @@ const AdminParkingRecords = () => {
               </div>
               <div className="grid grid-cols-2 gap-4 border-b pb-4">
                 <div>
-                  <p className="text-xs text-gray-400 font-bold uppercase">Slot / Zone</p>
-                  <p className="font-medium text-blue-600 font-bold">{selectedSpot.slotNumber} ({selectedSpot.zone})</p>
+                  <p className="text-xs text-gray-400 font-bold uppercase">Slot Number</p>
+                  <p className="font-medium text-blue-600 font-bold">{selectedSpot.slotNumber}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-400 font-bold uppercase">Status</p>
@@ -538,16 +562,11 @@ const AdminParkingRecords = () => {
       {editModalOpen && editForm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="bg-white p-8 rounded-xl shadow-2xl max-w-lg w-full my-8">
-            <h2 className="text-2xl font-bold text-blue-900 mb-6">Edit Booking Details</h2>
             <form onSubmit={handleUpdateSpot} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Slot Number</label>
                   <input readOnly type="text" value={editForm.slotNumber} className="w-full border p-2 rounded bg-gray-100 text-gray-500 cursor-not-allowed font-mono" />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">Zone</label>
-                  <input readOnly type="text" value={editForm.zone} className="w-full border p-2 rounded bg-gray-100 text-gray-500 cursor-not-allowed" />
                 </div>
               </div>
               <div>
@@ -583,6 +602,7 @@ const AdminParkingRecords = () => {
         </div>
       )}
     </div>
+    </AdminLayout>
   );
 };
 

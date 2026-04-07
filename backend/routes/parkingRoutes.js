@@ -11,7 +11,8 @@ import {
   getActiveBookingByStudent,
   cancelParkingSpot,
   toggleMaintenance,
-  securityScanQR
+  securityScanQR,
+  getNextSlotNumber
 } from "../controllers/parkingController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -21,6 +22,9 @@ const router = express.Router();
 router.route("/")
   .get(getParkingSpots)
   .post(createParkingSpot);
+
+router.route("/next-slot-number")
+  .get(getNextSlotNumber);
 
 // Route to get strictly active booking of the currently authenticated student
 router.route("/my-active")

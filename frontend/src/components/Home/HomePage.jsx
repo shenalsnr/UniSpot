@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import PublicNavbar from "./PublicNavbar";
+import Footer from "./Footer";
 
 import { UserPlus, Car, QrCode, RefreshCcw, Target, Lock } from "lucide-react";
 
@@ -296,6 +297,7 @@ const HomePage = () => {
           </section>
 
         </div>
+        <Footer />
       </div>
     </>
   );

@@ -6,7 +6,7 @@ const ContactPage = () => {
     <>
       <PublicNavbar />
 
-      <PageBackground className="flex justify-center items-start p-4 md:p-8 pt-12">
+      
         <div className="w-full max-w-[1100px] bg-white/85 backdrop-blur-md rounded-[28px] p-6 md:p-10 shadow-2xl animate-fade-in border border-white/60 mx-auto">
           <h1 className="mt-0 text-4xl md:text-[42px] text-slate-900 font-extrabold mb-5 tracking-tight">Contact Us</h1>
           <p className="text-slate-600 leading-relaxed mb-8 text-lg font-medium max-w-4xl">
@@ -31,7 +31,7 @@ const ContactPage = () => {
             </div>
           </div>
         </div>
-      </PageBackground>
+      
     </>
   );
 };
