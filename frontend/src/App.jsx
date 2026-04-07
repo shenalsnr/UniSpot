@@ -7,6 +7,7 @@ import StudentDashboard from "./components/Students/StudentDashboard";
 import StudentProfile from "./components/Students/StudentProfile";
 
 import AdminDashboard from "./components/Admin/AdminDashboard";
+import AdminLogin from "./components/Admin/AdminLogin";
 
 import AdminLockerMap from "./components/LockerManagement/AdminLockerMap";
 import LockerMap from "./components/LockerManagement/LockerMap";
@@ -59,10 +60,6 @@ const App = () => {
       {isSecurityFlow && (
         <UnifiedNavbar 
           moduleName="Security"
-          links={[
-            { to: "/security", label: "Staff Management" },
-            { to: "/security/scan", label: "QR Scanner" }
-          ]}
         />
       )}
 
@@ -77,6 +74,7 @@ const App = () => {
         <Route path="/student-profile" element={<StudentProfile />} />
         
         {/* Admin Portal */}
+        <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
         {/* Locker Management */}
