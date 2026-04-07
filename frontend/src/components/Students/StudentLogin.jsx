@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import PublicNavbar from "../Home/PublicNavbar";
-import PageBackground from "../Shared/PageBackground";
 import studentApi from "./studentApi";
+import PageBackground from "../Shared/PageBackground";
 
 const StudentLogin = () => {
   const [studentId, setStudentId] = useState("");
@@ -31,7 +31,6 @@ const StudentLogin = () => {
   return (
     <>
       <PublicNavbar />
-
       <PageBackground className="flex justify-center items-center p-8">
         <form
           className="w-full max-w-[520px] p-8 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-xl flex flex-col gap-4 animate-fade-in transition-all duration-300 relative z-10"
@@ -40,7 +39,6 @@ const StudentLogin = () => {
           <h2 className="mb-2 text-3xl md:text-4xl text-center text-slate-900 font-extrabold">
             Student Login
           </h2>
-
           <p className="mb-5 text-center text-slate-500 leading-relaxed font-medium">
             Access your profile, QR code, and vehicle management dashboard.
           </p>
