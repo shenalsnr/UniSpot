@@ -36,9 +36,9 @@ const StudentDashboard = () => {
     return (
       <>
         <StudentNavbar />
-        <PageBackground className="flex justify-center items-center p-4 md:p-8">
+        
           <div className="bg-red-100 text-red-700 px-6 py-4 rounded-xl font-semibold shadow-sm">{errorMessage}</div>
-        </PageBackground>
+        
       </>
     );
   }
@@ -47,9 +47,9 @@ const StudentDashboard = () => {
     return (
       <>
         <StudentNavbar />
-        <PageBackground className="flex justify-center items-center p-4 md:p-8">
+        
           <div className="p-8 text-center font-bold text-white text-lg bg-black/20 rounded-2xl backdrop-blur-sm">Loading dashboard...</div>
-        </PageBackground>
+        
       </>
     );
   }
@@ -58,7 +58,7 @@ const StudentDashboard = () => {
     <>
       <StudentNavbar />
 
-      <PageBackground className="p-4 md:p-8">
+      
         <div className="bg-linear-to-br from-blue-600 via-blue-700 to-blue-500 text-white rounded-[26px] p-6 md:p-8 shadow-xl shadow-blue-600/20 grid grid-cols-1 md:grid-cols-[1.3fr_0.7fr] items-center gap-6 mb-6">
           <div className="flex flex-col gap-4">
             <h1 className="m-0 mb-1 text-3xl md:text-4xl font-extrabold tracking-tight">Welcome back, {student.name}</h1>
@@ -164,7 +164,7 @@ const StudentDashboard = () => {
             Manage Profile
           </Link>
         </div>
-      </PageBackground>
+      
     </>
   );
 };
