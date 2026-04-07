@@ -10,7 +10,8 @@ import {
   getMyActiveBooking,
   getActiveBookingByStudent,
   cancelParkingSpot,
-  toggleMaintenance
+  toggleMaintenance,
+  securityScanQR
 } from "../controllers/parkingController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -28,6 +29,11 @@ router.route("/my-active")
 // Route to get active booking by student ID
 router.route("/my-booking/:studentId")
   .get(getActiveBookingByStudent);
+
+// Security QR scan endpoint — handles both ARRIVAL and DEPARTURE scans
+// Open (no JWT) matching existing security portal pattern
+router.route("/security/scan-qr")
+  .post(securityScanQR);
 
 // Route to reserve a specific parking spot
 router.route("/:id/reserve")
