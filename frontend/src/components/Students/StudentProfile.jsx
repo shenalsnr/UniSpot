@@ -104,7 +104,12 @@ const StudentProfile = () => {
     const lettersPattern = /^[A-Z]{2,3}$/;
     const numberPattern = /^\d{4}$/;
 
-    if (!vehicleData.model || !vehicleData.color || !vehicleData.regLetters || !vehicleData.regNumbers) {
+    if (
+      !vehicleData.model ||
+      !vehicleData.color ||
+      !vehicleData.regLetters ||
+      !vehicleData.regNumbers
+    ) {
       setVehicleMessage("Please fill all vehicle fields");
       return;
     }
@@ -150,12 +155,25 @@ const StudentProfile = () => {
     }
   };
 
+  const downloadQrHandler = () => {
+    if (!student?.qrCode) return;
+
+    const link = document.createElement("a");
+    link.href = student.qrCode;
+    link.download = `${student.studentId}-qr-code.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (!student) {
     return (
       <>
         <StudentNavbar />
         <PageBackground className="flex justify-center items-center p-4 md:p-8">
-          <div className="p-8 text-center font-bold text-white text-lg bg-black/20 rounded-2xl backdrop-blur-sm">Loading profile...</div>
+          <div className="p-8 text-center font-bold text-white text-lg bg-black/20 rounded-2xl backdrop-blur-sm">
+            Loading profile...
+          </div>
         </PageBackground>
       </>
     );
@@ -167,14 +185,24 @@ const StudentProfile = () => {
 
       <PageBackground className="p-4 md:p-8 md:px-12 lg:px-24">
         <div className="mb-6 relative z-10">
-          <h1 className="m-0 text-3xl md:text-4xl text-white font-extrabold tracking-tight drop-shadow-md">My Profile</h1>
-          <p className="mt-2 text-blue-50 font-medium text-lg drop-shadow-sm">Update your profile details and manage your vehicle information.</p>
+          <h1 className="m-0 text-3xl md:text-4xl text-white font-extrabold tracking-tight drop-shadow-md">
+            My Profile
+          </h1>
+          <p className="mt-2 text-blue-50 font-medium text-lg drop-shadow-sm">
+            Update your profile details and manage your vehicle information.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6">
           <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-            <h2 className="mt-0 mb-5 text-slate-900 text-xl font-bold">Profile Details</h2>
-            {profileMessage && <p className="bg-green-100 text-green-800 px-4 py-3 rounded-xl font-semibold mb-4 text-center text-sm">{profileMessage}</p>}
+            <h2 className="mt-0 mb-5 text-slate-900 text-xl font-bold">
+              Profile Details
+            </h2>
+            {profileMessage && (
+              <p className="bg-green-100 text-green-800 px-4 py-3 rounded-xl font-semibold mb-4 text-center text-sm">
+                {profileMessage}
+              </p>
+            )}
 
             <form className="flex flex-col gap-4" onSubmit={updateProfileHandler}>
               <input
@@ -223,13 +251,24 @@ const StudentProfile = () => {
                 name="photo"
                 onChange={profileChangeHandler}
               />
-              <button type="submit" className="w-full mt-2 bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-blue-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/30 hover:opacity-90">Update Profile</button>
+              <button
+                type="submit"
+                className="w-full mt-2 bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-blue-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/30 hover:opacity-90"
+              >
+                Update Profile
+              </button>
             </form>
           </div>
 
           <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-            <h2 className="mt-0 mb-5 text-slate-900 text-xl font-bold">Vehicle Details</h2>
-            {vehicleMessage && <p className="bg-green-100 text-green-800 px-4 py-3 rounded-xl font-semibold mb-4 text-center text-sm">{vehicleMessage}</p>}
+            <h2 className="mt-0 mb-5 text-slate-900 text-xl font-bold">
+              Vehicle Details
+            </h2>
+            {vehicleMessage && (
+              <p className="bg-green-100 text-green-800 px-4 py-3 rounded-xl font-semibold mb-4 text-center text-sm">
+                {vehicleMessage}
+              </p>
+            )}
 
             <div className="inline-block mb-4 px-4 py-2 rounded-full bg-gradient-to-br from-blue-100 to-blue-50 text-blue-700 text-sm font-bold border border-blue-200">
               {student.vehicleRegistered ? "Vehicle Registered" : "No Vehicle Registered"}
@@ -268,13 +307,19 @@ const StudentProfile = () => {
                 onChange={vehicleChangeHandler}
                 placeholder="Numbers (4 digits)"
               />
-              <button type="submit" className="w-full mt-2 bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-blue-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/30 hover:opacity-90">
+              <button
+                type="submit"
+                className="w-full mt-2 bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-blue-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/30 hover:opacity-90"
+              >
                 {student.vehicleRegistered ? "Update Vehicle" : "Add Vehicle"}
               </button>
             </form>
 
             {student.vehicleRegistered && (
-              <button className="mt-4 w-full bg-gradient-to-br from-red-600 to-red-500 text-white shadow-lg shadow-red-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-red-700" onClick={removeVehicleHandler}>
+              <button
+                className="mt-4 w-full bg-gradient-to-br from-red-600 to-red-500 text-white shadow-lg shadow-red-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-red-700"
+                onClick={removeVehicleHandler}
+              >
                 Remove Vehicle
               </button>
             )}
@@ -282,7 +327,9 @@ const StudentProfile = () => {
 
           <div className="flex flex-col gap-6">
             <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl text-center">
-              <h2 className="mt-0 mb-4 text-slate-900 text-xl font-bold">Current Photo</h2>
+              <h2 className="mt-0 mb-4 text-slate-900 text-xl font-bold">
+                Current Photo
+              </h2>
               <img
                 src={`http://localhost:5000${student.photo}`}
                 alt="Student"
@@ -291,8 +338,21 @@ const StudentProfile = () => {
             </div>
 
             <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl text-center">
-              <h2 className="mt-0 mb-4 text-slate-900 text-xl font-bold">QR Code</h2>
-              <img src={student.qrCode} alt="QR Code" className="w-[180px] h-[180px] object-contain bg-white p-3 rounded-2xl mx-auto border-4 border-white shadow-lg drop-shadow-sm" />
+              <h2 className="mt-0 mb-4 text-slate-900 text-xl font-bold">
+                QR Code
+              </h2>
+              <img
+                src={student.qrCode}
+                alt="QR Code"
+                className="w-[180px] h-[180px] object-contain bg-white p-3 rounded-2xl mx-auto border-4 border-white shadow-lg drop-shadow-sm"
+              />
+              <button
+                type="button"
+                onClick={downloadQrHandler}
+                className="mt-4 w-full bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-blue-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/30 hover:opacity-90"
+              >
+                Download QR Code
+              </button>
             </div>
           </div>
         </div>
