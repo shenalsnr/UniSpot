@@ -8,6 +8,8 @@ import { generateParkingReceipt } from '../../utils/pdfGenerator';
 const MyParkingBooking = () => {
   const [student, setStudent] = useState(null);
   const [booking, setBooking] = useState(null);
+  const [bookingStatus, setBookingStatus] = useState('active');
+  const [actualArrivalTime, setActualArrivalTime] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -26,13 +28,16 @@ const MyParkingBooking = () => {
         const curStudent = profileRes.data;
         setStudent(curStudent);
 
-        // Fetch active booking
+        // Fetch active booking (slot stays occupied even when expired)
         try {
           const bookingRes = await studentApi.get('/parking/my-active');
           setBooking(bookingRes.data.data);
+          setBookingStatus(bookingRes.data.bookingStatus || 'active');
+          setActualArrivalTime(bookingRes.data.actualArrivalTime || null);
         } catch (bookingErr) {
-          // If 404, it means no active booking
           setBooking(null);
+          setBookingStatus('active');
+          setActualArrivalTime(null);
         }
       } catch (err) {
         console.error("Failed to fetch data:", err);
@@ -46,20 +51,24 @@ const MyParkingBooking = () => {
   }, [navigate]);
 
   const handleCancelBooking = async () => {
+    if (bookingStatus === 'expired') {
+      alert("This booking has expired. Cancellation is not available. Please contact security or administration.");
+      return;
+    }
     if (window.confirm("Are you sure you want to cancel this parking booking?")) {
       try {
-        const res = await fetch(`http://localhost:5000/api/parking/${booking._id}/cancel`, {
-          method: 'PUT'
-        });
-        if (res.ok) {
+        const res = await studentApi.put(`/parking/${booking._id}/cancel`);
+        if (res.data?.success) {
           setBooking(null);
+          setBookingStatus('active');
+          setActualArrivalTime(null);
           alert("Booking cancelled successfully.");
         } else {
           alert("Failed to cancel booking.");
         }
       } catch (err) {
         console.error("Cancel error:", err);
-        alert("Error connecting to server.");
+        alert(err.response?.data?.message || "Error connecting to server.");
       }
     }
   };
@@ -122,16 +131,51 @@ const MyParkingBooking = () => {
             </div>
           ) : (
             <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/60">
-              <div className="bg-gradient-to-r from-blue-600 to-[oklch(48.8%_0.243_264.376)] p-6 text-white flex justify-between items-center relative overflow-hidden">
+              <div className={`p-6 text-white flex justify-between items-center relative overflow-hidden ${bookingStatus === 'expired' ? 'bg-gradient-to-r from-orange-600 to-red-500' : 'bg-gradient-to-r from-blue-600 to-[oklch(48.8%_0.243_264.376)]'}`}>
                 <div className="z-10">
-                  <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-xs font-black uppercase tracking-wider mb-2">Status: Active</span>
+                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-2 ${bookingStatus === 'expired' ? 'bg-white/20' : 'bg-white/20'}`}>
+                    Status: {bookingStatus === 'expired' ? 'Expired ⚠️' : 'Active'}
+                  </span>
                   <h2 className="text-3xl font-extrabold tracking-tight">Slot {booking.slotNumber}</h2>
                   <p className="text-blue-100 font-medium opacity-90">{booking.zone}</p>
                 </div>
                 <div className="z-10">
                   <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                    {bookingStatus === 'expired'
+                      ? <span className="text-3xl">⏰</span>
+                      : <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                    }
                   </div>
+                </div>
+              </div>
+
+              {/* Expired warning banner */}
+              {bookingStatus === 'expired' && (
+                <div className="bg-red-50 border-b border-red-200 px-6 py-3 flex items-start gap-3">
+                  <span className="text-red-500 text-xl flex-shrink-0 mt-0.5">🚨</span>
+                  <div>
+                    <p className="text-red-800 font-bold text-sm">Booking time has expired</p>
+                    <p className="text-red-600 text-xs mt-0.5">
+                      Your booked time has passed without a confirmed departure scan. Your slot is still reserved until Security confirms your departure. A penalty may have been applied.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* QR Scan Guidance Banner */}
+              <div className="bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-center gap-3">
+                <span className="text-amber-500 text-xl">📲</span>
+                <div>
+                  <p className="text-amber-800 font-bold text-sm">
+                    {bookingStatus === 'expired'
+                      ? 'Show your QR to security to confirm departure and release the slot.'
+                      : 'Show your QR code to security when arriving and leaving.'}
+                  </p>
+                  <p className="text-amber-600 text-xs mt-0.5">
+                    {actualArrivalTime
+                      ? `✓ Arrival recorded at ${new Date(actualArrivalTime).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })} — show QR again when leaving`
+                      : 'Arrival not yet scanned — security will scan on entry'}
+                  </p>
                 </div>
               </div>
 
@@ -172,12 +216,14 @@ const MyParkingBooking = () => {
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     Download Receipt PDF
                   </button>
-                  <button
-                    onClick={handleCancelBooking}
-                    className="flex-1 bg-red-100 hover:bg-red-200 text-red-600 font-bold py-4 px-6 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
-                  >
-                    Cancel Booking
-                  </button>
+                  {bookingStatus !== 'expired' && (
+                    <button
+                      onClick={handleCancelBooking}
+                      className="flex-1 bg-red-100 hover:bg-red-200 text-red-600 font-bold py-4 px-6 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+                    >
+                      Cancel Booking
+                    </button>
+                  )}
                 </div>
                 <button
                   onClick={() => navigate('/student-dashboard')}

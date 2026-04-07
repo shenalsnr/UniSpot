@@ -111,17 +111,25 @@ const StudentDashboard = () => {
           <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
             <h3 className="mt-0 mb-4 text-slate-900 text-xl font-bold">Account Overview</h3>
             <div className="flex flex-col gap-3">
-              <p className="m-0 leading-relaxed text-slate-700"><span className="font-bold text-slate-900">Status:</span> {student.status}</p>
-              <p className="m-0 leading-relaxed text-slate-700 flex items-center gap-2">
-                <span className="font-bold text-slate-900">Marks:</span>{" "}
-                <span className={`inline-block px-3 py-1 rounded-full text-white text-xs font-bold shadow-sm ${getMarksClass(student.marks)}`}>
-                  {student.marks}/10
+              <p className="m-0 leading-relaxed text-slate-700">
+                <span className="font-bold text-slate-900">Status:</span>{" "}
+                <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold ${student.status === 'blocked' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                  {student.status === 'blocked' ? '🚫 Blocked' : '✓ Active'}
                 </span>
               </p>
-              <p className="m-0 leading-relaxed text-slate-700"><span className="font-bold text-slate-900">Vehicle Registered:</span> {student.vehicleRegistered ? "Yes" : "No"}</p>
-              {student.blockReason && (
-                <p className="m-0 leading-relaxed text-slate-700"><span className="font-bold text-slate-900">Block Reason:</span> {student.blockReason}</p>
+              <p className="m-0 leading-relaxed text-slate-700 flex items-center gap-2">
+                <span className="font-bold text-slate-900">Parking Points:</span>{" "}
+                <span className={`inline-block px-3 py-1 rounded-full text-white text-xs font-bold shadow-sm ${getMarksClass(student.marks)}`}>
+                  {student.marks ?? 10}/10
+                </span>
+              </p>
+              {student.status === 'blocked' && (
+                <div className="mt-1 p-3 bg-red-50 border border-red-200 rounded-xl">
+                  <p className="text-xs font-bold text-red-700 mb-1">🚫 Parking Access Suspended</p>
+                  <p className="text-xs text-red-600">{student.blockReason || 'Contact administration to restore access.'}</p>
+                </div>
               )}
+              <p className="m-0 leading-relaxed text-slate-700"><span className="font-bold text-slate-900">Vehicle Registered:</span> {student.vehicleRegistered ? "Yes" : "No"}</p>
             </div>
           </div>
 
