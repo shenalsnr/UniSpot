@@ -16,7 +16,7 @@ const navItems = [
     ),
   },
   {
-    label: "Locker Map",
+    label: "Add Locker Map",
     to: "/AdminLockerMap",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
@@ -36,7 +36,7 @@ const navItems = [
     ),
   },
   {
-    label: "Locker Bookings",
+    label: "Locker Bookings Status",
     to: "/BookLockersStatus",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
@@ -104,15 +104,15 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
           {/* Logo in white circle — visible in both states */}
           <div
             style={{
-              width: collapsed ? "40px" : "44px",
-              height: collapsed ? "40px" : "44px",
+              width: collapsed ? "48px" : "54px",
+              height: collapsed ? "48px" : "54px",
               borderRadius: "50%",
               background: "white",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
-              boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
+              boxShadow: "0 2px 14px rgba(0,0,0,0.22)",
               transition: "all 0.3s",
             }}
           >
@@ -120,8 +120,8 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
               src={logo}
               alt="UniSpot"
               style={{
-                width: collapsed ? "28px" : "32px",
-                height: collapsed ? "28px" : "32px",
+                width: collapsed ? "36px" : "42px",
+                height: collapsed ? "36px" : "42px",
                 objectFit: "contain",
                 transition: "all 0.3s",
               }}
@@ -177,11 +177,17 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
         {/* Nav Items */}
         <nav style={{ flex: 1, padding: "16px 8px", display: "flex", flexDirection: "column", gap: "4px" }}>
           {navItems.map((item) => {
-            const isActive = location.pathname === item.to;
+            // Case-insensitive matching with trailing slash safety
+            const currentPath = location.pathname.toLowerCase().replace(/\/$/, "");
+            const itemPath = item.to.toLowerCase().replace(/\/$/, "");
+            const isActive = currentPath === itemPath;
+
             return (
               <button
                 key={item.to}
-                onClick={() => navigate(item.to)}
+                onClick={() => {
+                  if (!isActive) navigate(item.to);
+                }}
                 title={collapsed ? item.label : undefined}
                 style={{
                   display: "flex",

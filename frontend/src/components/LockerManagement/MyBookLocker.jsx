@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import logo from '../../assets/logo.png';
 import { showAlert } from '../Shared/BeautifulAlert';
 import { showConfirm } from '../Shared/BeautifulConfirm';
 
@@ -30,6 +32,13 @@ const MyBookLocker = () => {
 
         // Fetch student's locker bookings
         try {
+          // 1. Fetch full student profile to get the latest QR code and data
+          const profileRes = await axios.get('http://localhost:5000/api/students/profile', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setStudent({ ...studentInfo, ...profileRes.data });
+
+          // 2. Fetch student's locker bookings
           const bookingRes = await axios.get('http://localhost:5000/api/locker/bookings/student/my-bookings', {
             headers: { Authorization: `Bearer ${token}` }
           });
@@ -81,38 +90,110 @@ const MyBookLocker = () => {
     }
   };
 
-  const downloadReceipt = (booking) => {
-    // Create a simple text receipt for now
-    const receiptContent = `
-UNIVERSITY LOCKER BOOKING RECEIPT
-================================
+  const downloadReceipt = async (booking) => {
+    try {
+      const templateURL = 'http://localhost:5000/uploads/templates/locker_receipt_template.pdf';
+      const response = await fetch(templateURL);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch PDF template: ${response.status} ${response.statusText}. Please ensure the backend server was RESTARTED.`);
+      }
 
-Student Information:
-- Name: ${student?.name || 'N/A'}
-- Student ID: ${student?.studentId || 'N/A'}
-- Faculty: ${student?.faculty || 'N/A'}
+      const existingPdfBytes = await response.arrayBuffer();
 
-Booking Details:
-- Locker ID: ${booking.lockerId}
-- Location: ${booking.locationName || 'N/A'}
-- Date: ${booking.date}
-- Time: ${booking.startTime} - ${booking.endTime}
-- Status: ${booking.status}
-- Booking ID: ${booking._id}
+      // Load the PDF template
+      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+      const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+      
+      const pages = pdfDoc.getPages();
+      const firstPage = pages[0];
+      const { height } = firstPage.getSize();
 
-Generated on: ${new Date().toLocaleString()}
-    `.trim();
+      // Helper function to map mm coordinates to points (y is from bottom)
+      const mmToPt = (mm) => mm * 2.83465;
+      const drawTextAt = (text, xMm, yMm, size = 11, font = helveticaFont, color = rgb(0, 0, 0)) => {
+        firstPage.drawText(String(text), {
+          x: mmToPt(xMm),
+          y: height - mmToPt(yMm),
+          size,
+          font,
+          color
+        });
+      };
 
-    // Create and download text file
-    const blob = new Blob([receiptContent], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `locker-receipt-${booking.lockerId}-${booking.date}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+      // 1. Add University Logo to the white box (Centered in top-left box)
+      try {
+        const logoBytes = await fetch(logo).then(res => res.arrayBuffer());
+        const logoImage = await pdfDoc.embedPng(logoBytes);
+        
+        // Target box in template: 50x40mm at (20, 5) from top
+        const targetSize = mmToPt(32);
+        firstPage.drawImage(logoImage, {
+          x: mmToPt(20) + (mmToPt(50) - targetSize) / 2,
+          y: height - mmToPt(41), // Top margin 5mm + Vertical slack (40-32)/2 = 9mm from top
+          width: targetSize,
+          height: targetSize,
+        });
+      } catch (err) {
+        console.error("Logo embed error:", err);
+      }
+
+      // 2. Add Student QR Code (Centered in QR section)
+      if (student?.qrCode) {
+        try {
+          const qrBytes = await fetch(student.qrCode).then(res => res.arrayBuffer());
+          const qrImage = await pdfDoc.embedPng(qrBytes);
+          
+          // Target box in template: 51x51mm at (132, 115) from top
+          const qrSize = mmToPt(45);
+          firstPage.drawImage(qrImage, {
+            x: mmToPt(132) + (mmToPt(51) - qrSize) / 2,
+            y: height - mmToPt(163), // Top margin 115mm + Vertical slack (51-45)/2 = 118mm from top
+            width: qrSize,
+            height: qrSize,
+          });
+          
+          drawTextAt("Scan for student", 143, 175, 8, helveticaFont, rgb(148/255, 163/255, 184/255));
+          drawTextAt("verification", 148, 180, 8, helveticaFont, rgb(148/255, 163/255, 184/255));
+        } catch (err) {
+          console.error("QR embed error:", err);
+        }
+      }
+
+      // 3. Map Student Details (Sharper font and tighter alignment)
+      const detailSize = 11;
+      drawTextAt(student?.name || "N/A", 50, 115, detailSize, helveticaBold);
+      drawTextAt(student?.studentId || "N/A", 50, 125, detailSize, helveticaBold);
+      drawTextAt(student?.faculty || "N/A", 50, 135, detailSize, helveticaBold);
+
+      // 4. Map Locker Details (Fixing the 10mm shift to align with labels)
+      drawTextAt(booking.lockerId, 50, 155, detailSize, helveticaBold); // Shifted up from 165
+      drawTextAt(booking.locationName || "Main Campus", 50, 165, detailSize, helveticaBold); // Shifted up from 175
+      drawTextAt(new Date(booking.date).toLocaleDateString(), 50, 175, detailSize, helveticaBold); // Shifted up from 185
+      drawTextAt(`${booking.startTime} - ${booking.endTime}`, 50, 185, detailSize, helveticaBold); // Shifted up from 195
+
+      // 5. Map Booking Reference & Status (High Contrast)
+      drawTextAt(booking._id.slice(-8).toUpperCase(), 28, 233, 18, helveticaBold, rgb(30/255, 58/255, 138/255));
+      drawTextAt(new Date().toLocaleDateString(), 85, 233, 12, helveticaBold);
+      
+      // Status is already green-boxed in the template, but we can draw the text for clarity if needed
+      // drawTextAt(booking.status.toUpperCase(), 154, 230, 11, helveticaBold, rgb(21/255, 128/255, 61/255));
+
+      // 6. Save and Download
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `locker-receipt-${booking.lockerId}-${booking._id.slice(-8)}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error("PDF Template Filling error:", err);
+      showAlert('error', 'Failed to generate PDF. Please try again.');
+    }
   };
 
   if (loading) {
