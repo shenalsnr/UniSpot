@@ -33,7 +33,11 @@ const MyBookLocker = () => {
           const bookingRes = await axios.get('http://localhost:5000/api/locker/bookings/student/my-bookings', {
             headers: { Authorization: `Bearer ${token}` }
           });
-          setBookings(bookingRes.data || []);
+          
+          // Only show active bookings - auto-remove expired/past bookings from this view
+          const allBookings = bookingRes.data || [];
+          const activeBookings = allBookings.filter(booking => booking.status === 'active');
+          setBookings(activeBookings);
         } catch (bookingErr) {
           console.error("Error fetching bookings:", bookingErr);
           setBookings([]);
