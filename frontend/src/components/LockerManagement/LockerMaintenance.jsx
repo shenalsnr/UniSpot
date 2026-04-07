@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Wrench, CheckCircle, Clock, Lock, Unlock, ArrowLeft, Shield, Search } from 'lucide-react';
 import { showAlert } from '../Shared/BeautifulAlert';
 import { showConfirm } from '../Shared/BeautifulConfirm';
-import UnifiedNavbar from '../Shared/UnifiedNavbar';
+import AdminLayout from '../Admin/AdminLayout';
 
 const API = 'http://localhost:5000';
 
@@ -204,26 +204,25 @@ const LockerMaintenance = () => {
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <>
-      <UnifiedNavbar
-        moduleName="LOCKER MAINTENANCE"
-        centerModule={true}
-        rightActions={
-          <button
-            onClick={() => navigate('/AdminLockerMap')}
-            className="px-4 py-2 bg-blue-500 text-white font-bold rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_20px_rgba(59,130,246,0.8)] border border-blue-300 transition-all duration-300 hover:scale-105 flex items-center gap-2"
-          >
-            <ArrowLeft size={16} /> Back
-          </button>
-        }
-      />
-
-      <div className="min-h-screen bg-linear-to-br from-white via-slate-50 to-white pt-24 pb-16 px-8">
+    <AdminLayout>
+      <div className="min-h-screen bg-linear-to-br from-white via-slate-50 to-white pb-16">
        
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-7xl mx-auto space-y-8 mt-10">
+          {/* Main Header Topic */}
+          <div className="bg-[oklch(48.8%_0.243_264.376)] text-white rounded-[26px] p-8 shadow-xl shadow-blue-500/20 border border-white/10 overflow-hidden relative">
+            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+            <div className="relative z-10">
+              <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2 uppercase">Locker Maintenance</h1>
+              <div className="flex items-center gap-2 text-white/80 font-medium">
+                <span className="w-8 h-px bg-white/30"></span>
+                <p>Monitor and repair academic storage units</p>
+              </div>
+            </div>
+          </div>
+
           {/* ── Stats Bar ── */}
           <div className="bg-white rounded-3xl shadow-xl p-6 border border-slate-200/70">
-            <h3 className="text-2xl font-bold text-slate-900 mb-5">Locker Summary</h3>
+            <h3 className="text-xl font-bold text-slate-800 mb-5">Current Statistics</h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {[
                 { label: 'Total', value: stats.total, accent: 'border-blue-200 bg-blue-50/80 text-blue-800' },
@@ -370,7 +369,7 @@ const LockerMaintenance = () => {
           </div>
         )}
       </div>
-    </>
+    </AdminLayout>
   );
 };
 
