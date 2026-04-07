@@ -66,10 +66,8 @@ const App = () => {
       {isSecurityFlow && (
         <UnifiedNavbar
           moduleName="Security"
-          links={[
-            { to: "/security", label: "Staff Management" },
-            { to: "/security/scan", label: "QR Scanner" },
-          ]}
+
+
         />
       )}
 
