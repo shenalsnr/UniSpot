@@ -56,7 +56,7 @@ const LockerMap = () => {
         <div className="fixed bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-blue-500 to-transparent opacity-20"></div>
 
         <div className="relative pt-20 pb-12 px-8">
-          
+
 
           <div className="max-w-full mx-auto space-y-8">
             {/* ── Controls ── */}

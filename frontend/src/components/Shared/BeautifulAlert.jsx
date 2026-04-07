@@ -1,25 +1,25 @@
 import { useEffect, useState } from 'react';
 import { AlertCircle, CheckCircle, X, Lock, Calendar, Clock, Info } from 'lucide-react';
 
-const BeautifulAlert = ({ 
+const BeautifulAlert = ({
   type = 'info', // 'success', 'error', 'warning', 'info'
-  title, 
-  message, 
+  title,
+  message,
   duration = 5000,
   onClose,
-  show = false 
+  show = false
 }) => {
   const [isVisible, setIsVisible] = useState(show);
 
   useEffect(() => {
     setIsVisible(show);
-    
+
     if (show && duration > 0) {
       const timer = setTimeout(() => {
         setIsVisible(false);
         if (onClose) onClose();
       }, duration);
-      
+
       return () => clearTimeout(timer);
     }
   }, [show, duration, onClose]);
@@ -64,7 +64,7 @@ const BeautifulAlert = ({
   const currentStyle = alertStyles[type] || alertStyles.info;
 
   const getIcon = () => {
-    switch(type) {
+    switch (type) {
       case 'success':
         return <CheckCircle size={28} className={currentStyle.icon} />;
       case 'error':
@@ -80,21 +80,21 @@ const BeautifulAlert = ({
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      <div 
+      <div
         className="fixed inset-0 bg-black/30 backdrop-blur-md animate-fade-in"
         onClick={() => {
           setIsVisible(false);
           if (onClose) onClose();
-        }} 
+        }}
       />
-      
+
       <div className={`relative max-w-md w-full ${currentStyle.bg} ${currentStyle.border} border-2 rounded-3xl shadow-2xl ${currentStyle.shadow} p-8 transform transition-all duration-500 ease-out animate-slide-up backdrop-blur-sm`}>
         {/* Decorative Elements */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
         <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center">
           <div className={`w-3 h-3 rounded-full ${currentStyle.icon} animate-pulse`}></div>
         </div>
-        
+
         {/* Close Button */}
         <button
           onClick={() => {
@@ -111,7 +111,7 @@ const BeautifulAlert = ({
           <div className={`p-3 rounded-2xl ${currentStyle.bg} ${currentStyle.border} border-2 shadow-lg`}>
             {getIcon()}
           </div>
-          
+
           {title && (
             <h3 className={`ml-4 text-xl font-bold ${currentStyle.title}`}>
               {title}
@@ -153,15 +153,15 @@ export const showAlert = (type, message, title = null, duration = 5000) => {
   // Create new alert container
   const alertContainer = document.createElement('div');
   document.body.appendChild(alertContainer);
-  
+
   // Import ReactDOM dynamically to avoid require issues
   import('react-dom/client').then(({ createRoot }) => {
     const root = createRoot(alertContainer);
-    
+
     alertInstance = alertContainer;
-    
+
     root.render(
-      <BeautifulAlert 
+      <BeautifulAlert
         type={type}
         title={title}
         message={message}

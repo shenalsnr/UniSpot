@@ -3,7 +3,21 @@ import studentApi from "./studentApi";
 import { io } from "socket.io-client";
 
 // ─── Notification type icon helper ──────────────────────────────────────────
-const getTypeIcon = (type) => {
+const getTypeIcon = (type, title = "") => {
+  // If it's a locker-specific type or the title suggests it's a locker booking
+  if (
+    type === "locker_booking_success" || 
+    type === "locker_booking_reminder" || 
+    type === "locker_booking_expired" ||
+    (title && title.toLowerCase().includes("locker"))
+  ) {
+    return (
+      <span className="notif-type-icon notif-type-locker" title="Locker Update">
+        📦
+      </span>
+    );
+  }
+
   switch (type) {
     case "booking_success":
       return (
@@ -398,6 +412,7 @@ const NotificationBell = () => {
         .notif-type-expired     { background: #ffedd5; }
         .notif-type-penalty     { background: #fee2e2; }
         .notif-type-blocked     { background: #1f2937; color: #f9fafb; }
+        .notif-type-locker      { background: #eff6ff; border: 1px solid #bfdbfe; }
         .notif-type-default     { background: #f1f5f9; }
 
         /* Item body */
@@ -624,7 +639,7 @@ const NotificationBell = () => {
                     className={`notif-item ${n.isRead ? "notif-read" : "notif-unread"}`}
                   >
                     {/* Type icon */}
-                    {getTypeIcon(n.type)}
+                    {getTypeIcon(n.type, n.title)}
 
                     {/* Content */}
                     <div className="notif-body">

@@ -28,7 +28,7 @@ export const expireOldBookings = async () => {
               studentRef.studentId,
               "Locker Expiry Reminder",
               `Reminder: Your booking for Locker ${booking.lockerId} will expire in 1 hour (${booking.endTime}).`,
-              "booking_reminder",
+              "locker_booking_reminder",
               { lockerId: booking.lockerId, endTime: booking.endTime }
             );
             booking.reminderSent = true;
@@ -53,7 +53,7 @@ export const expireOldBookings = async () => {
                 studentRef.studentId,
                 "Locker Booking Expired",
                 `Your booking for Locker ${booking.lockerId} has expired.`,
-                "booking_expired",
+                "locker_booking_expired",
                 { lockerId: booking.lockerId, expiredAt: booking.endTime }
               );
               booking.expiryNotified = true;
@@ -198,7 +198,7 @@ export const createBooking = async (req, res, next) => {
           student.studentId, // We use the student's string ID for notifications
           "Locker Booking Confirmed",
           `Success! Locker ${lockerId} is booked for ${date} (${startTime} - ${endTime}).`,
-          "booking_success",
+          "locker_booking_success",
           { lockerId, date, startTime, endTime, bookingId: newBooking._id }
         );
       }
