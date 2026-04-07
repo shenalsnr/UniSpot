@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import studentApi from "./studentApi";
 import StudentNavbar from "./StudentNavbar";
-import PageBackground from "../Shared/PageBackground";
+
 
 const StudentDashboard = () => {
   const [student, setStudent] = useState(null);

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PublicNavbar from "../Home/PublicNavbar";
 import studentApi from "./studentApi";
-import PageBackground from "../Shared/PageBackground";
+
 
 const StudentRegister = () => {
   const navigate = useNavigate();

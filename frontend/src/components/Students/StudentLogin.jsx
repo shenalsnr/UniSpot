@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import PublicNavbar from "../Home/PublicNavbar";
 import studentApi from "./studentApi";
-import PageBackground from "../Shared/PageBackground";
 
 const StudentLogin = () => {
   const [studentId, setStudentId] = useState("");

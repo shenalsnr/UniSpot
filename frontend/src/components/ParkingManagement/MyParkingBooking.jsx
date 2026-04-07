@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import studentApi from '../Students/studentApi';
-import PageBackground from '../Shared/PageBackground';
+
 import logoSrc from '../../assets/logo.png';
 import { generateParkingReceipt } from '../../utils/pdfGenerator';
 
