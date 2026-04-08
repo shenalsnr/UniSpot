@@ -1,6 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 import { applyMiddleware } from "./middleware/appMiddleware.js";
 import lockerRoutes from "./routes/lockerRoutes.js";
 import lockerMaintenanceRoutes from "./routes/lockerMaintenanceRoutes.js";
@@ -22,13 +22,13 @@ import ParkingBooking from "./models/ParkingBooking.js";
 import Notification from "./models/Notification.js";
 import SecurityStaff from "./models/SecurityStaff.js";
 
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 const server = http.createServer(app);
@@ -36,6 +36,10 @@ initSocket(server); // Initialize Socket.io on the server instance
 
 // Middleware
 applyMiddleware(app);
+
+
+// Static folder for uploaded images
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
 // Routes
@@ -46,6 +50,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/security", securityRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/admin", adminRoutes);
+
 
 // Simple Route
 app.get("/", (req, res) => {
@@ -61,18 +66,22 @@ app.get("/test", (req, res) => {
 applyErrorMiddleware(app);
 
 // Connect Database
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("MongoDB Connected Successfully");
-    
-    // Start Server only after DB connection
-    const PORT = process.env.PORT || 5000;
-    server.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-      
-      // Start background services after DB connection
-      startLockerCleanupJob();
-      startParkingCleanupJob();
-    });
-  })
+
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Connected Successfully"))
   .catch((err) => console.log("MongoDB Connection Error:", err));
+
+// Start Server
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+
+  // Start background services
+  startLockerCleanupJob();
+
+});
+
+  
+

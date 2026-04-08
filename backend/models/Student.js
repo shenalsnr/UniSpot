@@ -85,17 +85,14 @@ const studentSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-
     otpCode: {
       type: String,
       default: "",
     },
-
     otpExpires: {
       type: Date,
       default: null,
     },
-    
     qrCode: {
       type: String,
       default: "",
@@ -107,6 +104,18 @@ const studentSchema = new mongoose.Schema(
     vehicle: {
       type: vehicleSchema,
       default: null,
+    },
+    profileUpdatedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    vehicleUpdatedAt: {
+      type: Date,
+      default: null,
+    },
+    passwordChangedAt: {
+      type: Date,
+      default: Date.now,
     },
   },
   { timestamps: true }
