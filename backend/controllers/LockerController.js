@@ -16,7 +16,7 @@ export const expireOldBookings = async () => {
     for (const booking of activeBookings) {
       if (!booking.date || !booking.endTime) continue;
       const bookingEndTimeObj = new Date(`${booking.date}T${booking.endTime}:00`);
-      
+
       // 1. Send 1-Hour Reminder
       const oneHourBefore = new Date(bookingEndTimeObj.getTime() - 60 * 60 * 1000);
       if (now >= oneHourBefore && now < bookingEndTimeObj && !booking.reminderSent) {
@@ -27,7 +27,7 @@ export const expireOldBookings = async () => {
             await createStudentNotification(
               studentRef.studentId,
               "Locker Expiry Reminder",
-              `Reminder: Your booking for Locker ${booking.lockerId} will expire in 1 hour (${booking.endTime}).`,
+              `Your locker booking (Locker ${booking.lockerId}) will expire in 1 hour (${booking.endTime}).`,
               "locker_booking_reminder",
               { lockerId: booking.lockerId, endTime: booking.endTime }
             );
@@ -42,7 +42,7 @@ export const expireOldBookings = async () => {
       // 2. Handle Expiry
       if (now > bookingEndTimeObj) {
         toExpireIds.push(booking._id);
-        
+
         // Send Expiry Notification if not already sent
         if (!booking.expiryNotified) {
           try {
@@ -52,7 +52,7 @@ export const expireOldBookings = async () => {
               await createStudentNotification(
                 studentRef.studentId,
                 "Locker Booking Expired",
-                `Your booking for Locker ${booking.lockerId} has expired.`,
+                `Your booking for Locker ${booking.lockerId} has expired at ${booking.endTime}. Status: Booking Expired.`,
                 "locker_booking_expired",
                 { lockerId: booking.lockerId, expiredAt: booking.endTime }
               );
@@ -127,14 +127,14 @@ export const deleteMap = async (req, res, next) => {
 export const createBooking = async (req, res, next) => {
   try {
     const { mapId, lockerId, date, startTime, endTime } = req.body;
-    
+
     console.log("🔍 Backend Debug - Request body:", req.body);
-    
+
     // Get student ID from authenticated user
     const studentId = req.student?._id || req.user?._id;
-    
+
     console.log("🔍 Backend Debug - Student ID from auth:", studentId);
-    
+
     if (!studentId) {
       console.log("❌ Backend Debug - No student ID found");
       return res.status(401).json({ message: "Student authentication required" });
@@ -143,11 +143,11 @@ export const createBooking = async (req, res, next) => {
     // Validate booking time - must end before 10 PM
     const bookingEndTime = new Date(`${date}T${endTime}`);
     const maxEndTime = new Date(`${date}T22:00`);
-    
+
     if (bookingEndTime > maxEndTime) {
       console.log("❌ Backend Debug - Time validation failed");
-      return res.status(400).json({ 
-        message: "Booking time must end before 10:00 PM" 
+      return res.status(400).json({
+        message: "Booking time must end before 10:00 PM"
       });
     }
 
@@ -169,21 +169,21 @@ export const createBooking = async (req, res, next) => {
     console.log("🔍 Backend Debug - Checking existing booking for student:", studentId);
     const studentBooking = await LockerBooking.findOne({ studentId, status: "active" });
     console.log("🔍 Backend Debug - Found student booking:", studentBooking);
-    
+
     if (studentBooking) {
       console.log("❌ Backend Debug - Student already has active booking, blocking");
-      return res.status(400).json({ 
-        message: "You already have an active booking." 
+      return res.status(400).json({
+        message: "You already have an active booking."
       });
     }
 
     console.log("✅ Backend Debug - Creating new booking...");
-    const newBooking = new LockerBooking({ 
-      studentId, 
-      mapId, 
-      lockerId, 
-      date, 
-      startTime, 
+    const newBooking = new LockerBooking({
+      studentId,
+      mapId,
+      lockerId,
+      date,
+      startTime,
       endTime,
       status: "active"
     });
@@ -192,18 +192,21 @@ export const createBooking = async (req, res, next) => {
 
     // Send Real-Time Notification
     try {
-      const student = await Student.findById(studentId);
-      if (student) {
+      if (req.student && req.student.studentId) {
+        console.log(`[LockerController] Triggering notification for ${req.student.studentId}`);
         await createStudentNotification(
-          student.studentId, // We use the student's string ID for notifications
+          req.student.studentId,
           "Locker Booking Confirmed",
-          `Success! Locker ${lockerId} is booked for ${date} (${startTime} - ${endTime}).`,
+          `Locker ${lockerId} booked for ${req.student.studentId} on ${date} (${startTime} - ${endTime}).`,
           "locker_booking_success",
-          { lockerId, date, startTime, endTime, bookingId: newBooking._id }
+          { lockerId, studentId: req.student.studentId, date, startTime, endTime, bookingId: newBooking._id }
         );
+        console.log(`[LockerController] Notification confirmed for ${req.student.studentId}`);
+      } else {
+        console.error("[LockerController] req.student or req.student.studentId missing in createBooking");
       }
     } catch (notifErr) {
-      console.error("❌ Error sending booking notification:", notifErr);
+      console.error("❌ Error sending booking notification:", notifErr.message);
     }
 
     res.json(newBooking);
@@ -256,9 +259,9 @@ export const getStudentCurrentBooking = async (req, res, next) => {
   try {
     // Get student ID from authenticated user
     const studentId = req.student?._id || req.user?._id;
-    
+
     console.log("🔍 Debug - Student current booking check for student:", studentId);
-    
+
     if (!studentId) {
       console.log("❌ Debug - No student ID in current booking check");
       return res.status(401).json({ message: "Student authentication required" });
@@ -266,12 +269,12 @@ export const getStudentCurrentBooking = async (req, res, next) => {
 
     // Check if student has any active booking
     const studentBooking = await LockerBooking.findOne({ studentId, status: "active" });
-    
+
     console.log("🔍 Debug - Student active booking found:", studentBooking);
-    
-    res.json({ 
+
+    res.json({
       hasBooking: !!studentBooking,
-      booking: studentBooking 
+      booking: studentBooking
     });
   } catch (error) {
     console.error("❌ Debug - Error in student current booking check:", error);
@@ -306,9 +309,9 @@ export const getStudentBookings = async (req, res, next) => {
   try {
     // Get student ID from authenticated user
     const studentId = req.student?._id || req.user?._id;
-    
+
     console.log("Fetching bookings for student:", studentId);
-    
+
     if (!studentId) {
       return res.status(401).json({ message: "Student authentication required" });
     }
@@ -326,7 +329,7 @@ export const getStudentBookings = async (req, res, next) => {
     const bookingsWithLocation = await Promise.all(
       rawBookings.map(async (booking) => {
         const bookingObj = await hydrateStudentInfo(booking);
-        
+
         // Get location name from map
         if (bookingObj.mapId) {
           try {
@@ -338,11 +341,11 @@ export const getStudentBookings = async (req, res, next) => {
         } else {
           bookingObj.locationName = 'Unknown Location';
         }
-        
+
         return bookingObj;
       })
     );
-    
+
     console.log(`Found ${bookingsWithLocation.length} bookings for student ${studentId}`);
     res.json(bookingsWithLocation);
   } catch (error) {
@@ -355,10 +358,10 @@ export const getStudentBookings = async (req, res, next) => {
 export const deleteBookingById = async (req, res, next) => {
   try {
     const bookingId = req.params.id;
-    
+
     // Get student ID from authenticated user
     const studentId = req.student?._id || req.user?._id;
-    
+
     if (!studentId) {
       return res.status(401).json({ message: "Student authentication required" });
     }
@@ -368,8 +371,8 @@ export const deleteBookingById = async (req, res, next) => {
     // Find the booking and verify it belongs to the student
     const booking = await LockerBooking.findOne({ _id: bookingId, studentId });
     if (!booking) {
-      return res.status(404).json({ 
-        message: "Booking not found or you don't have permission to cancel this booking." 
+      return res.status(404).json({
+        message: "Booking not found or you don't have permission to cancel this booking."
       });
     }
 
@@ -386,25 +389,25 @@ export const deleteBookingById = async (req, res, next) => {
 export const deleteBooking = async (req, res, next) => {
   try {
     const { mapId, lockerId } = req.params;
-    
+
     console.log("Deleting booking for map:", mapId, "locker:", lockerId);
-    
+
     // Get student ID from authenticated user
     const studentId = req.student?._id || req.user?._id;
-    
+
     if (!studentId) {
       console.log("No student ID found for deletion");
       return res.status(401).json({ message: "Student authentication required" });
     }
-    
+
     console.log("Student attempting to delete booking:", studentId);
 
     // Find the active booking and verify it belongs to the student
     const booking = await LockerBooking.findOne({ mapId, lockerId, studentId, status: "active" });
     if (!booking) {
       console.log("Booking not found or not owned by student");
-      return res.status(404).json({ 
-        message: "Booking not found or you don't have permission to cancel this booking." 
+      return res.status(404).json({
+        message: "Booking not found or you don't have permission to cancel this booking."
       });
     }
 

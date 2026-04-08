@@ -29,10 +29,12 @@ const DashboardNotifications = () => {
         const studentId = studentInfo.studentId;
         if (!studentId) return;
 
+        const upperStudentId = studentId.toUpperCase();
+
         const socket = io("http://localhost:5000");
         socket.on("connect", () => {
-            console.log("[Dashboard Notification Socket] Connected for student:", studentId);
-            socket.emit("join_student", studentId);
+            console.log("[Dashboard Notification Socket] Connected for student:", upperStudentId);
+            socket.emit("join_student", upperStudentId);
         });
 
         socket.on("new_notification", (notif) => {
@@ -46,6 +48,17 @@ const DashboardNotifications = () => {
         return () => socket.disconnect();
     }, []);
 
+    const getIcon = (type, title) => {
+        if (type?.startsWith("locker_") || title?.toLowerCase().includes("locker")) return "📦";
+        switch (type) {
+            case 'booking_success': return '🚗';
+            case 'booking_reminder': return '⏰';
+            case 'booking_expired': return '⚠️';
+            case 'maintenance_notice': return '🔧';
+            default: return '📌';
+        }
+    };
+
     if (loading) return <div className="text-slate-400 py-4">Loading notifications...</div>;
     if (notifications.length === 0) return (
         <div className="flex flex-col items-center justify-center py-6 text-slate-400 italic text-sm">
@@ -57,9 +70,9 @@ const DashboardNotifications = () => {
     return (
         <div className="grid grid-cols-1 gap-3">
             {notifications.map(n => (
-                <div key={n._id} className={`p-4 rounded-2xl border flex gap-4 items-start translate-all duration-300 ${n.isRead ? 'bg-slate-50 border-slate-100 opacity-75' : 'bg-blue-50/50 border-blue-100 shadow-xs'}`}>
-                    <div className="text-xl p-2 bg-white rounded-xl shadow-xs border border-slate-100 flex-shrink-0">
-                        {n.type === 'booking_success' ? '🚗' : n.type === 'booking_reminder' ? '⏰' : n.type === 'booking_expired' ? '⚠️' : '📌'}
+                <div key={n._id} className={`p-4 rounded-2xl border flex gap-4 items-start transition-all duration-300 ${n.isRead ? 'bg-slate-50 border-slate-100 opacity-75' : 'bg-white border-blue-100 shadow-sm hover:shadow-md hover:border-blue-200'}`}>
+                    <div className={`text-xl p-2.5 rounded-xl shadow-xs border flex-shrink-0 ${n.type?.startsWith('locker_') ? 'bg-indigo-50 border-indigo-100' : 'bg-blue-50 border-blue-100'}`}>
+                        {getIcon(n.type, n.title)}
                     </div>
                     <div className="flex-1 text-left min-w-0">
                         <p className={`font-bold text-sm truncate ${n.isRead ? 'text-slate-600' : 'text-blue-900'}`}>{n.title}</p>

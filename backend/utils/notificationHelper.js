@@ -13,14 +13,11 @@ import { getIO } from "./socket.js";
  */
 export const createStudentNotification = async (studentId, title, message, type, metadata = null) => {
   try {
-    if (!studentId) {
-      console.warn("[NotificationHelper] Missing studentId, cannot create/emit notification.");
-      return null;
-    }
+    const upperStudentId = studentId.toUpperCase();
 
     // Save to database
     const newNotification = new Notification({
-      userId: studentId,
+      userId: upperStudentId,
       title,
       message,
       type,
@@ -33,8 +30,8 @@ export const createStudentNotification = async (studentId, title, message, type,
     // Emit via Socket.io
     try {
       const io = getIO();
-      io.to(`student_${studentId}`).emit("new_notification", newNotification);
-      console.log(`[NotificationHelper] Emitted real-time notification to student_${studentId}.`);
+      io.to(`student_${upperStudentId}`).emit("new_notification", newNotification);
+      console.log(`[NotificationHelper] Emitted real-time notification to student_${upperStudentId}.`);
     } catch (socketErr) {
       console.error("[NotificationHelper] Socket emission failed:", socketErr.message);
       // We don't fail the operation if socket emission fails (DB record exists)

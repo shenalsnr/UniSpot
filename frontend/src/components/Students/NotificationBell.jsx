@@ -130,13 +130,15 @@ const NotificationBell = () => {
 
     if (!studentId) return;
 
+    const upperStudentId = studentId.toUpperCase();
+
     // Connect to backend (using the same base URL as the API, minus /api)
     const socket = io("http://localhost:5000");
 
     socket.on("connect", () => {
       console.log("[Socket] Connected to server");
       // Join the private student room
-      socket.emit("join_student", studentId);
+      socket.emit("join_student", upperStudentId);
     });
 
     socket.on("new_notification", (notif) => {
