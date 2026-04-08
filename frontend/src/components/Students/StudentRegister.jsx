@@ -103,7 +103,7 @@ const StudentRegister = () => {
   return (
     <>
       <PublicNavbar />
-      <div className="flex justify-center items-center p-8 min-h-[calc(100vh-100px)] bg-linear-to-br from-slate-50 via-blue-50 to-white relative overflow-hidden">
+      
         <form className="w-full max-w-130 p-8 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-xl flex flex-col gap-4 animate-fade-in transition-all duration-300 relative z-10 mx-auto my-8" onSubmit={submitHandler}>
           <h2 className="mb-2 text-3xl md:text-4xl text-center text-slate-900 font-extrabold">Create Student Account</h2>
           <p className="mb-5 text-center text-slate-500 leading-relaxed font-medium">
@@ -134,7 +134,7 @@ const StudentRegister = () => {
 
           <button type="submit" className="w-full bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-blue-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/30 hover:opacity-90">Register Now</button>
         </form>
-      </div>
+      
     </>
   );
 };
