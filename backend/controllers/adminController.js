@@ -250,7 +250,9 @@ export {
   getStudentDetailsById,
   blockStudent,
   unblockStudent,
-  resetStudentMarks,
   restoreParkingPoints,
   resetParkingPoints,
+  resetStudentMarks,
 };
+
+  
