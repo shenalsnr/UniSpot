@@ -25,6 +25,9 @@ const StudentRegister = () => {
   const [fileInputKey, setFileInputKey] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [emailValid, setEmailValid] = useState(null);
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
 
   const validatePhotoFile = (file) => {
     if (!file) return "Please upload a student photo";
@@ -39,6 +42,42 @@ const StudentRegister = () => {
     }
 
     return "";
+  };
+
+  const validateEmailUniqueness = async (email) => {
+    if (!email.trim()) {
+      setEmailError("");
+      setEmailValid(null);
+      return;
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+    if (!emailPattern.test(email.trim())) {
+      setEmailError("❌ Please enter a valid email address");
+      setEmailValid(false);
+      return;
+    }
+
+    setIsCheckingEmail(true);
+    try {
+      const res = await studentApi.post("/students/check-email", {
+        email: email.trim().toLowerCase(),
+      });
+
+      if (res.data.exists) {
+        setEmailError("❌ Email already registered");
+        setEmailValid(false);
+      } else {
+        setEmailError("✅ Email is available");
+        setEmailValid(true);
+      }
+    } catch (error) {
+      setEmailError("⚠️ Could not verify email, will check on submit");
+      setEmailValid(null);
+    } finally {
+      setIsCheckingEmail(false);
+    }
   };
 
   const changeHandler = (e) => {
@@ -58,6 +97,12 @@ const StudentRegister = () => {
       setPhotoError("");
       setFormData((prev) => ({ ...prev, photo: file }));
       setPreview(URL.createObjectURL(file));
+      return;
+    }
+
+    if (name === "email") {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+      validateEmailUniqueness(value);
       return;
     }
 
@@ -93,8 +138,13 @@ const StudentRegister = () => {
       return "Address is too short";
     }
 
-    if (formData.email.trim() && !emailPattern.test(formData.email.trim())) {
-      return "Please enter a valid email address";
+    if (formData.email.trim()) {
+      if (emailValid === false) {
+        return "Please use a valid and available email address";
+      }
+      if (!emailPattern.test(formData.email.trim())) {
+        return "Please enter a valid email address";
+      }
     }
 
     if (formData.password !== formData.confirmPassword) {
@@ -217,13 +267,26 @@ const StudentRegister = () => {
             <option value="Faculty of Humanities & Sciences">Faculty of Humanities & Sciences</option>
           </select>
 
-          <input
-            className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
-            type="email"
-            name="email"
-            placeholder="Email (Optional)"
-            onChange={changeHandler}
-          />
+          <div>
+            <div className="relative">
+              <input
+                className={`w-full px-4 py-3 rounded-xl border-2 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:bg-white focus:ring-4 ${emailValid === true ? "border-green-500 focus:border-green-600 focus:ring-green-500/10" : emailValid === false ? "border-red-500 focus:border-red-600 focus:ring-red-500/10" : "border-blue-100 focus:border-blue-600 focus:ring-blue-600/10"}`}
+                type="email"
+                name="email"
+                placeholder="Email (Optional)"
+                value={formData.email}
+                onChange={changeHandler}
+              />
+              {isCheckingEmail && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 font-bold">🔄</span>}
+              {emailValid === true && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 font-bold">✓</span>}
+              {emailValid === false && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-600 font-bold">✕</span>}
+            </div>
+            {emailError && (
+              <p className={`mt-2 text-xs font-semibold px-3 py-1 rounded-lg ${emailValid === true ? "bg-green-100 text-green-700" : emailValid === false ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-700"}`}>
+                {emailError}
+              </p>
+            )}
+          </div>
 
           <div className="relative">
             <input

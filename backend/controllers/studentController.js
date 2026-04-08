@@ -508,6 +508,28 @@ const deleteStudentProfile = async (req, res) => {
   }
 };
 
+// Check email uniqueness
+const checkEmailExists = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const student = await Student.findOne({ email: normalizedEmail });
+
+    res.json({ exists: !!student });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export {
   registerStudent,
   loginStudent,
@@ -519,4 +541,5 @@ export {
   resetPasswordWithOtp,
   getStudentByQr,
   deleteStudentProfile,
+  checkEmailExists,
 };

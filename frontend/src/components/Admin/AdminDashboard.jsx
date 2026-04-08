@@ -30,6 +30,8 @@ const AdminDashboard = () => {
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [message, setMessage] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [messageType, setMessageType] = useState("success");
 
   // 🔄 Load students
   const fetchStudents = async () => {
@@ -126,17 +128,15 @@ const AdminDashboard = () => {
     }
   };
 
+  // 🔍 Filter students by search query
+  const filteredStudents = students.filter(
+    (student) =>
+      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.studentId.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <AdminLayout>
-      {/* Restore Points Modal */}
-      {showRestoreModal && selectedStudent && (
-        <RestoreModal
-          student={selectedStudent}
-          onClose={() => setShowRestoreModal(false)}
-          onSuccess={handleRestoreSuccess}
-        />
-      )}
-
       {/* Header */}
       <div className="bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 text-white rounded-[26px] p-6 md:p-8 shadow-xl shadow-blue-900/20 mb-6">
         <h1 className="m-0 mb-2 text-3xl md:text-4xl font-extrabold tracking-tight">
@@ -292,7 +292,7 @@ const AdminDashboard = () => {
               <div className="mt-2 flex flex-col gap-3">
                 {/* Primary: Restore Points */}
                 <button
-                  onClick={() => setShowRestoreModal(true)}
+                  onClick={() => restoreParkingPoints(selectedStudent._id)}
                   disabled={(selectedStudent.marks ?? 10) >= 10}
                   className="w-full py-3 px-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
                 >
