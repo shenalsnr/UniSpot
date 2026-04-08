@@ -42,11 +42,11 @@ const App = () => {
   return (
     <div className="min-h-screen bg-gray-200">
       {isParkingFlow && !isAdminPage && (
-        <UnifiedNavbar 
+        <UnifiedNavbar
           moduleName=" Reserve Parking Spot"
           links={[
             { to: "/parking/zones", label: "Select Zone" }
-            
+
           ]}
           rightActions={
             showDashboardButton ? (
@@ -62,7 +62,7 @@ const App = () => {
       )}
 
       {isSecurityFlow && (
-        <UnifiedNavbar 
+        <UnifiedNavbar
           moduleName="Security"
         />
       )}
@@ -76,7 +76,7 @@ const App = () => {
         <Route path="/student-login" element={<StudentLogin />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/student-profile" element={<StudentProfile />} />
-        
+
         {/* Admin Portal */}
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
@@ -93,7 +93,7 @@ const App = () => {
         <Route path="/BookLockersStatus" element={<BookLockersStatus />} />
         <Route path="/LockerMaintenance" element={<LockerMaintenance />} />
         <Route path="/admin/locker-maintenance" element={<LockerMaintenance />} />
-         <Route path="/MyBookLocker" element={<MyBookLocker/>} />
+        <Route path="/MyBookLocker" element={<MyBookLocker />} />
 
         {/* Parking flow */}
         <Route path="/parking" element={<CampusMap />} />

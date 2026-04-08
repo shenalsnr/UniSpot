@@ -284,7 +284,7 @@ const AdminParkingRecords = () => {
               <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2 uppercase">Parking Records</h1>
               <div className="flex items-center gap-2 text-white/80 font-medium">
                 <span className="w-8 h-px bg-white/30"></span>
-                <p>Comprehensive log of campus vehicle occupancy & status</p>
+                <p> log of campus vehicle Parking & status</p>
               </div>
             </div>
           </div>
