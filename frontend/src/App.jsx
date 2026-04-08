@@ -45,11 +45,11 @@ const App = () => {
   return (
     <div className="min-h-screen bg-gray-200">
       {isParkingFlow && !isAdminPage && (
-        <UnifiedNavbar
-          moduleName="Parking"
+        <UnifiedNavbar 
+          moduleName=" Reserve Parking Spot"
           links={[
-            { to: "/parking/zones", label: "Select Zone" },
-            { to: "/parking/admin", label: "Admin Records" },
+            { to: "/parking/zones", label: "Select Zone" }
+            
           ]}
           rightActions={
             showDashboardButton ? (
