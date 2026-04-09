@@ -2,92 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import studentApi from "./studentApi";
 import StudentNavbar from "./StudentNavbar";
-import { io } from "socket.io-client";
 
-const DashboardNotifications = () => {
-    const [notifications, setNotifications] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchNotifications = async () => {
-        try {
-            const { data } = await studentApi.get("/notifications/");
-            if (data.success) {
-                setNotifications(data.data.slice(0, 5)); // Show only top 5
-            }
-        } catch (err) {
-            console.error("Dashboard notification fetch error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchNotifications();
-        
-        // Socket.io for real-time
-        const studentInfo = JSON.parse(localStorage.getItem("studentInfo") || "{}");
-        const studentId = studentInfo.studentId;
-        if (!studentId) return;
-
-        const upperStudentId = studentId.toUpperCase();
-
-        const socket = io("http://localhost:5000");
-        socket.on("connect", () => {
-            console.log("[Dashboard Notification Socket] Connected for student:", upperStudentId);
-            socket.emit("join_student", upperStudentId);
-        });
-
-        socket.on("new_notification", (notif) => {
-            console.log("[Dashboard Notification Socket] New notification received:", notif);
-            setNotifications(prev => {
-                if (prev.some(n => n._id === notif._id)) return prev;
-                return [notif, ...prev].slice(0, 5);
-            });
-        });
-
-        return () => socket.disconnect();
-    }, []);
-
-    const getIcon = (type, title) => {
-        if (type?.startsWith("locker_") || title?.toLowerCase().includes("locker")) return "📦";
-        switch (type) {
-            case 'booking_success': return '🚗';
-            case 'booking_reminder': return '⏰';
-            case 'booking_expired': return '⚠️';
-            case 'maintenance_notice': return '🔧';
-            default: return '📌';
-        }
-    };
-
-    if (loading) return <div className="text-slate-400 py-4">Loading notifications...</div>;
-    if (notifications.length === 0) return (
-        <div className="flex flex-col items-center justify-center py-6 text-slate-400 italic text-sm">
-            <span className="text-3xl mb-2 opacity-50">🔔</span>
-            <p>No recent notifications.</p>
-        </div>
-    );
-
-    return (
-        <div className="grid grid-cols-1 gap-3">
-            {notifications.map(n => (
-
-                <div key={n._id} className={`p-4 rounded-2xl border flex gap-4 items-start transition-all duration-300 ${n.isRead ? 'bg-slate-50 border-slate-100 opacity-75' : 'bg-white border-blue-100 shadow-sm hover:shadow-md hover:border-blue-200'}`}>
-                    <div className={`text-xl p-2.5 rounded-xl shadow-xs border flex-shrink-0 ${n.type?.startsWith('locker_') ? 'bg-indigo-50 border-indigo-100' : 'bg-blue-50 border-blue-100'}`}>
-                        {getIcon(n.type, n.title)}
-                    </div>
-                    <div className="flex-1 text-left min-w-0">
-                        <p className={`font-bold text-sm truncate ${n.isRead ? 'text-slate-600' : 'text-blue-900'}`}>{n.title}</p>
-                        <p className="text-xs text-slate-500 mt-1 line-clamp-2">{n.message}</p>
-                    </div>
-                    <div className="text-[10px] text-slate-400 font-medium whitespace-nowrap mt-1 flex flex-col items-end gap-1">
-                        <span>{new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                        {!n.isRead && <span className="w-2 h-2 bg-blue-600 rounded-full"></span>}
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-};
 
 
 const StudentDashboard = () => {
@@ -289,16 +204,7 @@ const StudentDashboard = () => {
 
 
 
-          {/* New Recent Notifications Section */}
-          <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl col-span-1 md:col-span-full">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-slate-900 text-xl font-bold">Recent Notifications</h3>
-              <div className="bg-blue-600/10 text-blue-600 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-blue-600/20">
-                Live Updates Active
-              </div>
-            </div>
-            <DashboardNotifications />
-          </div>
+
 
           <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl md:col-span-2">
             <h3 className="mt-0 mb-4 text-slate-900 text-xl font-bold">

@@ -101,6 +101,7 @@ const NotificationBell = () => {
   const [loading, setLoading] = useState(false);
   const [markingId, setMarkingId] = useState(null);
   const [markingAll, setMarkingAll] = useState(false);
+  const [clearingAll, setClearingAll] = useState(false);
   const panelRef = useRef(null);
   const bellRef = useRef(null);
 
@@ -213,6 +214,21 @@ const NotificationBell = () => {
       // silent
     } finally {
       setMarkingAll(false);
+    }
+  };
+
+  // ── Clear all notifications ────────────────────────────────────────────────
+  const handleClearAll = async () => {
+    if (!window.confirm("Are you sure you want to clear all notifications?")) return;
+    setClearingAll(true);
+    try {
+      await studentApi.delete("/notifications");
+      setNotifications([]);
+      setUnreadCount(0);
+    } catch {
+      // silent
+    } finally {
+      setClearingAll(false);
     }
   };
 
@@ -606,16 +622,29 @@ const NotificationBell = () => {
                 )}
               </span>
 
-              {unreadCount > 0 && (
-                <button
-                  className="notif-mark-all-btn"
-                  onClick={handleMarkAllRead}
-                  disabled={markingAll}
-                  title="Mark all as read"
-                >
-                  {markingAll ? "Marking..." : "Mark all read"}
-                </button>
-              )}
+              <div className="flex gap-2">
+                {unreadCount > 0 && (
+                  <button
+                    className="notif-mark-all-btn"
+                    onClick={handleMarkAllRead}
+                    disabled={markingAll || clearingAll}
+                    title="Mark all as read"
+                  >
+                    {markingAll ? "..." : "Read all"}
+                  </button>
+                )}
+                {notifications.length > 0 && (
+                  <button
+                    className="notif-mark-all-btn"
+                    style={{ background: "rgba(239, 68, 68, 0.2)", borderColor: "rgba(239, 68, 68, 0.4)" }}
+                    onClick={handleClearAll}
+                    disabled={clearingAll}
+                    title="Clear all notifications"
+                  >
+                    {clearingAll ? "..." : "Clear all"}
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Body */}
