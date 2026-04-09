@@ -85,3 +85,22 @@ export const markAllRead = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * DELETE /api/notifications/clear-all
+ * Deletes all notifications for the authenticated student.
+ */
+export const clearMyNotifications = async (req, res, next) => {
+  try {
+    const studentId = req.student.studentId;
+
+    await Notification.deleteMany({ userId: studentId });
+
+    res.status(200).json({
+      success: true,
+      message: "All notifications cleared",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
