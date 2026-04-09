@@ -25,6 +25,8 @@ import UnifiedNavbar from "./components/Shared/UnifiedNavbar";
 import LockerMaintenance from "./components/LockerManagement/LockerMaintenance";
 import ErrorBoundary from "./components/Shared/ErrorBoundary";
 
+import StaffDashboard from "./components/Staff/StaffDashboard"
+
 const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -114,6 +116,13 @@ const App = () => {
           <Route path="/parking/book/:spotId" element={<ParkingBookingForm />} />
           <Route path="/parking/admin" element={<AdminParkingRecords />} />
           <Route path="/parking/my-booking" element={<MyParkingBooking />} />
+
+
+
+
+         <Route path="/StaffDashboard" element={<StaffDashboard/>} />
+
+          
 
           {/* Security Portal */}
           <Route path="/security" element={<SecurityPortal />} />
