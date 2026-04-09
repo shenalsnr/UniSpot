@@ -46,8 +46,8 @@ const App = () => {
     <div className="min-h-screen bg-gray-200">
       {isParkingFlow && !isAdminPage && (
 
-        <UnifiedNavbar
-          moduleName="Parking"
+        <UnifiedNavbar 
+          moduleName="Reserve Parking Spot"
           links={[
             { to: "/parking/zones", label: "Select Zone" },
             ...(!location.pathname.startsWith("/parking/book") &&
@@ -56,8 +56,6 @@ const App = () => {
               location.pathname !== "/parking/my-booking"
               ? [{ to: "/parking/admin", label: "Admin Records" }]
               : [])
-
-        
 
           ]}
 
@@ -89,25 +87,6 @@ const App = () => {
           {/* Public Pages */}
           <Route path="/" element={<HomePage />} />
           <Route path="/home" element={<HomePage />} />
-
-
-        {/* Student Portal */}
-        <Route path="/student-register" element={<StudentRegister />} />
-        <Route path="/student-login" element={<StudentLogin />} />
-        <Route path="/student-dashboard" element={<StudentDashboard />} />
-        <Route path="/student-profile" element={<StudentProfile />} />
-
-        {/* Admin Portal */}
-        <Route path="/admin-login" element={<AdminLogin />} />
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
-
-        {/* Locker Management */}
-        <Route path="/AdminLockerMap" element={<AdminLockerMap />} />
-        <Route path="/lockers" element={<LockerMap />} />
-        <Route path="/BookLockersStatus" element={<BookLockersStatus />} />
-        <Route path="/LockerMaintenance" element={<LockerMaintenance />} />
-        <Route path="/admin/locker-maintenance" element={<LockerMaintenance />} />
-        <Route path="/MyBookLocker" element={<MyBookLocker />} />
 
           {/* Student Portal */}
           <Route path="/student-register" element={<StudentRegister />} />

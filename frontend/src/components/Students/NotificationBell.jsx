@@ -15,6 +15,8 @@ const getTypeIcon = (type, title = "") => {
       <span className="notif-type-icon notif-type-locker" title="Locker Update">
         📦
       </span>
+
+
     );
   }
 

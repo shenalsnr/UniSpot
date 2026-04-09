@@ -38,9 +38,12 @@ initSocket(server); // Initialize Socket.io on the server instance
 applyMiddleware(app);
 
 
+<<<<<<< HEAD
+=======
 // Static file serving for uploads (Simplified for reliability)
 app.use("/uploads", express.static("uploads"));
 
+>>>>>>> 54e3b630204f29cc64c97f39efb0d9a7814c9667
 // Static folder for uploaded images
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -55,8 +58,11 @@ app.use("/api/students", studentRoutes);
 app.use("/api/admin", adminRoutes);
 
 
+<<<<<<< HEAD
+=======
 
 
+>>>>>>> 54e3b630204f29cc64c97f39efb0d9a7814c9667
 // Simple Route
 app.get("/", (req, res) => {
   res.send("API is running...");
@@ -72,6 +78,8 @@ applyErrorMiddleware(app);
 
 // Connect Database
 
+<<<<<<< HEAD
+=======
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB Connected Successfully");
@@ -88,6 +96,7 @@ mongoose.connect(process.env.MONGO_URI)
   })
   .catch((err) => console.log("MongoDB Connection Error:", err));
 
+>>>>>>> 54e3b630204f29cc64c97f39efb0d9a7814c9667
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected Successfully"))

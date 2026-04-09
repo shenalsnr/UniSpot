@@ -29,10 +29,12 @@ const DashboardNotifications = () => {
         const studentId = studentInfo.studentId;
         if (!studentId) return;
 
+        const upperStudentId = studentId.toUpperCase();
+
         const socket = io("http://localhost:5000");
         socket.on("connect", () => {
-            console.log("[Dashboard Notification Socket] Connected for student:", studentId);
-            socket.emit("join_student", studentId);
+            console.log("[Dashboard Notification Socket] Connected for student:", upperStudentId);
+            socket.emit("join_student", upperStudentId);
         });
 
         socket.on("new_notification", (notif) => {
@@ -46,6 +48,17 @@ const DashboardNotifications = () => {
         return () => socket.disconnect();
     }, []);
 
+    const getIcon = (type, title) => {
+        if (type?.startsWith("locker_") || title?.toLowerCase().includes("locker")) return "📦";
+        switch (type) {
+            case 'booking_success': return '🚗';
+            case 'booking_reminder': return '⏰';
+            case 'booking_expired': return '⚠️';
+            case 'maintenance_notice': return '🔧';
+            default: return '📌';
+        }
+    };
+
     if (loading) return <div className="text-slate-400 py-4">Loading notifications...</div>;
     if (notifications.length === 0) return (
         <div className="flex flex-col items-center justify-center py-6 text-slate-400 italic text-sm">
@@ -57,9 +70,10 @@ const DashboardNotifications = () => {
     return (
         <div className="grid grid-cols-1 gap-3">
             {notifications.map(n => (
-                <div key={n._id} className={`p-4 rounded-2xl border flex gap-4 items-start translate-all duration-300 ${n.isRead ? 'bg-slate-50 border-slate-100 opacity-75' : 'bg-blue-50/50 border-blue-100 shadow-xs'}`}>
-                    <div className="text-xl p-2 bg-white rounded-xl shadow-xs border border-slate-100 shrink-0">
-                        {n.type === 'booking_success' ? '🚗' : n.type === 'booking_reminder' ? '⏰' : n.type === 'booking_expired' ? '⚠️' : '📌'}
+
+                <div key={n._id} className={`p-4 rounded-2xl border flex gap-4 items-start transition-all duration-300 ${n.isRead ? 'bg-slate-50 border-slate-100 opacity-75' : 'bg-white border-blue-100 shadow-sm hover:shadow-md hover:border-blue-200'}`}>
+                    <div className={`text-xl p-2.5 rounded-xl shadow-xs border flex-shrink-0 ${n.type?.startsWith('locker_') ? 'bg-indigo-50 border-indigo-100' : 'bg-blue-50 border-blue-100'}`}>
+                        {getIcon(n.type, n.title)}
                     </div>
                     <div className="flex-1 text-left min-w-0">
                         <p className={`font-bold text-sm truncate ${n.isRead ? 'text-slate-600' : 'text-blue-900'}`}>{n.title}</p>
@@ -98,6 +112,13 @@ const StudentDashboard = () => {
     fetchProfile();
   }, [navigate]);
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "Not available";
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'short', day: 'numeric'
+    });
+  };
+
   const getMarksClass = (marks) => {
     if (marks >= 7) return "bg-gradient-to-br from-green-600 to-green-500";
     if (marks >= 4) return "bg-gradient-to-br from-yellow-500 to-yellow-400";
@@ -106,8 +127,8 @@ const StudentDashboard = () => {
 
   const downloadQRCode = () => {
     if (!student?.qrCode) return;
-
-    const link = document.createElement("a");
+    
+    const link = document.createElement('a');
     link.href = student.qrCode;
     link.download = `${student.studentId}_QR_Code.png`;
     document.body.appendChild(link);
@@ -115,25 +136,18 @@ const StudentDashboard = () => {
     document.body.removeChild(link);
   };
 
-  const formatDate = (dateValue) => {
-    if (!dateValue) return "Not available";
-
-    return new Date(dateValue).toLocaleString("en-LK", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
   if (errorMessage) {
     return (
       <>
         <StudentNavbar />
+
+        
+          
        
           <div className="bg-red-100 text-red-700 px-6 py-4 rounded-xl font-semibold shadow-sm">
             {errorMessage}
           </div>
+
         
       </>
     );
@@ -143,10 +157,12 @@ const StudentDashboard = () => {
     return (
       <>
         <StudentNavbar />
+
        
           <div className="p-8 text-center font-bold text-white text-lg bg-black/20 rounded-2xl backdrop-blur-sm">
             Loading dashboard...
           </div>
+
         
       </>
     );
@@ -156,6 +172,7 @@ const StudentDashboard = () => {
     <>
       <StudentNavbar />
 
+
      
         <div className="bg-linear-to-br from-blue-600 via-blue-700 to-blue-500 text-white rounded-[26px] p-6 md:p-8 shadow-xl shadow-blue-600/20 grid grid-cols-1 md:grid-cols-[1.3fr_0.7fr] items-center gap-6 mb-6">
           <div className="flex flex-col gap-4">
@@ -163,28 +180,23 @@ const StudentDashboard = () => {
               Welcome back, {student.name}
             </h1>
             <p className="m-0 leading-relaxed max-w-175 opacity-95 text-blue-50">
+
               Manage your profile, view QR code, update vehicle details, and
               access locker or parking booking options from your student dashboard.
             </p>
 
             <div className="flex gap-3.5 flex-wrap mt-2">
-              <Link
-                to="/lockers"
-                className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-blue-700 text-white shadow-lg shadow-blue-900/40 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:opacity-90 border border-blue-400"
-              >
+              <Link to="/lockers" className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-blue-700 text-white shadow-lg shadow-blue-900/40 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl border border-blue-400">
                 Book Locker
               </Link>
-              <Link
-                to="/parking/zones"
-                className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-blue-700 hover:opacity-90 text-white shadow-lg shadow-blue-900/40 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl border border-blue-400"
-              >
+              <Link to="/parking/zones" className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-blue-700 hover:opacity-90 text-white shadow-lg shadow-blue-900/40 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl border border-blue-400">
                 Book Parking Slot
               </Link>
-              <Link
-                to="/parking/my-booking"
-                className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-blue-700 hover:opacity-90 text-white shadow-lg shadow-blue-900/40 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl border border-blue-400"
-              >
+              <Link to="/parking/my-booking" className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-blue-700 hover:opacity-90 text-white shadow-lg shadow-blue-900/40 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl border border-blue-400">
                 My Parking Booking
+              </Link>
+              <Link to="/MYbookLocker" className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-blue-700 hover:opacity-90 text-white shadow-lg shadow-blue-900/40 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl border border-blue-400">
+                My Locker Booking
               </Link>
             </div>
           </div>
@@ -202,82 +214,59 @@ const StudentDashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6">
           <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-            <h3 className="mt-0 mb-4 text-slate-900 text-xl font-bold">
-              Student Information
-            </h3>
+            <h3 className="mt-0 mb-4 text-slate-900 text-xl font-bold">Student Information</h3>
             <div className="flex flex-col gap-2">
-              <p className="m-0 leading-relaxed text-slate-700">
-                <span className="font-bold text-slate-900">Name:</span> {student.name}
-              </p>
-              <p className="m-0 leading-relaxed text-slate-700">
-                <span className="font-bold text-slate-900">Student ID:</span> {student.studentId}
-              </p>
-              <p className="m-0 leading-relaxed text-slate-700">
-                <span className="font-bold text-slate-900">Faculty:</span> {student.faculty}
-              </p>
-              <p className="m-0 leading-relaxed text-slate-700">
-                <span className="font-bold text-slate-900">Phone:</span> {student.phone}
-              </p>
-              <p className="m-0 leading-relaxed text-slate-700">
-                <span className="font-bold text-slate-900">Address:</span> {student.address}
-              </p>
-              <p className="m-0 leading-relaxed text-slate-700">
-                <span className="font-bold text-slate-900">Email:</span> {student.email || "Not added"}
-              </p>
+              <p className="m-0 leading-relaxed text-slate-700"><span className="font-bold text-slate-900">Name:</span> {student.name}</p>
+              <p className="m-0 leading-relaxed text-slate-700"><span className="font-bold text-slate-900">Student ID:</span> {student.studentId}</p>
+              <p className="m-0 leading-relaxed text-slate-700"><span className="font-bold text-slate-900">Faculty:</span> {student.faculty}</p>
+              <p className="m-0 leading-relaxed text-slate-700"><span className="font-bold text-slate-900">Phone:</span> {student.phone}</p>
+              <p className="m-0 leading-relaxed text-slate-700"><span className="font-bold text-slate-900">Address:</span> {student.address}</p>
+              <p className="m-0 leading-relaxed text-slate-700"><span className="font-bold text-slate-900">Email:</span> {student.email || "Not added"}</p>
             </div>
           </div>
-</div>
           <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-            <h3 className="mt-0 mb-4 text-slate-900 text-xl font-bold">
-              Account Overview
-            </h3>
+            <h3 className="mt-0 mb-4 text-slate-900 text-xl font-bold">Account Overview</h3>
             <div className="flex flex-col gap-3">
               <p className="m-0 leading-relaxed text-slate-700">
-                <span className="font-bold text-slate-900">Status:</span> {student.status}
-              </p>
-              <p className="m-0 leading-relaxed text-slate-700 flex items-center gap-2">
-                <span className="font-bold text-slate-900">Marks:</span>{" "}
-                <span
-                  className={`inline-block px-3 py-1 rounded-full text-white text-xs font-bold shadow-sm ${getMarksClass(student.marks)}`}
-                >
-                  {student.marks}/10
+                <span className="font-bold text-slate-900">Status:</span>{" "}
+                <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold ${student.status === 'blocked' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                  {student.status === 'blocked' ? '🚫 Blocked' : '✓ Active'}
                 </span>
               </p>
-              <p className="m-0 leading-relaxed text-slate-700">
-                <span className="font-bold text-slate-900">Vehicle Registered:</span>{" "}
-                {student.vehicleRegistered ? "Yes" : "No"}
+              <p className="m-0 leading-relaxed text-slate-700 flex items-center gap-2">
+                <span className="font-bold text-slate-900">Parking Points:</span>{" "}
+                <span className={`inline-block px-3 py-1 rounded-full text-white text-xs font-bold shadow-sm ${getMarksClass(student.marks)}`}>
+                  {student.marks ?? 10}/10
+                </span>
               </p>
-              {student.blockReason && (
-                <p className="m-0 leading-relaxed text-slate-700">
-                  <span className="font-bold text-slate-900">Block Reason:</span>{" "}
-                  {student.blockReason}
-                </p>
+              {student.status === 'blocked' && (
+                <div className="mt-1 p-3 bg-red-50 border border-red-200 rounded-xl">
+                  <p className="text-xs font-bold text-red-700 mb-1">🚫 Parking Access Suspended</p>
+                  <p className="text-xs text-red-600">{student.blockReason || 'Contact administration to restore access.'}</p>
+                </div>
               )}
+              <p className="m-0 leading-relaxed text-slate-700"><span className="font-bold text-slate-900">Vehicle Registered:</span> {student.vehicleRegistered ? "Yes" : "No"}</p>
             </div>
           </div>
 
           <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-            <h3 className="mt-0 mb-4 text-slate-900 text-xl font-bold">
-              Vehicle Details
-            </h3>
+            <h3 className="mt-0 mb-4 text-slate-900 text-xl font-bold">Vehicle Details</h3>
             {student.vehicleRegistered && student.vehicle ? (
               <div className="flex flex-col gap-2">
-                <p className="m-0 leading-relaxed text-slate-700">
-                  <span className="font-bold text-slate-900">Model:</span> {student.vehicle.model}
-                </p>
-                <p className="m-0 leading-relaxed text-slate-700">
-                  <span className="font-bold text-slate-900">Color:</span> {student.vehicle.color}
-                </p>
+                <p className="m-0 leading-relaxed text-slate-700"><span className="font-bold text-slate-900">Model:</span> {student.vehicle.model}</p>
+                <p className="m-0 leading-relaxed text-slate-700"><span className="font-bold text-slate-900">Color:</span> {student.vehicle.color}</p>
                 <p className="m-0 leading-relaxed text-slate-700">
                   <span className="font-bold text-slate-900">Registration:</span>{" "}
                   {student.vehicle.regLetters}-{student.vehicle.regNumbers}
                 </p>
               </div>
             ) : (
+
               <div className="bg-linear-to-br from-blue-50 to-white border border-dashed border-blue-300 rounded-2xl p-4 text-slate-600 text-sm">
                 <p className="m-0 mb-1 font-bold text-blue-900">
                   No vehicle registered yet.
                 </p>
+
                 <small>You can add one from your profile page.</small>
               </div>
             )}
@@ -299,6 +288,7 @@ const StudentDashboard = () => {
           </div>
 
 
+
           {/* New Recent Notifications Section */}
           <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl col-span-1 md:col-span-full">
             <div className="flex justify-between items-center mb-4">
@@ -307,8 +297,8 @@ const StudentDashboard = () => {
                 Live Updates Active
               </div>
             </div>
-            
             <DashboardNotifications />
+          </div>
 
           <div className="p-6 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl md:col-span-2">
             <h3 className="mt-0 mb-4 text-slate-900 text-xl font-bold">
@@ -353,19 +343,24 @@ const StudentDashboard = () => {
               </div>
             </div>
 
+
           </div>
         </div>
 
         <div className="mt-8">
+
           <Link
             to="/student-profile"
             className="inline-block rounded-xl px-5 py-3 font-bold transition-all duration-300 bg-linear-to-br from-slate-800 to-slate-900 text-white shadow-lg shadow-slate-600/20 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl"
           >
+
             Manage Profile
           </Link>
         </div>
       
+
    </>
+
   );
 };
 
