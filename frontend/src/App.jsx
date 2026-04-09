@@ -47,12 +47,18 @@ const App = () => {
       {isParkingFlow && !isAdminPage && (
 
         <UnifiedNavbar 
-          moduleName=" Reserve Parking Spot"
+          moduleName="Reserve Parking Spot"
           links={[
-            { to: "/parking/zones", label: "Select Zone" }
-            
+            { to: "/parking/zones", label: "Select Zone" },
+            ...(!location.pathname.startsWith("/parking/book") &&
+              location.pathname !== "/parking" &&
+              location.pathname !== "/parking/zones" &&
+              location.pathname !== "/parking/my-booking"
+              ? [{ to: "/parking/admin", label: "Admin Records" }]
+              : [])
 
           ]}
+
           rightActions={
             showDashboardButton ? (
               <button
@@ -82,7 +88,6 @@ const App = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/home" element={<HomePage />} />
 
-
           {/* Student Portal */}
           <Route path="/student-register" element={<StudentRegister />} />
           <Route path="/student-login" element={<StudentLogin />} />
@@ -93,6 +98,7 @@ const App = () => {
           {/* Admin Portal */}
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
+
 
           {/* Locker Management */}
           <Route path="/AdminLockerMap" element={<AdminLockerMap />} />
