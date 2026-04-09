@@ -2,8 +2,52 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import studentApi from "./studentApi";
 import StudentNavbar from "./StudentNavbar";
+const StudentDashboard = () => {
+  const [student, setStudent] = useState(null);
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchStudent = async () => {
+      try {
+        const { data } = await studentApi.get("/students/profile");
+        setStudent(data);
+      } catch (error) {
+        console.error("Error fetching student profile:", error);
+        navigate("/student-login");
+      }
+    };
+    fetchStudent();
+  }, [navigate]);
 
+  const downloadQRCode = () => {
+    if (!student?.qrCode) return;
+    const link = document.createElement("a");
+    link.href = student.qrCode;
+    link.download = `${student.studentId}-qr-code.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const formatDate = (date) => {
+    if (!date) return "N/A";
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  if (!student) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-slate-500 font-bold animate-pulse">Initializing Portal...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
@@ -205,15 +249,7 @@ import StudentNavbar from "./StudentNavbar";
               ))}
             </div>
 
-            <div className="mt-8 flex justify-end">
-              <Link
-                to="/student-profile"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white font-bold rounded-2xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
-              >
-                Manage Profile
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
-              </Link>
-            </div>
+            
           </div>
         </div>
       </main>
@@ -221,4 +257,4 @@ import StudentNavbar from "./StudentNavbar";
   );
 };
 
-export default StudentDashboard;
+export default StudentDashboard;
