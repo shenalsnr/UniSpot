@@ -60,7 +60,7 @@ const navItems = [
   },
   {
     label: "Security Staff",
-    to: "/parking/admin/staff",
+    to: "/StaffDashboard",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -87,7 +87,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
           width: collapsed ? "72px" : "240px",
           transition: "width 0.3s cubic-bezier(0.4,0,0.2,1)",
           minHeight: "100vh",
-          background: "linear-gradient(180deg, oklch(48.8% 0.243 264.376) 0%, oklch(40% 0.22 264.376) 100%)",
+          background: "#1e1b4b", // Indigo 900
           display: "flex",
           flexDirection: "column",
           position: "fixed",

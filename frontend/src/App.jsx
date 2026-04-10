@@ -13,17 +13,25 @@ import AdminDashboard from "./components/Admin/AdminDashboard";
 import AdminLockerMap from "./components/LockerManagement/AdminLockerMap";
 import LockerMap from "./components/LockerManagement/LockerMap";
 import BookLockersStatus from "./components/LockerManagement/BookLockersStatus";
+import MyBookLocker from "./components/LockerManagement/MyBookLocker";
+
 
 import CampusMap from "./components/ParkingManagement/CampusMap";
 import ParkingMap from "./components/ParkingManagement/ParkingMap";
 import ParkingBookingForm from "./components/ParkingManagement/ParkingBookingForm";
 import AdminParkingRecords from "./components/ParkingManagement/AdminParkingRecords";
 import MyParkingBooking from "./components/ParkingManagement/MyParkingBooking";
+
+
 import SecurityPortal from "./components/SecurityPortal/SecurityPortal";
 import QRScanner from "./components/SecurityPortal/QRScanner";
 import UnifiedNavbar from "./components/Shared/UnifiedNavbar";
+
 import LockerMaintenance from "./components/LockerManagement/LockerMaintenance";
+
 import ErrorBoundary from "./components/Shared/ErrorBoundary";
+
+import StaffDashboard from "./components/Staff/StaffDashboard"
 
 const App = () => {
   const location = useLocation();
@@ -106,6 +114,9 @@ const App = () => {
           <Route path="/BookLockersStatus" element={<BookLockersStatus />} />
           <Route path="/LockerMaintenance" element={<LockerMaintenance />} />
           <Route path="/admin/locker-maintenance" element={<LockerMaintenance />} />
+          <Route path="/MyBookLocker" element={<MyBookLocker/>} />
+
+
 
           {/* Parking flow */}
           <Route path="/parking" element={<CampusMap />} />
@@ -113,7 +124,14 @@ const App = () => {
           <Route path="/parking/map" element={<ParkingMap />} />
           <Route path="/parking/book/:spotId" element={<ParkingBookingForm />} />
           <Route path="/parking/admin" element={<AdminParkingRecords />} />
-          <Route path="/parking/my-booking" element={<MyParkingBooking />} />
+          <Route path="/my-booking" element={<MyParkingBooking />} />
+
+
+
+
+         <Route path="/StaffDashboard" element={<StaffDashboard/>} />
+
+          
 
           {/* Security Portal */}
           <Route path="/security" element={<SecurityPortal />} />
