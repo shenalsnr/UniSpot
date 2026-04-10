@@ -86,6 +86,21 @@ const StudentDashboard = () => {
                 <Link to="/parking/zones" className="px-6 py-3.5 bg-indigo-600/50 text-white font-bold rounded-2xl border border-white/20 backdrop-blur-md hover:bg-indigo-600/70 hover:-translate-y-1 transition-all duration-300">
                   Reserve Parking
                 </Link>
+
+
+                
+                <Link to="/MyBookLocker" className="px-6 py-3.5 bg-white text-indigo-900 font-bold rounded-2xl shadow-xl shadow-black/10 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
+                  My Locker
+                </Link>
+                <Link to="/my-booking" className="px-6 py-3.5 bg-indigo-600/50 text-white font-bold rounded-2xl border border-white/20 backdrop-blur-md hover:bg-indigo-600/70 hover:-translate-y-1 transition-all duration-300">
+                  My Parking
+                </Link>
+
+
+
+
+
+
               </div>
             </div>
 
@@ -165,7 +180,7 @@ const StudentDashboard = () => {
           </div>
 
           {/* Quick Actions / QR Card */}
-          <div className="group p-6 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-3xl border border-indigo-500 shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div className="group p-6 bg-gray-400 rounded-3xl border  shadow-xl transition-all duration-300 hover:-translate-y-1">
             <div className="flex items-center space-x-3 mb-6">
               <div className="p-3 rounded-2xl bg-white/20 text-white">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
