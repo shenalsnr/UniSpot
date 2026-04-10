@@ -5,7 +5,7 @@ const UnifiedNavbar = ({ title = "", moduleName, links = [], leftActions, rightA
   const location = useLocation();
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-indigo-900 via-indigo-700 to-indigo-500 border-b border-white/30 shadow-2xl px-4 md:px-8 py-3 md:py-4 flex justify-between items-center transition-all relative backdrop-blur-sm">
+    <nav className="sticky top-0 z-50 w-full bg-indigo-900 shadow-2xl px-4 md:px-8 py-3 md:py-4 flex justify-between items-center transition-all relative backdrop-blur-sm">
       {/* Left Area: Logo and Module Name */}
       <div className="flex items-center gap-4">
         {leftActions && (

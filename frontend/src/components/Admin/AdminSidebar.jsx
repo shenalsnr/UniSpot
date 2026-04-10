@@ -87,7 +87,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
           width: collapsed ? "72px" : "240px",
           transition: "width 0.3s cubic-bezier(0.4,0,0.2,1)",
           minHeight: "100vh",
-          background: "linear-gradient(180deg, oklch(48.8% 0.243 264.376) 0%, oklch(40% 0.22 264.376) 100%)",
+          background: "#1e1b4b", // Indigo 900
           display: "flex",
           flexDirection: "column",
           position: "fixed",
