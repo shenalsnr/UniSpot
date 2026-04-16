@@ -54,7 +54,7 @@ const App = () => {
     <div className="min-h-screen bg-gray-200">
       {isParkingFlow && !isAdminPage && (
 
-        <UnifiedNavbar 
+        <UnifiedNavbar
           moduleName="Reserve Parking Spot"
           links={[
             { to: "/parking/zones", label: "Select Zone" },
@@ -114,7 +114,7 @@ const App = () => {
           <Route path="/BookLockersStatus" element={<BookLockersStatus />} />
           <Route path="/LockerMaintenance" element={<LockerMaintenance />} />
           <Route path="/admin/locker-maintenance" element={<LockerMaintenance />} />
-          <Route path="/MyBookLocker" element={<MyBookLocker/>} />
+          <Route path="/MyBookLocker" element={<MyBookLocker />} />
 
 
 
@@ -129,9 +129,9 @@ const App = () => {
 
 
 
-         <Route path="/StaffDashboard" element={<StaffDashboard/>} />
+          <Route path="/StaffDashboard" element={<StaffDashboard />} />
 
-          
+
 
           {/* Security Portal */}
           <Route path="/security" element={<SecurityPortal />} />
