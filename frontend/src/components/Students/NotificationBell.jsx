@@ -1,8 +1,25 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import studentApi from "./studentApi";
+import { io } from "socket.io-client";
 
 // ─── Notification type icon helper ──────────────────────────────────────────
-const getTypeIcon = (type) => {
+const getTypeIcon = (type, title = "") => {
+  // If it's a locker-specific type or the title suggests it's a locker booking
+  if (
+    type === "locker_booking_success" || 
+    type === "locker_booking_reminder" || 
+    type === "locker_booking_expired" ||
+    (title && title.toLowerCase().includes("locker"))
+  ) {
+    return (
+      <span className="notif-type-icon notif-type-locker" title="Locker Update">
+        📦
+      </span>
+
+
+    );
+  }
+
   switch (type) {
     case "booking_success":
       return (
@@ -84,6 +101,7 @@ const NotificationBell = () => {
   const [loading, setLoading] = useState(false);
   const [markingId, setMarkingId] = useState(null);
   const [markingAll, setMarkingAll] = useState(false);
+  const [clearingAll, setClearingAll] = useState(false);
   const panelRef = useRef(null);
   const bellRef = useRef(null);
 
@@ -100,12 +118,57 @@ const NotificationBell = () => {
     }
   }, []);
 
-  // Initial fetch + polling (every 30s for "real-time readiness")
+  // Initial fetch + polling (every 30s as fallback)
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [fetchNotifications]);
+
+  // ── Real-time notifications via Socket.io ──────────────────────────────────
+  useEffect(() => {
+    // Get student info for the room name
+    const studentInfo = JSON.parse(localStorage.getItem("studentInfo") || "{}");
+    const studentId = studentInfo.studentId;
+
+    if (!studentId) return;
+
+    // Connect to backend (using the same base URL as the API, minus /api)
+    const socket = io("http://localhost:5000");
+
+    socket.on("connect", () => {
+      console.log("[Socket] Connected to server");
+      // Join the private student room
+      socket.emit("join_student", studentId);
+    });
+
+    socket.on("new_notification", (notif) => {
+      console.log("[Socket] New notification received:", notif);
+      
+      // Add to state instantly
+      setNotifications((prev) => {
+        // Prevent duplicates (just in case)
+        if (prev.some(n => n._id === notif._id)) return prev;
+        return [notif, ...prev];
+      });
+      
+      // Increment unread count
+      setUnreadCount((prev) => prev + 1);
+
+      // Play a subtle sound or trigger browser notification if desired
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(notif.title, { body: notif.message });
+      }
+    });
+
+    socket.on("disconnect", () => {
+      console.log("[Socket] Disconnected from server");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   // ── Close on outside click ─────────────────────────────────────────────────
   useEffect(() => {
@@ -151,6 +214,21 @@ const NotificationBell = () => {
       // silent
     } finally {
       setMarkingAll(false);
+    }
+  };
+
+  // ── Clear all notifications ────────────────────────────────────────────────
+  const handleClearAll = async () => {
+    if (!window.confirm("Are you sure you want to clear all notifications?")) return;
+    setClearingAll(true);
+    try {
+      await studentApi.delete("/notifications");
+      setNotifications([]);
+      setUnreadCount(0);
+    } catch {
+      // silent
+    } finally {
+      setClearingAll(false);
     }
   };
 
@@ -352,6 +430,7 @@ const NotificationBell = () => {
         .notif-type-expired     { background: #ffedd5; }
         .notif-type-penalty     { background: #fee2e2; }
         .notif-type-blocked     { background: #1f2937; color: #f9fafb; }
+        .notif-type-locker      { background: #eff6ff; border: 1px solid #bfdbfe; }
         .notif-type-default     { background: #f1f5f9; }
 
         /* Item body */
@@ -543,16 +622,29 @@ const NotificationBell = () => {
                 )}
               </span>
 
-              {unreadCount > 0 && (
-                <button
-                  className="notif-mark-all-btn"
-                  onClick={handleMarkAllRead}
-                  disabled={markingAll}
-                  title="Mark all as read"
-                >
-                  {markingAll ? "Marking..." : "Mark all read"}
-                </button>
-              )}
+              <div className="flex gap-2">
+                {unreadCount > 0 && (
+                  <button
+                    className="notif-mark-all-btn"
+                    onClick={handleMarkAllRead}
+                    disabled={markingAll || clearingAll}
+                    title="Mark all as read"
+                  >
+                    {markingAll ? "..." : "Read all"}
+                  </button>
+                )}
+                {notifications.length > 0 && (
+                  <button
+                    className="notif-mark-all-btn"
+                    style={{ background: "rgba(239, 68, 68, 0.2)", borderColor: "rgba(239, 68, 68, 0.4)" }}
+                    onClick={handleClearAll}
+                    disabled={clearingAll}
+                    title="Clear all notifications"
+                  >
+                    {clearingAll ? "..." : "Clear all"}
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Body */}
@@ -578,7 +670,7 @@ const NotificationBell = () => {
                     className={`notif-item ${n.isRead ? "notif-read" : "notif-unread"}`}
                   >
                     {/* Type icon */}
-                    {getTypeIcon(n.type)}
+                    {getTypeIcon(n.type, n.title)}
 
                     {/* Content */}
                     <div className="notif-body">

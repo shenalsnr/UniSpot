@@ -13,6 +13,7 @@ const isValidPhone = (phone) => /^0\d{9}$/.test(phone);
 const isValidVehicleLetters = (letters) => /^[A-Z]{2,3}$/.test(letters);
 const isValidVehicleNumbers = (numbers) => /^\d{4}$/.test(numbers);
 const isValidName = (name) => /^[A-Za-z\s]{3,}$/.test(name.trim());
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
 
 // Register student
 const registerStudent = async (req, res) => {
@@ -23,9 +24,9 @@ const registerStudent = async (req, res) => {
       return res.status(400).json({ message: "Please fill all required fields" });
     }
 
-    // if (!req.file) {
-    //   return res.status(400).json({ message: "Student photo is required" });
-    // }
+    if (!req.file) {
+      return res.status(400).json({ message: "Student photo is required" });
+    }
 
     if (!isValidName(name)) {
       return res.status(400).json({
@@ -51,16 +52,24 @@ const registerStudent = async (req, res) => {
       return res.status(400).json({ message: "Address is too short" });
     }
 
-    const studentExists = await Student.findOne({ studentId: formattedStudentId });
-    if (studentExists) {
-      return res.status(400).json({ message: "Student ID already exists" });
-    }
-
     if (email) {
-      const emailExists = await Student.findOne({ email: email.toLowerCase() });
+      const formattedEmail = email.toLowerCase().trim();
+
+      if (!isValidEmail(formattedEmail)) {
+        return res.status(400).json({
+          message: "Please enter a valid email address",
+        });
+      }
+
+      const emailExists = await Student.findOne({ email: formattedEmail });
       if (emailExists) {
         return res.status(400).json({ message: "Email already exists" });
       }
+    }
+
+    const studentExists = await Student.findOne({ studentId: formattedStudentId });
+    if (studentExists) {
+      return res.status(400).json({ message: "Student ID already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -68,18 +77,20 @@ const registerStudent = async (req, res) => {
     const qrCodeData = await QRCode.toDataURL(formattedStudentId);
 
     const student = await Student.create({
-      name,
+      name: name.trim(),
       studentId: formattedStudentId,
-      phone,
-      address,
-      faculty,
-      email: email ? email.toLowerCase() : "",
+      phone: phone.trim(),
+      address: address.trim(),
+      faculty: faculty.trim(),
+      email: email ? email.toLowerCase().trim() : "",
       password: hashedPassword,
       photo: photoPath,
       qrCode: qrCodeData,
       role: "student",
       marks: 10,
       status: "active",
+      profileUpdatedAt: new Date(),
+      passwordChangedAt: new Date(),
     });
 
     res.status(201).json({
@@ -96,6 +107,10 @@ const registerStudent = async (req, res) => {
       marks: student.marks,
       status: student.status,
       vehicleRegistered: student.vehicleRegistered,
+      createdAt: student.createdAt,
+      profileUpdatedAt: student.profileUpdatedAt,
+      vehicleUpdatedAt: student.vehicleUpdatedAt,
+      passwordChangedAt: student.passwordChangedAt,
       token: generateToken(student._id),
     });
   } catch (error) {
@@ -141,6 +156,10 @@ const loginStudent = async (req, res) => {
       blockReason: student.blockReason,
       vehicleRegistered: student.vehicleRegistered,
       vehicle: student.vehicle,
+      createdAt: student.createdAt,
+      profileUpdatedAt: student.profileUpdatedAt,
+      vehicleUpdatedAt: student.vehicleUpdatedAt,
+      passwordChangedAt: student.passwordChangedAt,
       token: generateToken(student._id),
     });
   } catch (error) {
@@ -180,7 +199,7 @@ const updateStudentProfile = async (req, res) => {
           message: "Name must contain at least 3 letters and only letters/spaces",
         });
       }
-      student.name = name;
+      student.name = name.trim();
     }
 
     if (phone) {
@@ -189,19 +208,48 @@ const updateStudentProfile = async (req, res) => {
           message: "Phone number must contain 10 digits and start with 0",
         });
       }
-      student.phone = phone;
+      student.phone = phone.trim();
     }
 
     if (address) {
       if (address.trim().length < 5) {
         return res.status(400).json({ message: "Address is too short" });
       }
-      student.address = address;
+      student.address = address.trim();
     }
 
-    if (faculty) student.faculty = faculty;
-    if (email) student.email = email.toLowerCase();
-    if (req.file) student.photo = `/uploads/${req.file.filename}`;
+    if (faculty) student.faculty = faculty.trim();
+
+    if (typeof email === "string") {
+      const formattedEmail = email.toLowerCase().trim();
+
+      if (!formattedEmail) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      if (!isValidEmail(formattedEmail)) {
+        return res.status(400).json({
+          message: "Please enter a valid email address",
+        });
+      }
+
+      const emailExists = await Student.findOne({
+        email: formattedEmail,
+        _id: { $ne: student._id },
+      });
+
+      if (emailExists) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+
+      student.email = formattedEmail;
+    }
+
+    if (req.file) {
+      student.photo = `/uploads/${req.file.filename}`;
+    }
+
+    student.profileUpdatedAt = new Date();
 
     const updatedStudent = await student.save();
 
@@ -222,6 +270,10 @@ const updateStudentProfile = async (req, res) => {
         status: updatedStudent.status,
         vehicleRegistered: updatedStudent.vehicleRegistered,
         vehicle: updatedStudent.vehicle,
+        createdAt: updatedStudent.createdAt,
+        profileUpdatedAt: updatedStudent.profileUpdatedAt,
+        vehicleUpdatedAt: updatedStudent.vehicleUpdatedAt,
+        passwordChangedAt: updatedStudent.passwordChangedAt,
       },
     });
   } catch (error) {
@@ -238,7 +290,8 @@ const addOrUpdateVehicle = async (req, res) => {
       return res.status(400).json({ message: "Please fill all vehicle fields" });
     }
 
-    const formattedLetters = regLetters.toUpperCase();
+    const formattedLetters = regLetters.toUpperCase().trim();
+    const formattedNumbers = regNumbers.trim();
 
     if (!isValidVehicleLetters(formattedLetters)) {
       return res.status(400).json({
@@ -246,7 +299,7 @@ const addOrUpdateVehicle = async (req, res) => {
       });
     }
 
-    if (!isValidVehicleNumbers(regNumbers)) {
+    if (!isValidVehicleNumbers(formattedNumbers)) {
       return res.status(400).json({
         message: "Vehicle numbers must contain exactly 4 digits",
       });
@@ -260,11 +313,12 @@ const addOrUpdateVehicle = async (req, res) => {
 
     student.vehicleRegistered = true;
     student.vehicle = {
-      model,
-      color,
+      model: model.trim(),
+      color: color.trim(),
       regLetters: formattedLetters,
-      regNumbers,
+      regNumbers: formattedNumbers,
     };
+    student.vehicleUpdatedAt = new Date();
 
     await student.save();
 
@@ -272,6 +326,7 @@ const addOrUpdateVehicle = async (req, res) => {
       message: "Vehicle saved successfully",
       vehicleRegistered: student.vehicleRegistered,
       vehicle: student.vehicle,
+      vehicleUpdatedAt: student.vehicleUpdatedAt,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -289,6 +344,7 @@ const removeVehicle = async (req, res) => {
 
     student.vehicleRegistered = false;
     student.vehicle = null;
+    student.vehicleUpdatedAt = new Date();
 
     await student.save();
 
@@ -311,7 +367,7 @@ const requestPasswordOtp = async (req, res) => {
 
     const student = await Student.findOne({
       studentId: formattedStudentId,
-      phone,
+      phone: phone.trim(),
     });
 
     if (!student) {
@@ -350,7 +406,7 @@ const resetPasswordWithOtp = async (req, res) => {
 
     const student = await Student.findOne({
       studentId: formattedStudentId,
-      phone,
+      phone: phone.trim(),
     });
 
     if (!student) {
@@ -369,10 +425,33 @@ const resetPasswordWithOtp = async (req, res) => {
     student.password = hashedPassword;
     student.otpCode = "";
     student.otpExpires = null;
+    student.passwordChangedAt = new Date();
 
     await student.save();
 
-    res.json({ message: "Password reset successfully" });
+    res.json({
+      message: "Password reset successfully",
+      _id: student._id,
+      name: student.name,
+      studentId: student.studentId,
+      phone: student.phone,
+      address: student.address,
+      faculty: student.faculty,
+      email: student.email,
+      photo: student.photo,
+      qrCode: student.qrCode,
+      role: student.role,
+      marks: student.marks,
+      status: student.status,
+      blockReason: student.blockReason,
+      vehicleRegistered: student.vehicleRegistered,
+      vehicle: student.vehicle,
+      createdAt: student.createdAt,
+      profileUpdatedAt: student.profileUpdatedAt,
+      vehicleUpdatedAt: student.vehicleUpdatedAt,
+      passwordChangedAt: student.passwordChangedAt,
+      token: generateToken(student._id),
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -407,6 +486,50 @@ const getStudentByQr = async (req, res) => {
   }
 };
 
+// Delete student profile
+const deleteStudentProfile = async (req, res) => {
+  try {
+    const studentId = req.student._id;
+
+    const student = await Student.findById(studentId);
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    // Delete the student
+    await Student.findByIdAndDelete(studentId);
+
+    res.json({
+      message: "Account deleted successfully. We're sorry to see you go!",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Check email uniqueness
+const checkEmailExists = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const student = await Student.findOne({ email: normalizedEmail });
+
+    res.json({ exists: !!student });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export {
   registerStudent,
   loginStudent,
@@ -417,4 +540,6 @@ export {
   requestPasswordOtp,
   resetPasswordWithOtp,
   getStudentByQr,
+  deleteStudentProfile,
+  checkEmailExists,
 };

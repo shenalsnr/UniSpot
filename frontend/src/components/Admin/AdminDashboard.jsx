@@ -3,245 +3,43 @@ import AdminLayout from "./AdminLayout";
 import adminApi from "./adminApi";
 
 
-// ── Parking points colour helper ─────────────────────────────────────────────
+// 🎨 Points color
 const getPointsColor = (points) => {
-  if (points >= 7) return "bg-gradient-to-br from-green-600 to-green-500";
-  if (points >= 4) return "bg-gradient-to-br from-yellow-500 to-yellow-400";
-  return "bg-gradient-to-br from-red-600 to-red-500";
+  if (points >= 7) return "bg-green-500";
+  if (points >= 4) return "bg-yellow-500";
+  return "bg-red-500";
 };
 
+// 🚦 Status badge
 const getStatusBadge = (status) => {
-  if (status === "blocked") {
+  if (status === "Blocked") {
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">
+      <span className="px-2 py-1 text-xs font-bold bg-red-100 text-red-600 rounded-full">
         🚫 Blocked
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200">
+    <span className="px-2 py-1 text-xs font-bold bg-green-100 text-green-600 rounded-full">
       ✓ Active
     </span>
   );
 };
 
-// ── Restore Points Modal ──────────────────────────────────────────────────────
-const RestoreModal = ({ student, onClose, onSuccess }) => {
-  const [mode, setMode] = useState(null); // 'quick' | 'custom' | 'reset'
-  const [customAmount, setCustomAmount] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const current = student?.marks ?? 0;
-  const remaining = 10 - current;
-
-  const doRestore = async (points) => {
-    if (!points || points < 1) return;
-    setLoading(true);
-    setError("");
-    try {
-      const { data } = await adminApi.put(
-        `/admin/students/restore-points/${student._id}`,
-        { points }
-      );
-      onSuccess(data.message, data);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to restore points");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const doReset = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const { data } = await adminApi.put(
-        `/admin/students/reset-points/${student._id}`
-      );
-      onSuccess(data.message, data);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to reset points");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white">
-          <h3 className="text-xl font-extrabold mb-0.5">Restore Parking Points</h3>
-          <p className="text-blue-100 text-sm">{student?.name} — {student?.studentId}</p>
-        </div>
-
-        <div className="p-6">
-          {/* Current State */}
-          <div className="flex items-center justify-between bg-slate-50 rounded-2xl p-4 mb-5 border border-slate-200">
-            <div>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Current Points</p>
-              <div className="flex items-center gap-2">
-                <span className={`inline-block px-3 py-1 rounded-full text-white text-sm font-bold shadow-sm ${getPointsColor(current)}`}>
-                  {current}/10
-                </span>
-                {getStatusBadge(student?.status)}
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Can Restore</p>
-              <p className="text-2xl font-black text-slate-800">+{remaining}</p>
-            </div>
-          </div>
-
-          {error && (
-            <p className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-sm font-semibold rounded-xl">
-              ⚠️ {error}
-            </p>
-          )}
-
-          {/* Action selection */}
-          {!mode && (
-            <div className="space-y-3">
-              <p className="text-sm font-bold text-slate-700 mb-3">Choose restore action:</p>
-
-              <button
-                onClick={() => setMode("quick")}
-                className="w-full py-3 px-4 bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 hover:border-blue-400 text-blue-800 font-bold rounded-xl transition-all text-left"
-              >
-                ⚡ Quick Restore — preset amounts
-              </button>
-
-              <button
-                onClick={() => setMode("custom")}
-                className="w-full py-3 px-4 bg-indigo-50 hover:bg-indigo-100 border-2 border-indigo-200 hover:border-indigo-400 text-indigo-800 font-bold rounded-xl transition-all text-left"
-              >
-                ✏️ Custom Amount — enter specific points
-              </button>
-
-              {remaining > 0 && (
-                <button
-                  onClick={() => setMode("reset")}
-                  className="w-full py-3 px-4 bg-green-50 hover:bg-green-100 border-2 border-green-200 hover:border-green-400 text-green-800 font-bold rounded-xl transition-all text-left"
-                >
-                  🔄 Reset to Full — restore to 10/10
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Quick Restore */}
-          {mode === "quick" && (
-            <div>
-              <p className="text-sm font-bold text-slate-700 mb-3">Select restore amount:</p>
-              <div className="grid grid-cols-4 gap-3 mb-4">
-                {[1, 2, 3, 5].filter(n => n <= remaining).map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => doRestore(n)}
-                    disabled={loading}
-                    className="py-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-black text-lg rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
-                  >
-                    +{n}
-                  </button>
-                ))}
-              </div>
-              {remaining === 0 && (
-                <p className="text-center text-emerald-700 font-bold text-sm">Points are already at maximum (10/10)</p>
-              )}
-              <button onClick={() => setMode(null)} className="w-full py-2 text-slate-500 hover:text-slate-700 text-sm font-semibold transition-colors">
-                ← Back
-              </button>
-            </div>
-          )}
-
-          {/* Custom Amount */}
-          {mode === "custom" && (
-            <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">
-                Points to restore (1–{remaining}):
-              </label>
-              <input
-                type="number"
-                min={1}
-                max={remaining}
-                value={customAmount}
-                onChange={(e) => setCustomAmount(e.target.value)}
-                placeholder={`Enter 1 to ${remaining}`}
-                className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 font-semibold text-lg mb-4"
-              />
-              <button
-                onClick={() => doRestore(parseInt(customAmount, 10))}
-                disabled={loading || !customAmount || parseInt(customAmount) < 1 || parseInt(customAmount) > remaining}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold rounded-xl transition-all mb-3"
-              >
-                {loading ? "Restoring..." : `Restore +${customAmount || "?"} Points`}
-              </button>
-              <button onClick={() => setMode(null)} className="w-full py-2 text-slate-500 hover:text-slate-700 text-sm font-semibold transition-colors">
-                ← Back
-              </button>
-            </div>
-          )}
-
-          {/* Full Reset confirmation */}
-          {mode === "reset" && (
-            <div>
-              <div className="text-center mb-5 p-4 bg-green-50 border border-green-200 rounded-2xl">
-                <p className="text-4xl mb-2">🔄</p>
-                <p className="text-green-800 font-bold">Reset to 10/10 points?</p>
-                <p className="text-green-700 text-xs mt-1">
-                  This will restore full points{student?.status === "blocked" ? " and automatically unblock the student" : ""}.
-                </p>
-              </div>
-              <button
-                onClick={doReset}
-                disabled={loading}
-                className="w-full py-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-bold rounded-xl transition-all mb-3"
-              >
-                {loading ? "Resetting..." : "Confirm Reset to 10/10"}
-              </button>
-              <button onClick={() => setMode(null)} className="w-full py-2 text-slate-500 hover:text-slate-700 text-sm font-semibold transition-colors">
-                ← Back
-              </button>
-            </div>
-          )}
-
-          {/* Cancel */}
-          {!mode && (
-            <button
-              onClick={onClose}
-              className="w-full mt-4 py-2.5 border-2 border-slate-200 hover:border-slate-400 text-slate-600 font-semibold rounded-xl transition-all"
-            >
-              Cancel
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ── Main Dashboard ────────────────────────────────────────────────────────────
 const AdminDashboard = () => {
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("success"); // 'success' | 'error'
-  const [showRestoreModal, setShowRestoreModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [messageType, setMessageType] = useState("success");
 
-  const showMsg = (msg, type = "success") => {
-    setMessage(msg);
-    setMessageType(type);
-    setTimeout(() => setMessage(""), 5000);
-  };
-
+  // 🔄 Load students
   const fetchStudents = async () => {
     try {
       const { data } = await adminApi.get("/admin/students");
       setStudents(data);
-    } catch (error) {
-      showMsg("Failed to load students", "error");
+    } catch {
+      setMessage("Failed to load students");
     }
   };
 
@@ -249,64 +47,96 @@ const AdminDashboard = () => {
     fetchStudents();
   }, []);
 
+  // 👁 View details
   const viewStudentDetails = async (id) => {
     try {
       const { data } = await adminApi.get(`/admin/students/${id}`);
       setSelectedStudent(data);
-    } catch (error) {
-      showMsg("Failed to load student details", "error");
+    } catch {
+      setMessage("Failed to load student");
     }
   };
 
+  // 🚫 Block
   const blockStudent = async (id) => {
     const reason = prompt("Enter block reason:");
     if (!reason) return;
+
     try {
-      const { data } = await adminApi.put(`/admin/students/block/${id}`, { blockReason: reason });
-      showMsg(data.message);
+      const { data } = await adminApi.put(`/admin/students/block/${id}`, {
+        blockReason: reason,
+      });
+      setMessage(data.message);
       fetchStudents();
-      if (selectedStudent?._id === id) viewStudentDetails(id);
     } catch {
-      showMsg("Failed to block student", "error");
+      setMessage("Block failed");
     }
   };
 
+  // ✅ Unblock
   const unblockStudent = async (id) => {
     try {
       const { data } = await adminApi.put(`/admin/students/unblock/${id}`);
-      showMsg(data.message);
+      setMessage(data.message);
       fetchStudents();
-      if (selectedStudent?._id === id) viewStudentDetails(id);
     } catch {
-      showMsg("Failed to unblock student", "error");
+      setMessage("Unblock failed");
     }
   };
 
-  const handleRestoreSuccess = (msg) => {
-    showMsg(msg);
-    setShowRestoreModal(false);
-    fetchStudents();
-    if (selectedStudent) viewStudentDetails(selectedStudent._id);
+  // 🔄 Restore Parking Points
+  const restoreParkingPoints = async (id) => {
+    const points = prompt("Enter number of points to restore (1-10):");
+    if (!points) return;
+
+    const restoreAmount = parseInt(points, 10);
+    if (isNaN(restoreAmount) || restoreAmount < 1 || restoreAmount > 10) {
+      setMessage("Invalid amount. Please enter a number between 1 and 10");
+      return;
+    }
+
+    try {
+      const { data } = await adminApi.put(
+        `/admin/students/restore-points/${id}`,
+        { points: restoreAmount }
+      );
+      setMessage(data.message);
+      viewStudentDetails(id); // Refresh selected student
+      fetchStudents();
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message || "Failed to restore points"
+      );
+    }
   };
 
-  // Filter students
-  const filteredStudents = students.filter((s) =>
-    s.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.studentId?.toLowerCase().includes(searchQuery.toLowerCase())
+  // 🔄 Reset Parking Points
+  const resetParkingPoints = async (id) => {
+    if (!window.confirm("Reset parking points to 10/10 and unblock student?")) {
+      return;
+    }
+
+    try {
+      const { data } = await adminApi.put(
+        `/admin/students/reset-points/${id}`
+      );
+      setMessage(data.message);
+      viewStudentDetails(id); // Refresh selected student
+      fetchStudents();
+    } catch (error) {
+      setMessage(error.response?.data?.message || "Failed to reset points");
+    }
+  };
+
+  // 🔍 Filter students by search query
+  const filteredStudents = students.filter(
+    (student) =>
+      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.studentId.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <AdminLayout>
-
-      {/* Restore Points Modal */}
-      {showRestoreModal && selectedStudent && (
-        <RestoreModal
-          student={selectedStudent}
-          onClose={() => setShowRestoreModal(false)}
-          onSuccess={handleRestoreSuccess}
-        />
-      )}
-
       {/* Header */}
       <div className="bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 text-white rounded-[26px] p-6 md:p-8 shadow-xl shadow-blue-900/20 mb-6">
         <h1 className="m-0 mb-2 text-3xl md:text-4xl font-extrabold tracking-tight">
@@ -462,7 +292,7 @@ const AdminDashboard = () => {
               <div className="mt-2 flex flex-col gap-3">
                 {/* Primary: Restore Points */}
                 <button
-                  onClick={() => setShowRestoreModal(true)}
+                  onClick={() => restoreParkingPoints(selectedStudent._id)}
                   disabled={(selectedStudent.marks ?? 10) >= 10}
                   className="w-full py-3 px-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
                 >
