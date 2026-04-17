@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Lock } from "lucide-react";
 import AdminLayout from "../Admin/AdminLayout";
 
 const BookLockersStatus = () => {
@@ -32,22 +32,30 @@ const BookLockersStatus = () => {
   }, []);
 
   // Filter bookings based on search term
-  const filteredBookings = bookings.filter((booking) => {
-    const studentName = booking.student?.name || (booking.studentId && typeof booking.studentId === 'string' ? `Student ${booking.studentId.slice(-6)}` : "Student Not Found");
-    const studentId = booking.student?.studentId || (booking.studentId && typeof booking.studentId === 'string' ? booking.studentId : "N/A");
+  const filteredBookings = Array.isArray(bookings) ? bookings.filter((booking) => {
+    if (!booking) return false;
     
-    const searchLower = searchTerm.toLowerCase();
+    // Safely extract student details with fallbacks
+    const studentName = booking.student?.name || 
+                        (typeof booking.studentId === 'string' ? `Student ${booking.studentId.slice(-6)}` : "Student Not Found");
+    const studentId = booking.student?.studentId || 
+                      (typeof booking.studentId === 'string' ? booking.studentId : "N/A");
+    
+    const searchLower = (searchTerm || "").toLowerCase();
+    
     return (
-      studentName.toLowerCase().includes(searchLower) ||
-      studentId.toLowerCase().includes(searchLower)
+      String(studentName).toLowerCase().includes(searchLower) ||
+      String(studentId).toLowerCase().includes(searchLower)
     );
-  });
+  }) : [];
 
   if (loading) {
     return (
-      <div className="p-10 text-center font-semibold text-gray-500">
-        Loading all booking details...
-      </div>
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[60vh] text-gray-500 font-semibold">
+          Loading all booking details...
+        </div>
+      </AdminLayout>
     );
   }
 

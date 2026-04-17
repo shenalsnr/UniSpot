@@ -258,310 +258,284 @@ const StudentProfile = () => {
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-[#f8fafc]">
       <StudentNavbar />
 
-      <PageBackground className="p-4 md:p-8 md:px-12 lg:px-24 min-h-screen">
-        <div className="mb-8 relative z-10 p-6 md:p-8 rounded-2xl bg-black/40 border-2 border-cyan-400/80 backdrop-blur-xl shadow-2xl shadow-cyan-500/40">
-          <div className="inline-block mb-4 px-4 py-2 rounded-full bg-black/80 border border-cyan-400/60 backdrop-blur-lg">
-            <p className="m-0 text-xs font-bold uppercase tracking-widest text-cyan-300 drop-shadow-lg">
-              ⚡ Student Dashboard
-            </p>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        {/* Page Header */}
+        <div className="mb-12">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-bold uppercase tracking-wider mb-4">
+            <span className="flex h-2 w-2 rounded-full bg-indigo-400"></span>
+            <span>Account Settings</span>
           </div>
-          <h1 className="m-0 text-4xl md:text-5xl text-cyan-400 font-extrabold tracking-tight drop-shadow-lg" style={{textShadow: '0 0 10px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3)'}}>
-            My Profile
-          </h1>
-          <p className="mt-4 text-cyan-200 font-medium text-base max-w-2xl drop-shadow-lg">
-            📝 Manage your personal information, vehicle details, and security credentials
-          </p>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight text-left">My Profile</h1>
+          <p className="mt-2 text-slate-500 font-medium text-left">Manage your personal identity, vehicle details, and security credentials.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-6">
-          {/* Profile Details Card */}
-          <div className="p-7 bg-gradient-to-br from-blue-50/95 to-indigo-50/95 backdrop-blur-xl border border-blue-200/60 rounded-2xl shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-blue-300/80 group">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                <span className="text-white text-lg">👤</span>
-              </div>
-              <h2 className="m-0 text-slate-900 text-xl font-extrabold">Profile Details</h2>
-            </div>
-
-            {profileMessage && (
-              <p className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 px-4 py-3 rounded-xl font-semibold mb-4 text-center text-sm border border-green-300/50 shadow-md">
-                ✅ {profileMessage}
-              </p>
-            )}
-
-            {photoError && (
-              <p className="bg-gradient-to-r from-red-100 to-pink-100 text-red-700 px-4 py-3 rounded-xl font-semibold mb-4 text-center text-sm border border-red-300/50 shadow-md">
-                ⚠️ {photoError}
-              </p>
-            )}
-
-            <form className="flex flex-col gap-4" onSubmit={updateProfileHandler}>
-              {/* Name Input */}
-              <div className="group">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">Full Name</label>
-                <input
-                  className="w-full px-4 py-3 rounded-xl border-2 border-blue-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-blue-50 focus:ring-4 focus:ring-blue-500/20 group-hover:border-blue-300"
-                  type="text"
-                  name="name"
-                  value={profileData.name}
-                  onChange={profileChangeHandler}
-                  placeholder="Your full name"
-                />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Main Info Column */}
+          <div className="lg:col-span-8 space-y-8">
+            {/* Identity Card */}
+            <section className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
+              <div className="p-8 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-2xl bg-indigo-50 text-indigo-600">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-800">Identity Details</h3>
+                </div>
               </div>
 
-              {/* Phone Input */}
-              <div className="group">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">📱 Phone</label>
-                <input
-                  className="w-full px-4 py-3 rounded-xl border-2 border-blue-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-blue-50 focus:ring-4 focus:ring-blue-500/20 group-hover:border-blue-300"
-                  type="text"
-                  name="phone"
-                  value={profileData.phone}
-                  onChange={profileChangeHandler}
-                  placeholder="Contact number"
-                />
-              </div>
+              <div className="p-8">
+                {profileMessage && (
+                  <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-700 text-sm font-bold flex items-center gap-3">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-white text-[10px]">✓</span>
+                    {profileMessage}
+                  </div>
+                )}
+                
+                <form onSubmit={updateProfileHandler} className="space-y-6 text-left">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Full Name</label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={profileData.name}
+                        onChange={profileChangeHandler}
+                        className="w-full px-5 py-3.5 rounded-2xl border border-slate-200 bg-slate-50/50 text-slate-900 font-bold focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none"
+                        placeholder="John Doe"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={profileData.email}
+                        onChange={profileChangeHandler}
+                        className="w-full px-5 py-3.5 rounded-2xl border border-slate-200 bg-slate-50/50 text-slate-900 font-bold focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none"
+                        placeholder="email@example.com"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Phone Number</label>
+                      <input
+                        type="text"
+                        name="phone"
+                        value={profileData.phone}
+                        onChange={profileChangeHandler}
+                        className="w-full px-5 py-3.5 rounded-2xl border border-slate-200 bg-slate-50/50 text-slate-900 font-bold focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none"
+                        placeholder="+94 ..."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Faculty</label>
+                      <input
+                        type="text"
+                        name="faculty"
+                        value={profileData.faculty}
+                        onChange={profileChangeHandler}
+                        className="w-full px-5 py-3.5 rounded-2xl border border-slate-200 bg-slate-50/50 text-slate-900 font-bold focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none"
+                        placeholder="e.g. Computing"
+                      />
+                    </div>
+                  </div>
 
-              {/* Address Input */}
-              <div className="group">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">🏠 Address</label>
-                <input
-                  className="w-full px-4 py-3 rounded-xl border-2 border-blue-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-blue-50 focus:ring-4 focus:ring-blue-500/20 group-hover:border-blue-300"
-                  type="text"
-                  name="address"
-                  value={profileData.address}
-                  onChange={profileChangeHandler}
-                  placeholder="Your address"
-                />
-              </div>
-
-              {/* Faculty Input */}
-              <div className="group">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">🎓 Faculty</label>
-                <input
-                  className="w-full px-4 py-3 rounded-xl border-2 border-blue-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-blue-50 focus:ring-4 focus:ring-blue-500/20 group-hover:border-blue-300"
-                  type="text"
-                  name="faculty"
-                  value={profileData.faculty}
-                  onChange={profileChangeHandler}
-                  placeholder="Your faculty"
-                />
-              </div>
-
-              {/* Email Input */}
-              <div className="group">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">📧 Email</label>
-                <input
-                  className="w-full px-4 py-3 rounded-xl border-2 border-blue-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-blue-50 focus:ring-4 focus:ring-blue-500/20 group-hover:border-blue-300"
-                  type="email"
-                  name="email"
-                  value={profileData.email}
-                  onChange={profileChangeHandler}
-                  placeholder="Your email"
-                />
-              </div>
-
-              {/* Photo Upload */}
-              <div className="rounded-xl border-2 border-dashed border-blue-300/60 bg-gradient-to-br from-blue-50/60 to-indigo-50/60 p-4 transition-all duration-200 hover:border-blue-400 hover:from-blue-50 hover:to-indigo-50">
-                <label className="block text-sm font-bold text-slate-700 mb-2.5">📸 Change Photo</label>
-
-                <input
-                  key={fileInputKey}
-                  className="w-full px-4 py-2.5 rounded-lg border-2 border-blue-200 bg-white text-sm text-slate-900 outline-none transition-all cursor-pointer file:mr-3 file:rounded-full file:border-0 file:bg-gradient-to-r file:from-blue-500 file:to-indigo-600 file:text-white file:px-4 file:py-1.5 file:font-bold file:cursor-pointer hover:border-blue-400"
-                  type="file"
-                  name="photo"
-                  accept="image/png,image/jpeg,image/jpg"
-                  onChange={profileChangeHandler}
-                />
-
-                <p className="mt-2 text-xs text-slate-500 font-medium">
-                  ✓ JPG, JPEG, PNG | Max: 5MB
-                </p>
-
-                {photoPreview && (
-                  <div className="mt-4 flex flex-col items-center gap-3 p-4 bg-white/60 rounded-xl border border-blue-200/50">
-                    <img
-                      src={photoPreview}
-                      alt="Student Preview"
-                      className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-xl border-3 border-white shadow-lg"
+                  <div className="space-y-2">
+                    <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Residential Address</label>
+                    <input
+                      type="text"
+                      name="address"
+                      value={profileData.address}
+                      onChange={profileChangeHandler}
+                      className="w-full px-5 py-3.5 rounded-2xl border border-slate-200 bg-slate-50/50 text-slate-900 font-bold focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none"
+                      placeholder="Street, City"
                     />
+                  </div>
+
+                  <div className="pt-4 flex justify-end">
                     <button
-                      type="button"
-                      onClick={removeSelectedPhoto}
-                      className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-pink-600 text-white font-bold text-sm hover:shadow-lg transition-all hover:-translate-y-0.5"
+                      type="submit"
+                      className="px-10 py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-1 transition-all active:scale-95"
                     >
-                      ✕ Remove
+                      Update Identity
                     </button>
                   </div>
+                </form>
+              </div>
+            </section>
+
+            {/* Vehicle Section */}
+            <section className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden text-left">
+              <div className="p-8 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-2xl bg-slate-50 text-slate-600">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-800">Vehicle Profile</h3>
+                </div>
+                {!student.vehicleRegistered && (
+                  <span className="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black uppercase rounded-full border border-amber-100">Pending Registration</span>
                 )}
               </div>
 
-              {/* Update Button */}
-              <button
-                type="submit"
-                className="w-full mt-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/30 rounded-xl px-4 py-3.5 font-bold text-lg transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/50 active:scale-95 border border-blue-500/50"
-              >
-                ✔ Update Profile
-              </button>
-            </form>
+              <div className="p-8">
+                {vehicleMessage && (
+                  <div className="mb-6 p-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-700 text-sm font-bold flex items-center gap-3">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-500 text-white text-[10px]">✓</span>
+                    {vehicleMessage}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  <div className="space-y-6">
+                    <form onSubmit={saveVehicleHandler} className="space-y-5">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Make / Model</label>
+                        <input
+                          type="text"
+                          name="model"
+                          value={vehicleData.model}
+                          onChange={vehicleChangeHandler}
+                          className="w-full px-5 py-3 rounded-xl border border-slate-200 bg-slate-50/50 font-bold focus:bg-white outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Color</label>
+                        <input
+                          type="text"
+                          name="color"
+                          value={vehicleData.color}
+                          onChange={vehicleChangeHandler}
+                          className="w-full px-5 py-3 rounded-xl border border-slate-200 bg-slate-50/50 font-bold focus:bg-white outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Plate Letters</label>
+                          <input
+                            type="text"
+                            name="regLetters"
+                            value={vehicleData.regLetters}
+                            onChange={vehicleChangeHandler}
+                            maxLength={3}
+                            className="w-full px-5 py-3 rounded-xl border border-slate-200 bg-slate-50/50 font-black uppercase tracking-widest text-center focus:bg-white outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Plate Numbers</label>
+                          <input
+                            type="text"
+                            name="regNumbers"
+                            value={vehicleData.regNumbers}
+                            onChange={vehicleChangeHandler}
+                            maxLength={4}
+                            className="w-full px-5 py-3 rounded-xl border border-slate-200 bg-slate-50/50 font-black tracking-[0.2em] text-center focus:bg-white outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="pt-2">
+                        <button type="submit" className="w-full py-3.5 bg-slate-900 text-white font-black rounded-xl hover:bg-slate-800 transition-all">
+                          {student.vehicleRegistered ? "Update Vehicle" : "Add Vehicle"}
+                        </button>
+                      </div>
+                    </form>
+
+                    {student.vehicleRegistered && (
+                      <button onClick={removeVehicleHandler} className="w-full text-xs font-black text-red-500 hover:text-red-600 transition-colors uppercase tracking-widest">
+                        Remove Vehicle Data
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col items-center justify-center space-y-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-300">License Plate Preview</p>
+                    <div className="w-64 h-32 bg-slate-100 rounded-2xl border-4 border-slate-800 flex items-center justify-center relative shadow-inner">
+                      <div className="absolute top-2 left-2 text-[8px] font-black text-slate-400 uppercase tracking-tighter">UNISPOT PARKING</div>
+                      <div className="text-4xl font-black text-slate-900 tracking-widest font-mono">
+                        {vehiclePreview}
+                      </div>
+                    </div>
+                    <p className="text-xs text-slate-400 italic text-center px-4">This info is used for automatic gate detection.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
 
-          {/* Vehicle Details Card */}
-          <div className="p-7 bg-gradient-to-br from-purple-50/95 to-pink-50/95 backdrop-blur-xl border border-purple-200/60 rounded-2xl shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-purple-300/80 group">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
-                <span className="text-white text-lg">🚗</span>
-              </div>
-              <h2 className="m-0 text-slate-900 text-xl font-extrabold">Vehicle Details</h2>
-            </div>
-
-            {vehicleMessage && (
-              <p className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 px-4 py-3 rounded-xl font-semibold mb-4 text-center text-sm border border-green-300/50 shadow-md">
-                ✅ {vehicleMessage}
-              </p>
-            )}
-
-            <div className="inline-block mb-4 px-4 py-2 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 text-sm font-bold border border-purple-200/50 shadow-sm">
-              {student.vehicleRegistered ? "🚗 Vehicle Registered" : "❌ No Vehicle Registered"}
-            </div>
-
-            <div className="mb-5 rounded-xl border-2 border-dashed border-purple-300/60 bg-gradient-to-br from-purple-50/60 to-pink-50/60 px-4 py-3 transition-all duration-200">
-              <p className="m-0 text-xs font-bold uppercase tracking-wider text-purple-700 mb-1.5">
-                📋 License Plate Preview
-              </p>
-              <p className="m-0 text-2xl font-extrabold tracking-[0.2em] text-slate-900 font-mono drop-shadow">
-                {vehiclePreview}
-              </p>
-            </div>
-
-            <form className="flex flex-col gap-4" onSubmit={saveVehicleHandler}>
-              {/* Model Input */}
-              <div className="group">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">🏭 Vehicle Model</label>
-                <input
-                  className="w-full px-4 py-3 rounded-xl border-2 border-purple-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-purple-600 focus:bg-purple-50 focus:ring-4 focus:ring-purple-500/20 group-hover:border-purple-300"
-                  type="text"
-                  name="model"
-                  value={vehicleData.model}
-                  onChange={vehicleChangeHandler}
-                  placeholder="e.g., Toyota Prius"
-                />
+          {/* Sidebar Area */}
+          <div className="lg:col-span-4 space-y-8">
+            {/* Profile Photo Card */}
+            <section className="bg-white rounded-[2rem] border border-slate-200 shadow-sm p-8 text-center">
+              <div className="relative inline-block group">
+                <div className="absolute -inset-2 bg-gradient-to-tr from-indigo-500 to-blue-600 rounded-full blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                <div className="relative w-40 h-40 rounded-full border-4 border-white shadow-xl overflow-hidden bg-slate-50 mx-auto">
+                  <img
+                    src={photoPreview}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <label className="absolute bottom-1 right-1 h-10 w-10 bg-indigo-600 text-white rounded-full border-2 border-white flex items-center justify-center cursor-pointer shadow-lg hover:bg-indigo-700 transition-colors">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  <input key={fileInputKey} type="file" name="photo" className="hidden" accept="image/*" onChange={profileChangeHandler} />
+                </label>
               </div>
 
-              {/* Color Input */}
-              <div className="group">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">🎨 Vehicle Color</label>
-                <input
-                  className="w-full px-4 py-3 rounded-xl border-2 border-purple-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-purple-600 focus:bg-purple-50 focus:ring-4 focus:ring-purple-500/20 group-hover:border-purple-300"
-                  type="text"
-                  name="color"
-                  value={vehicleData.color}
-                  onChange={vehicleChangeHandler}
-                  placeholder="e.g., Silver, Blue"
-                />
+              <div className="mt-6 space-y-1">
+                <h4 className="text-xl font-black text-slate-800">{student.name}</h4>
+                <p className="text-sm font-bold text-slate-400">{student.studentId}</p>
               </div>
 
-              {/* Registration Letters */}
-              <div className="group">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">📝 Letter Plate</label>
-                <input
-                  className="w-full px-4 py-3 rounded-xl border-2 border-purple-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-purple-600 focus:bg-purple-50 focus:ring-4 focus:ring-purple-500/20 group-hover:border-purple-300 uppercase tracking-widest font-mono"
-                  type="text"
-                  name="regLetters"
-                  value={vehicleData.regLetters}
-                  onChange={vehicleChangeHandler}
-                  placeholder="e.g., ABC"
-                  maxLength={3}
-                />
-              </div>
+              {photoError && (
+                <div className="mt-4 p-2.5 bg-red-50 text-red-600 text-[10px] font-black uppercase rounded-lg border border-red-100 italic">
+                  {photoError}
+                </div>
+              )}
 
-              {/* Registration Numbers */}
-              <div className="group">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide ml-1 mb-1.5 block">🔢 Number Plate</label>
-                <input
-                  className="w-full px-4 py-3 rounded-xl border-2 border-purple-200 bg-white text-sm text-slate-900 placeholder-slate-400 outline-none transition-all duration-200 focus:border-purple-600 focus:bg-purple-50 focus:ring-4 focus:ring-purple-500/20 group-hover:border-purple-300 tracking-[0.3em] font-mono"
-                  type="text"
-                  name="regNumbers"
-                  value={vehicleData.regNumbers}
-                  onChange={vehicleChangeHandler}
-                  placeholder="e.g., 1234"
-                  maxLength={4}
-                />
-              </div>
+              {profileData.photo && (
+                <div className="mt-6 pt-6 border-t border-slate-50 flex gap-2">
+                   <button onClick={updateProfileHandler} className="flex-1 py-3 bg-indigo-600 text-white text-xs font-black rounded-xl hover:bg-indigo-700 transition-all">Save Photo</button>
+                   <button onClick={removeSelectedPhoto} className="px-4 py-3 bg-slate-100 text-slate-600 text-xs font-black rounded-xl hover:bg-slate-200 transition-all">Cancel</button>
+                </div>
+              )}
+            </section>
 
-              {/* Save Button */}
-              <button
-                type="submit"
-                className="w-full mt-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-600/30 rounded-xl px-4 py-3.5 font-bold text-lg transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.02] hover:shadow-xl hover:shadow-purple-600/50 active:scale-95 border border-purple-500/50"
-              >
-                {student.vehicleRegistered ? "🔄 Update Vehicle" : "➕ Add Vehicle"}
-              </button>
-            </form>
+            {/* Security Pass Card */}
+            <section className="bg-indigo-900 rounded-[2rem] p-8 text-center text-white relative overflow-hidden shadow-2xl shadow-indigo-200/50">
+               <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-400 to-indigo-400"></div>
+               <div className="relative z-10 space-y-6">
+                  <div className="p-4 bg-white rounded-2xl inline-block shadow-2xl">
+                    <img src={student.qrCode} alt="QR Code" className="w-32 h-32 object-contain" />
+                  </div>
+                  <div className="space-y-2">
+                    <h5 className="text-lg font-black tracking-tight">Digital Security ID</h5>
+                    <p className="text-xs text-indigo-200 font-medium">Use this at security checkpoints for <br/> verification and parking access.</p>
+                  </div>
+                  <button onClick={downloadQrHandler} className="w-full py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-3">
+                    <svg className="w-5 h-5 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    Download ID Pass
+                  </button>
+               </div>
+            </section>
 
-            {student.vehicleRegistered && (
-              <button
-                className="mt-4 w-full bg-gradient-to-r from-red-500 to-orange-600 text-white shadow-lg shadow-red-600/30 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.02] hover:shadow-xl hover:shadow-red-600/50 active:scale-95 border border-red-400/50"
-                onClick={removeVehicleHandler}
-              >
-                🗑️ Remove Vehicle
-              </button>
-            )}
-          </div>
-
-          {/* QR Code Card Only */}
-          <div className="p-7 bg-gradient-to-br from-amber-50/95 to-yellow-50/95 backdrop-blur-xl border border-amber-200/60 rounded-2xl shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-300/80 text-center group">
-            <div className="flex items-center justify-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center">
-                <span className="text-white text-lg">🔐</span>
-              </div>
-              <h2 className="m-0 text-slate-900 text-xl font-extrabold">Security QR Code</h2>
-            </div>
-
-            <p className="m-0 text-xs text-slate-600 font-medium mb-4">Your unique identity code for parking security</p>
-            <div className="flex justify-center p-6 bg-white rounded-xl border border-amber-200/50">
-              <img
-                src={student.qrCode}
-                alt="QR Code"
-                className="w-[160px] h-[160px] object-contain drop-shadow-lg"
-              />
-            </div>
-
-            <button
-              type="button"
-              onClick={downloadQrHandler}
-              className="w-full bg-gradient-to-r from-amber-600 to-yellow-600 text-white shadow-lg shadow-amber-600/30 rounded-xl px-4 py-3.5 font-bold text-lg transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.02] hover:shadow-xl hover:shadow-amber-600/50 active:scale-95 border border-amber-500/50"
-            >
-              ⬇️ Download QR Code
-            </button>
+            {/* Danger Zone */}
+            <section className="bg-red-50/50 rounded-[2rem] p-8 border border-red-100">
+               <h5 className="text-sm font-black text-red-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                 <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                 Termination Zone
+               </h5>
+               <p className="text-xs text-slate-500 font-medium leading-relaxed mb-6">Permanently delete your identity records and all booking history. This cannot be undone.</p>
+               <button onClick={deleteProfileHandler} className="w-full py-4 bg-white text-red-600 border border-red-200 rounded-2xl text-sm font-black hover:bg-red-600 hover:text-white transition-all shadow-sm">
+                 Delete Student Profile
+               </button>
+            </section>
           </div>
         </div>
-
-        {/* Delete Profile Section */}
-        <div className="mt-10 p-6 md:p-8 rounded-2xl bg-black/40 border-2 border-red-500/70 backdrop-blur-xl shadow-2xl shadow-red-500/30">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center">
-              <span className="text-white text-lg">🗑️</span>
-            </div>
-            <h2 className="m-0 text-red-400 text-xl font-extrabold">Danger Zone</h2>
-          </div>
-          
-          <p className="m-0 text-red-200 font-medium text-sm mb-4">
-            ⚠️ Permanently delete your account and all associated data. This action cannot be undone.
-          </p>
-
-          <button
-            type="button"
-            onClick={deleteProfileHandler}
-            className="w-full bg-gradient-to-r from-red-700 to-red-900 text-white shadow-lg shadow-red-600/50 rounded-xl px-4 py-4 font-bold text-lg transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.02] hover:shadow-xl hover:shadow-red-600/70 active:scale-95 border-2 border-red-500/60"
-          >
-            🚨 Delete My Account Permanently
-          </button>
-        </div>
-      </PageBackground>
-    </>
+      </main>
+    </div>
   );
 };
 

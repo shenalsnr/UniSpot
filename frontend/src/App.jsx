@@ -14,19 +14,24 @@ import AdminStaffModule from "./components/Admin/AdminStaffModule";
 import AdminLockerMap from "./components/LockerManagement/AdminLockerMap";
 import LockerMap from "./components/LockerManagement/LockerMap";
 import BookLockersStatus from "./components/LockerManagement/BookLockersStatus";
+import MyBookLocker from "./components/LockerManagement/MyBookLocker";
+
 
 import CampusMap from "./components/ParkingManagement/CampusMap";
 import ParkingMap from "./components/ParkingManagement/ParkingMap";
 import ParkingBookingForm from "./components/ParkingManagement/ParkingBookingForm";
 import AdminParkingRecords from "./components/ParkingManagement/AdminParkingRecords";
 import MyParkingBooking from "./components/ParkingManagement/MyParkingBooking";
+
+
 import SecurityPortal from "./components/SecurityPortal/SecurityPortal";
 import QRScanner from "./components/SecurityPortal/QRScanner";
 import StaffLayout from "./components/Staff/StaffLayout";
 import StaffDashboard from "./components/Staff/StaffDashboard";
 import UnifiedNavbar from "./components/Shared/UnifiedNavbar";
+
 import LockerMaintenance from "./components/LockerManagement/LockerMaintenance";
-import MyBookLocker from "./components/LockerManagement/MyBookLocker";
+import ErrorBoundary from "./components/Shared/ErrorBoundary";
 
 const App = () => {
   const location = useLocation();
@@ -43,12 +48,20 @@ const App = () => {
   return (
     <div className="min-h-screen bg-gray-200">
       {isParkingFlow && !isAdminPage && (
-        <UnifiedNavbar 
-          moduleName=" Reserve Parking Spot"
+
+        <UnifiedNavbar
+          moduleName="Reserve Parking Spot"
           links={[
-            { to: "/parking/zones", label: "Select Zone" }
-            
+            { to: "/parking/zones", label: "Select Zone" },
+            ...(!location.pathname.startsWith("/parking/book") &&
+              location.pathname !== "/parking" &&
+              location.pathname !== "/parking/zones" &&
+              location.pathname !== "/parking/my-booking"
+              ? [{ to: "/parking/admin", label: "Admin Records" }]
+              : [])
+
           ]}
+
           rightActions={
             showDashboardButton ? (
               <button
@@ -89,13 +102,14 @@ const App = () => {
           <Route path="scanner" element={<QRScanner />} />
         </Route>
 
+
         {/* Locker Management */}
         <Route path="/AdminLockerMap" element={<AdminLockerMap />} />
         <Route path="/lockers" element={<LockerMap />} />
         <Route path="/BookLockersStatus" element={<BookLockersStatus />} />
         <Route path="/LockerMaintenance" element={<LockerMaintenance />} />
         <Route path="/admin/locker-maintenance" element={<LockerMaintenance />} />
-         <Route path="/MyBookLocker" element={<MyBookLocker/>} />
+        <Route path="/MyBookLocker" element={<MyBookLocker/>} />
 
         {/* Parking flow */}
         <Route path="/parking" element={<CampusMap />} />
@@ -105,6 +119,7 @@ const App = () => {
         <Route path="/parking/admin" element={<AdminParkingRecords />} />
         <Route path="/parking/admin/staff" element={<AdminStaffModule />} />
         <Route path="/parking/my-booking" element={<MyParkingBooking />} />
+        <Route path="/my-booking" element={<MyParkingBooking />} />
 
         {/* Security Portal */}
         <Route path="/security" element={<SecurityPortal />} />
