@@ -49,9 +49,19 @@ const MyParkingBooking = () => {
 
           // data is now the ParkingBooking document (has slotNumber, zone,
           // vehicleType, vehicleNumber, arrivalTime, leavingTime, bookingDate)
-          setBooking(bookingRes.data.data);
-          setBookingStatus(bookingRes.data.bookingStatus || 'active');
-          setActualArrivalTime(bookingRes.data.actualArrivalTime || null);
+          const fetchedBooking = bookingRes.data.data;
+
+          // If the departure has already been recorded, treat this as no active booking.
+          // Covers the overstay case where status stays 'expired' but car has left.
+          if (fetchedBooking?.actualDepartureTime) {
+            setBooking(null);
+            setBookingStatus('active');
+            setActualArrivalTime(null);
+          } else {
+            setBooking(fetchedBooking);
+            setBookingStatus(bookingRes.data.bookingStatus || 'active');
+            setActualArrivalTime(bookingRes.data.actualArrivalTime || null);
+          }
         } catch (bookingErr) {
           console.error('Primary booking fetch failed:', bookingErr);
           
@@ -70,9 +80,16 @@ const MyParkingBooking = () => {
                 },
                 timeout: 10000
               });
-              setBooking(directRes.data.data);
-              setBookingStatus(directRes.data.bookingStatus || 'active');
-              setActualArrivalTime(directRes.data.actualArrivalTime || null);
+              const fetchedBookingFallback = directRes.data.data;
+              if (fetchedBookingFallback?.actualDepartureTime) {
+                setBooking(null);
+                setBookingStatus('active');
+                setActualArrivalTime(null);
+              } else {
+                setBooking(fetchedBookingFallback);
+                setBookingStatus(directRes.data.bookingStatus || 'active');
+                setActualArrivalTime(directRes.data.actualArrivalTime || null);
+              }
             } else {
               console.log('No token found in localStorage');
               setBooking(null);
