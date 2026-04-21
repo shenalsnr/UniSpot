@@ -32,6 +32,9 @@ import UnifiedNavbar from "./components/Shared/UnifiedNavbar";
 
 import LockerMaintenance from "./components/LockerManagement/LockerMaintenance";
 import ErrorBoundary from "./components/Shared/ErrorBoundary";
+import StaffRegister from "./components/SecurityPortal/StaffRegister";
+import WaitingSlotPanel from "./components/SecurityPortal/WaitingSlotPanel";
+import AdminLayout from "./components/Admin/AdminLayout";
 
 const App = () => {
   const location = useLocation();
@@ -88,11 +91,13 @@ const App = () => {
         {/* Admin Portal */}
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/staff-register" element={<AdminLayout><StaffRegister /></AdminLayout>} />
 
         {/* Staff Portal - Nested Routes */}
         <Route path="/staff-dashboard" element={<StaffLayout />}>
           <Route index element={<StaffDashboard />} />
           <Route path="scanner" element={<QRScanner />} />
+          <Route path="waiting-queue" element={<WaitingSlotPanel />} />
         </Route>
 
 
