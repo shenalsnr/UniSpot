@@ -413,9 +413,12 @@ export const getMyActiveBooking = async (req, res, next) => {
       return res.status(401).json({ success: false, message: "Not authorized" });
     }
 
+    // Exclude bookings where departure has already been recorded.
+    // This handles the overstay case: status stays 'expired' but car has physically left.
     const bookingRecord = await ParkingBooking.findOne({
       studentId,
       status: { $in: ["active", "expired", "waiting_for_slot"] },
+      actualDepartureTime: null,
     }).sort({ createdAt: -1 }).lean();
 
     if (!bookingRecord) {
@@ -587,40 +590,52 @@ export const toggleMaintenance = async (req, res, next) => {
 /**
  * POST /api/parking/security/scan-qr
  *
- * Security staff scans a student's QR code (which contains the studentId).
+ * Production-ready QR scan endpoint.
+ * Uses time-based + state-based validation. Single endpoint handles:
+ *   - Arrival recording (with early/expired rejection)
+ *   - Departure recording (normal + overstay)
+ *   - Overstay conflict detection → waiting_for_slot
+ *   - Double-scan prevention (idempotent)
+ *   - Concurrency safety (atomic updates)
+ *   - Scan audit logging (scannedBy)
  *
- * 1st scan → records actualArrivalTime; sets ParkingSpot.isOccupied = true (physical state)
- * 2nd scan → records actualDepartureTime, marks booking COMPLETED, releases physical spot
+ * Body: { studentId, staffId? }
  */
 export const securityScanQR = async (req, res, next) => {
   try {
-    const { studentId } = req.body;
+    const { studentId, staffId } = req.body;
 
     if (!studentId || !studentId.trim()) {
       return res.status(400).json({
         success: false,
+        scanType: "rejected",
         message: "studentId is required. Scan the student's QR code.",
       });
     }
 
     const normalizedId = studentId.trim().toUpperCase();
+    const now = new Date();
 
-    // Verify student exists
+    // ── Verify student exists ─────────────────────────────────────────────────
     const student = await Student.findOne({ studentId: normalizedId }).select("name studentId");
     if (!student) {
       return res.status(404).json({
         success: false,
+        scanType: "rejected",
         message: `No student found with ID: ${normalizedId}`,
       });
     }
 
-    // Find the student's most recent active/expired/waiting booking
+    // ── 1. FIND OPEN BOOKING ──────────────────────────────────────────────────
+    // Look for booking with no departure yet (active, expired, or waiting)
     const booking = await ParkingBooking.findOne({
       studentId: normalizedId,
       status: { $in: ["active", "expired", "waiting_for_slot"] },
+      actualDepartureTime: null,
     }).sort({ createdAt: -1 });
 
     if (!booking) {
+      // ── IDEMPOTENCY: check if last booking is already completed ────────────
       const recent = await ParkingBooking.findOne({
         studentId: normalizedId,
         status: { $in: ["completed", "cancelled"] },
@@ -637,21 +652,94 @@ export const securityScanQR = async (req, res, next) => {
 
       return res.status(404).json({
         success: false,
+        scanType: "rejected",
         message: `No open parking booking found for student ${student.name} (${normalizedId}).`,
       });
     }
 
-    // ── ARRIVAL scan ──────────────────────────────────────────────────────────
+    // ── Build booking end datetime for time-based validation ─────────────────
+    const getEndDateTime = () => {
+      if (!booking.bookingDate || !booking.leavingTime) return null;
+      const d = new Date(booking.bookingDate);
+      const [h, m] = booking.leavingTime.split(":").map(Number);
+      d.setHours(h, m, 0, 0);
+      return d;
+    };
+
+    const getStartDateTime = () => {
+      if (!booking.bookingDate || !booking.arrivalTime) return null;
+      const d = new Date(booking.bookingDate);
+      const [h, m] = booking.arrivalTime.split(":").map(Number);
+      d.setHours(h, m, 0, 0);
+      return d;
+    };
+
+    const bookingStart = getStartDateTime();
+    const bookingEnd = getEndDateTime();
+
+    // ── 4. DOUBLE SCAN PROTECTION ─────────────────────────────────────────────
+    // If both arrival and departure already recorded → idempotent response
+    if (booking.actualArrivalTime && booking.actualDepartureTime) {
+      return res.status(200).json({
+        success: true,
+        scanType: "already_completed",
+        message: `Both arrival and departure have already been recorded for ${student.name}.`,
+        data: {
+          studentName: student.name,
+          studentId: normalizedId,
+          slotNumber: booking.slotNumber,
+          zone: booking.zone,
+        },
+      });
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // 2. ARRIVAL LOGIC
+    // ══════════════════════════════════════════════════════════════════════════
     if (!booking.actualArrivalTime && booking.status !== "waiting_for_slot") {
-      // Check if the physical slot is still occupied by an overstayor
+
+      // ── A. EARLY ARRIVAL ─────────────────────────────────────────────────
+      if (bookingStart && now < bookingStart) {
+        return res.status(400).json({
+          success: false,
+          scanType: "rejected",
+          message: `Booking has not started yet. ${student.name}'s booking for slot ${booking.slotNumber} starts at ${booking.arrivalTime}.`,
+          data: {
+            studentName: student.name,
+            studentId: normalizedId,
+            slotNumber: booking.slotNumber,
+            zone: booking.zone,
+            arrivalTime: booking.arrivalTime,
+            leavingTime: booking.leavingTime,
+          },
+        });
+      }
+
+      // ── C. ARRIVAL AFTER EXPIRY ──────────────────────────────────────────
+      if (bookingEnd && now > bookingEnd) {
+        return res.status(400).json({
+          success: false,
+          scanType: "rejected",
+          message: `Booking has expired. ${student.name}'s booking for slot ${booking.slotNumber} ended at ${booking.leavingTime}.`,
+          data: {
+            studentName: student.name,
+            studentId: normalizedId,
+            slotNumber: booking.slotNumber,
+            zone: booking.zone,
+            arrivalTime: booking.arrivalTime,
+            leavingTime: booking.leavingTime,
+          },
+        });
+      }
+
+      // ── OVERSTAY CONFLICT CHECK ──────────────────────────────────────────
       const spot = await ParkingSpot.findById(booking.spotId);
 
       if (spot && spot.isOccupied && spot.reservedBy !== normalizedId) {
-        // ── OVERSTAY CONFLICT: move booking to waiting_for_slot ───────────────
+        // Slot physically taken by another student (overstayor)
         booking.status = "waiting_for_slot";
         await booking.save();
 
-        // Notify User B — slot occupied due to overstay (real-time + DB)
         try {
           await createStudentNotification(
             normalizedId,
@@ -685,11 +773,40 @@ export const securityScanQR = async (req, res, next) => {
         });
       }
 
-      // Slot is free — record arrival normally
-      booking.actualArrivalTime = new Date();
-      await booking.save();
+      // ── B. VALID ARRIVAL — record atomically ─────────────────────────────
+      const arrivalUpdate = await ParkingBooking.findOneAndUpdate(
+        {
+          _id: booking._id,
+          actualArrivalTime: null, // concurrency guard
+        },
+        {
+          $set: {
+            actualArrivalTime: now,
+            status: "active",
+            arrivalScannedBy: staffId || null,
+          },
+        },
+        { new: true }
+      );
 
-      // Mark the ParkingSpot as physically occupied
+      // If atomic update returned null, arrival was already recorded (race / double tap)
+      if (!arrivalUpdate) {
+        return res.status(200).json({
+          success: true,
+          scanType: "arrival",
+          message: `Arrival already recorded for ${student.name}. Slot: ${booking.slotNumber} (${booking.zone}).`,
+          data: {
+            studentName: student.name,
+            studentId: normalizedId,
+            slotNumber: booking.slotNumber,
+            zone: booking.zone,
+            arrivalTime: booking.arrivalTime,
+            leavingTime: booking.leavingTime,
+          },
+        });
+      }
+
+      // Mark ParkingSpot as physically occupied
       try {
         if (spot) {
           spot.isOccupied = true;
@@ -715,12 +832,14 @@ export const securityScanQR = async (req, res, next) => {
           zone: booking.zone,
           arrivalTime: booking.arrivalTime,
           leavingTime: booking.leavingTime,
-          actualArrivalTime: booking.actualArrivalTime,
+          actualArrivalTime: now,
         },
       });
     }
 
-    // ── Already in waiting_for_slot — remind security ─────────────────────────
+    // ══════════════════════════════════════════════════════════════════════════
+    // Already in waiting_for_slot — remind security
+    // ══════════════════════════════════════════════════════════════════════════
     if (booking.status === "waiting_for_slot") {
       return res.status(200).json({
         success: true,
@@ -738,15 +857,47 @@ export const securityScanQR = async (req, res, next) => {
       });
     }
 
-    // ── DEPARTURE scan ────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════════
+    // 3. DEPARTURE LOGIC
+    // ══════════════════════════════════════════════════════════════════════════
     if (booking.actualArrivalTime && !booking.actualDepartureTime) {
-      const now = new Date();
 
-      booking.actualDepartureTime = now;
-      booking.status = "completed";
-      await booking.save();
+      // Determine if this is a normal or overstay departure
+      const isOverstay = bookingEnd && now > bookingEnd;
+      const departureStatus = isOverstay ? "expired" : "completed";
 
-      // Release physical spot occupancy
+      // ── Atomic departure update (concurrency guard) ──────────────────────
+      const departureUpdate = await ParkingBooking.findOneAndUpdate(
+        {
+          _id: booking._id,
+          actualDepartureTime: null,  // prevents double-update race
+        },
+        {
+          $set: {
+            actualDepartureTime: now,
+            status: departureStatus,
+            departureScannedBy: staffId || null,
+          },
+        },
+        { new: true }
+      );
+
+      // If null, departure was already recorded (race condition / double tap)
+      if (!departureUpdate) {
+        return res.status(200).json({
+          success: true,
+          scanType: "already_completed",
+          message: `Departure already recorded for ${student.name}.`,
+          data: {
+            studentName: student.name,
+            studentId: normalizedId,
+            slotNumber: booking.slotNumber,
+            zone: booking.zone,
+          },
+        });
+      }
+
+      // ── Release physical spot occupancy ──────────────────────────────────
       try {
         const spot = await ParkingSpot.findById(booking.spotId);
         if (spot && spot.isOccupied) {
@@ -762,46 +913,75 @@ export const securityScanQR = async (req, res, next) => {
         console.error("[SecurityScan] Failed to release spot on departure:", spotErr.message);
       }
 
-      // Create departure_confirmed notification
-      // Departure confirmed — notify student in real-time
+      // ── Departure notification ───────────────────────────────────────────
+      const notifTitle = isOverstay
+        ? "Departure Confirmed (Overstay) ⚠️"
+        : "Departure Confirmed ✅";
+      const notifMessage = isOverstay
+        ? `Your departure from slot ${booking.slotNumber} (${booking.zone}) has been recorded. Note: You departed after your scheduled leaving time (${booking.leavingTime}).`
+        : `Your departure from slot ${booking.slotNumber} (${booking.zone}) has been recorded successfully.`;
+
       try {
         await createStudentNotification(
           normalizedId,
-          "Departure Confirmed ✅",
-          `Your departure from slot ${booking.slotNumber} (${booking.zone}) has been recorded successfully.`,
+          notifTitle,
+          notifMessage,
           "departure_confirmed",
           {
             slotNumber: booking.slotNumber,
             zone: booking.zone,
             actualArrivalTime: booking.actualArrivalTime,
             actualDepartureTime: now,
+            isOverstay,
           }
         );
       } catch (notifErr) {
-        console.error("[Notification] Failed to create departure_confirmed notification:", notifErr.message);
+        console.error("[Notification] Failed to create departure notification:", notifErr.message);
       }
+
+      const scanType = isOverstay ? "departure_overstay" : "departure";
 
       return res.status(200).json({
         success: true,
-        scanType: "departure",
-        message: `Departure confirmed for ${student.name}. Slot ${booking.slotNumber} is now available.`,
+        scanType,
+        message: isOverstay
+          ? `Late departure recorded for ${student.name}. Slot ${booking.slotNumber} is now available. (Departed after ${booking.leavingTime})`
+          : `Departure confirmed for ${student.name}. Slot ${booking.slotNumber} is now available.`,
         data: {
           studentName: student.name,
           studentId: normalizedId,
           slotNumber: booking.slotNumber,
           zone: booking.zone,
+          arrivalTime: booking.arrivalTime,
+          leavingTime: booking.leavingTime,
           actualArrivalTime: booking.actualArrivalTime,
           actualDepartureTime: now,
-          bookingStatus: "completed",
+          bookingStatus: departureStatus,
+          isOverstay,
         },
       });
     }
 
-    // Edge case: both times already recorded
+    // ── 5. INVALID FLOW — departure without arrival ───────────────────────────
+    if (!booking.actualArrivalTime && booking.actualDepartureTime) {
+      return res.status(400).json({
+        success: false,
+        scanType: "rejected",
+        message: "Invalid state: arrival was not recorded for this booking.",
+      });
+    }
+
+    // ── Fallback: both times already recorded ─────────────────────────────────
     return res.status(200).json({
       success: true,
       scanType: "already_completed",
       message: `Both arrival and departure have already been recorded for ${student.name}.`,
+      data: {
+        studentName: student.name,
+        studentId: normalizedId,
+        slotNumber: booking.slotNumber,
+        zone: booking.zone,
+      },
     });
   } catch (error) {
     next(error);
