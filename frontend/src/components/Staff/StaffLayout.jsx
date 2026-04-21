@@ -26,10 +26,10 @@ const StaffLayout = ({ children }) => {
         {/* Professional Blue Header Banner */}
         <div 
           style={{
-            background: "linear-gradient(135deg, #0052a3 0%, #003d7a 100%)",
+            background: "linear-gradient(135deg, #312e81 0%, #1e1b4b 100%)",
             color: "white",
             padding: "24px 32px",
-            boxShadow: "0 4px 12px rgba(0,82,163,0.15)",
+            boxShadow: "0 4px 12px rgba(49,46,129,0.15)",
             borderBottom: "1px solid rgba(255,255,255,0.1)"
           }}
         >

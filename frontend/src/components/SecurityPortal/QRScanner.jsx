@@ -549,8 +549,8 @@ const QRScanner = () => {
         <button
           onClick={() => setScanMode('camera')}
           className={`py-3 px-6 rounded-xl font-bold text-base transition-all duration-300 transform hover:scale-105 flex-shrink-0 ${scanMode === 'camera'
-              ? 'bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg'
-              : 'bg-white border-2 border-slate-300 text-slate-800 hover:border-blue-400'
+              ? 'bg-indigo-600 text-white shadow-lg'
+              : 'bg-white border-2 border-slate-300 text-slate-800 hover:border-indigo-400'
             }`}
         >
           📷 Camera Scan
@@ -558,8 +558,8 @@ const QRScanner = () => {
         <button
           onClick={() => setScanMode('manual')}
           className={`py-3 px-6 rounded-xl font-bold text-base transition-all duration-300 transform hover:scale-105 flex-shrink-0 ${scanMode === 'manual'
-              ? 'bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg'
-              : 'bg-white border-2 border-slate-300 text-slate-800 hover:border-blue-400'
+              ? 'bg-indigo-600 text-white shadow-lg'
+              : 'bg-white border-2 border-slate-300 text-slate-800 hover:border-indigo-400'
             }`}
         >
           ⌨️ Manual Entry
@@ -621,7 +621,7 @@ const QRScanner = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-4 disabled:opacity-50 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 bg-emerald-600 hover:bg-emerald-700"
+                className="w-full py-4 disabled:opacity-50 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 bg-indigo-900 hover:bg-indigo-800"
               >
                 {loading ? '⏳ Processing...' : '🚗 Scan Parking QR'}
               </button>
