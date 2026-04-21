@@ -140,6 +140,25 @@ export const createBooking = async (req, res, next) => {
       return res.status(401).json({ message: "Student authentication required" });
     }
 
+    // Check if student already has an active booking (one booking at a time rule)
+    // Block if student has ANY booking with status "active" (includes future scheduled bookings)
+    // OR any booking whose end time hasn't passed yet (not expired)
+    const now = new Date();
+    const existingBooking = await LockerBooking.findOne({
+      studentId,
+      status: "active"
+    });
+    if (existingBooking) {
+      // Double-check: is this booking still valid (end time not passed)?
+      const bookingEnd = new Date(`${existingBooking.date}T${existingBooking.endTime}:00`);
+      if (now < bookingEnd) {
+        console.log("❌ Backend Debug - Student already has an active/upcoming booking:", existingBooking);
+        return res.status(400).json({
+          message: "You already have an active locker booking. Please wait until your current booking expires or cancel it before booking another locker."
+        });
+      }
+    }
+
     // Validate booking time - must end before 10 PM
     const bookingEndTime = new Date(`${date}T${endTime}`);
     const maxEndTime = new Date(`${date}T22:00`);
@@ -151,11 +170,19 @@ export const createBooking = async (req, res, next) => {
       });
     }
 
-    // Check if locker is already booked (active only)
-    const existingBooking = await LockerBooking.findOne({ mapId, lockerId, status: "active" });
-    if (existingBooking) {
-      console.log("❌ Backend Debug - Locker already booked:", existingBooking);
-      return res.status(400).json({ message: "Locker is already booked and active." });
+    // Check if locker has an overlapping active booking on the same date
+    const overlappingLockerBooking = await LockerBooking.findOne({
+      mapId,
+      lockerId,
+      date,
+      status: "active",
+      $or: [
+        { startTime: { $lt: endTime }, endTime: { $gt: startTime } }
+      ]
+    });
+    if (overlappingLockerBooking) {
+      console.log("❌ Backend Debug - Locker has overlapping booking:", overlappingLockerBooking);
+      return res.status(400).json({ message: "This locker is already booked during the selected time range." });
     }
 
     // Check if locker is under maintenance
@@ -163,18 +190,6 @@ export const createBooking = async (req, res, next) => {
     if (locker && locker.status === 'maintenance') {
       console.log("❌ Backend Debug - Locker under maintenance:", locker);
       return res.status(400).json({ message: "Locker is under maintenance and cannot be booked." });
-    }
-
-    // Check if student already has a booking
-    console.log("🔍 Backend Debug - Checking existing booking for student:", studentId);
-    const studentBooking = await LockerBooking.findOne({ studentId, status: "active" });
-    console.log("🔍 Backend Debug - Found student booking:", studentBooking);
-    
-    if (studentBooking) {
-      console.log("❌ Backend Debug - Student already has active booking, blocking");
-      return res.status(400).json({ 
-        message: "You already have an active booking." 
-      });
     }
 
     console.log("✅ Backend Debug - Creating new booking...");
