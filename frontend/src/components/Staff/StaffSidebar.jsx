@@ -58,7 +58,11 @@ const StaffSidebar = ({ collapsed, onToggle }) => {
           width: collapsed ? "72px" : "240px",
           transition: "width 0.3s cubic-bezier(0.4,0,0.2,1)",
           minHeight: "100vh",
+
           background: "#1e1b4b", // Indigo 900 matching student dashboard theme
+
+          background: "linear-gradient(180deg, #312e81 0%, #1e1b4b 100%)",
+
           display: "flex",
           flexDirection: "column",
           position: "fixed",

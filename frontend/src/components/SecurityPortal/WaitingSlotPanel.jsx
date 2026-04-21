@@ -177,21 +177,21 @@ const WaitingSlotPanel = () => {
       )}
 
       {/* Header info */}
-      <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border-2 border-amber-200 p-6 shadow-md">
+      <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl border-2 border-indigo-200 p-6 shadow-md">
         <div className="flex items-center gap-4">
           <div className="text-5xl">⏳</div>
           <div>
-            <h2 className="text-2xl font-black text-amber-800">Waiting Queue</h2>
-            <p className="text-amber-600 font-semibold mt-1">
+            <h2 className="text-2xl font-black text-indigo-800">Waiting Queue</h2>
+            <p className="text-indigo-600 font-semibold mt-1">
               Students whose booked slots are occupied due to overstay.
               Select a student below and assign them to an available slot.
             </p>
           </div>
           <div className="ml-auto text-center">
-            <div className="text-4xl font-black text-amber-700">
+            <div className="text-4xl font-black text-indigo-700">
               {loading ? '—' : waitingBookings.length}
             </div>
-            <div className="text-amber-600 text-sm font-bold uppercase tracking-wider">Waiting</div>
+            <div className="text-indigo-600 text-sm font-bold uppercase tracking-wider">Waiting</div>
           </div>
         </div>
       </div>
@@ -205,14 +205,14 @@ const WaitingSlotPanel = () => {
             <button
               onClick={fetchWaitingBookings}
               disabled={loading}
-              className="text-sm font-bold text-blue-600 hover:text-blue-800 disabled:opacity-40 transition"
+              className="text-sm font-bold text-indigo-600 hover:text-indigo-800 disabled:opacity-40 transition"
             >
               {loading ? 'Refreshing...' : '↻ Refresh'}
             </button>
           </div>
 
           {loading ? (
-            <div className="p-12 text-center animate-pulse text-blue-400 font-bold">
+            <div className="p-12 text-center animate-pulse text-indigo-400 font-bold">
               Loading waiting queue...
             </div>
           ) : waitingBookings.length === 0 ? (
@@ -227,16 +227,16 @@ const WaitingSlotPanel = () => {
                 <div
                   key={booking._id}
                   onClick={() => handleSelectBooking(booking)}
-                  className={`p-5 cursor-pointer transition-all duration-200 hover:bg-amber-50 ${
+                  className={`p-5 cursor-pointer transition-all duration-200 hover:bg-indigo-50 ${
                     selectedBooking?._id === booking._id
-                      ? 'bg-amber-50 border-l-4 border-amber-500'
+                      ? 'bg-indigo-50 border-l-4 border-indigo-500'
                       : 'border-l-4 border-transparent'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-black text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                        <span className="text-xs font-black text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
                           Waiting
                         </span>
                         <span className="text-xs text-slate-400 font-semibold">
@@ -263,7 +263,7 @@ const WaitingSlotPanel = () => {
                     </div>
                   </div>
                   {selectedBooking?._id === booking._id && (
-                    <p className="text-xs text-amber-600 font-bold mt-2">
+                    <p className="text-xs text-indigo-600 font-bold mt-2">
                       ← Selected · Choose an available slot on the right
                     </p>
                   )}
@@ -290,8 +290,8 @@ const WaitingSlotPanel = () => {
           ) : (
             <div className="p-6 space-y-5">
               {/* Selected booking summary */}
-              <div className="bg-amber-50 rounded-xl border border-amber-200 p-4">
-                <p className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-2">
+              <div className="bg-indigo-50 rounded-xl border border-indigo-200 p-4">
+                <p className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-2">
                   Reassigning booking for
                 </p>
                 <p className="text-lg font-black text-slate-800">{selectedBooking.studentId}</p>
@@ -327,7 +327,7 @@ const WaitingSlotPanel = () => {
                 </p>
 
                 {spotsLoading ? (
-                  <div className="animate-pulse text-blue-400 font-bold text-sm py-4 text-center">
+                  <div className="animate-pulse text-indigo-400 font-bold text-sm py-4 text-center">
                     Checking available slots...
                   </div>
                 ) : availableSpots.length === 0 ? (
@@ -347,8 +347,8 @@ const WaitingSlotPanel = () => {
                         onClick={() => setSelectedSpotId(spot._id)}
                         className={`rounded-xl border-2 p-3 text-center transition-all duration-200 font-bold text-sm ${
                           selectedSpotId === spot._id
-                            ? 'bg-[oklch(48.8%_0.243_264.376)] border-blue-600 text-white shadow-lg scale-105'
-                            : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-400'
+                            ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg scale-105'
+                            : 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 hover:border-indigo-400'
                         }`}
                       >
                         <span className="block text-base font-black">{spot.slotNumber}</span>
@@ -363,7 +363,7 @@ const WaitingSlotPanel = () => {
               <button
                 onClick={handleReassign}
                 disabled={!selectedSpotId || reassigning}
-                className="w-full py-4 bg-gradient-to-r from-[oklch(48.8%_0.243_264.376)] to-blue-700 hover:from-blue-700 hover:to-[oklch(48.8%_0.243_264.376)] text-white font-black text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-600 text-white font-black text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {reassigning
                   ? '⏳ Reassigning...'
