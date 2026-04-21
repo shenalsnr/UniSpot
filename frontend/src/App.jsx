@@ -99,13 +99,12 @@ const App = () => {
           <Route index element={<StaffDashboard />} />
           <Route path="scanner" element={<QRScanner />} />
           <Route path="waiting-queue" element={<WaitingSlotPanel />} />
-          
-        </Route>
+          <Route path="lockerQR" element={<LockerQR />} />
+          </Route>
 
 
 
-        <Route path="/locker_qr" element={<LockerQR />} />
-
+        
         {/* Locker Management */}
         <Route path="/AdminLockerMap" element={<AdminLockerMap />} />
         <Route path="/lockers" element={<LockerMap />} />
