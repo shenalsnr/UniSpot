@@ -111,30 +111,22 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
             transition: "all 0.3s",
           }}
         >
-          {/* Logo in white circle — visible in both states */}
+          {/* Masked circle logo — visible in both states */}
           <div
             style={{
-              width: collapsed ? "48px" : "54px",
-              height: collapsed ? "48px" : "54px",
-              borderRadius: "50%",
-              background: "white",
+              width: collapsed ? "54px" : "58px",
+              height: collapsed ? "54px" : "58px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
-              boxShadow: "0 2px 14px rgba(0,0,0,0.22)",
               transition: "all 0.3s",
             }}
           >
             <img
               src={logo}
               alt="UniSpot"
-              style={{
-                width: collapsed ? "36px" : "42px",
-                height: collapsed ? "36px" : "42px",
-                objectFit: "contain",
-                transition: "all 0.3s",
-              }}
+              className="w-full h-full rounded-full object-cover shadow-2xl border-2 border-white/30 transition-all duration-300 hover:scale-105"
             />
           </div>
 
