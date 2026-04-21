@@ -7,9 +7,9 @@ const SecurityPortal = () => {
   const [activeTab, setActiveTab] = useState('staff');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] via-blue-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] via-indigo-50 to-slate-100">
       {/* Premium Header */}
-      <div className="bg-gradient-to-r from-[#003366] via-[#0052a3] to-[#004085] text-white shadow-2xl relative overflow-hidden">
+      <div className="bg-indigo-900 text-white shadow-2xl relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl"></div>
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl"></div>
@@ -36,8 +36,8 @@ const SecurityPortal = () => {
               onClick={() => setActiveTab('staff')}
               className={`py-6 px-8 font-bold text-lg transition-all duration-300 border-b-4 rounded-t-lg ${
                 activeTab === 'staff'
-                  ? 'border-blue-600 text-blue-700 bg-gradient-to-b from-blue-50 to-transparent'
-                  : 'border-transparent text-slate-600 hover:text-blue-600'
+                  ? 'border-indigo-600 text-indigo-700 bg-gradient-to-b from-indigo-50 to-transparent'
+                  : 'border-transparent text-slate-600 hover:text-indigo-600'
               }`}
             >
               👥 Staff Management
@@ -46,8 +46,8 @@ const SecurityPortal = () => {
               onClick={() => setActiveTab('scanner')}
               className={`py-6 px-8 font-bold text-lg transition-all duration-300 border-b-4 rounded-t-lg ${
                 activeTab === 'scanner'
-                  ? 'border-blue-600 text-blue-700 bg-gradient-to-b from-blue-50 to-transparent'
-                  : 'border-transparent text-slate-600 hover:text-blue-600'
+                  ? 'border-indigo-600 text-indigo-700 bg-gradient-to-b from-indigo-50 to-transparent'
+                  : 'border-transparent text-slate-600 hover:text-indigo-600'
               }`}
             >
               📱 QR Scanner
@@ -56,8 +56,8 @@ const SecurityPortal = () => {
               onClick={() => setActiveTab('waiting')}
               className={`py-6 px-8 font-bold text-lg transition-all duration-300 border-b-4 rounded-t-lg ${
                 activeTab === 'waiting'
-                  ? 'border-amber-500 text-amber-700 bg-gradient-to-b from-amber-50 to-transparent'
-                  : 'border-transparent text-slate-600 hover:text-amber-600'
+                  ? 'border-indigo-600 text-indigo-700 bg-gradient-to-b from-indigo-50 to-transparent'
+                  : 'border-transparent text-slate-600 hover:text-indigo-600'
               }`}
             >
               ⏳ Waiting Queue

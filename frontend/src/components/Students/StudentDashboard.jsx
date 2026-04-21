@@ -79,28 +79,19 @@ const StudentDashboard = () => {
                 security credentials, and personal records.
               </p>
 
-              <div className="flex flex-wrap gap-4 pt-2">
-                <Link to="/lockers" className="px-6 py-3.5 bg-white text-indigo-900 font-bold rounded-2xl shadow-xl shadow-black/10 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
+              <div className="grid grid-cols-2 gap-4 pt-2 w-fit">
+                <Link to="/lockers" className="px-6 py-3.5 bg-white text-indigo-900 font-bold rounded-2xl shadow-xl shadow-black/10 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 text-center">
                   Book Locker
                 </Link>
-                <Link to="/parking/zones" className="px-6 py-3.5 bg-indigo-600/50 text-white font-bold rounded-2xl border border-white/20 backdrop-blur-md hover:bg-indigo-600/70 hover:-translate-y-1 transition-all duration-300">
+                <Link to="/parking/zones" className="px-6 py-3.5 bg-white text-indigo-900 font-bold rounded-2xl shadow-xl shadow-black/10 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 text-center">
                   Reserve Parking
                 </Link>
-
-
-                
-                <Link to="/MyBookLocker" className="px-6 py-3.5 bg-white text-indigo-900 font-bold rounded-2xl shadow-xl shadow-black/10 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
+                <Link to="/MyBookLocker" className="px-6 py-3.5 bg-white text-indigo-900 font-bold rounded-2xl shadow-xl shadow-black/10 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 text-center">
                   My Locker
                 </Link>
-                <Link to="/my-booking" className="px-6 py-3.5 bg-indigo-600/50 text-white font-bold rounded-2xl border border-white/20 backdrop-blur-md hover:bg-indigo-600/70 hover:-translate-y-1 transition-all duration-300">
+                <Link to="/my-booking" className="px-6 py-3.5 bg-white text-indigo-900 font-bold rounded-2xl shadow-xl shadow-black/10 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 text-center">
                   My Parking
                 </Link>
-
-
-
-
-
-
               </div>
             </div>
 

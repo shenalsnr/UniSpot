@@ -9,6 +9,7 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 import securityRoutes from "./routes/securityRoutes.js";
 import studentRoutes from "./routes/studentRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import lockerQRRoutes from "./routes/lockerQRRoutes.js";
 import { applyErrorMiddleware } from "./middleware/errorMiddleware.js";
 import { startLockerCleanupJob } from "./services/lockerCleanupService.js";
 import { startParkingCleanupJob } from "./services/parkingCleanupService.js";
@@ -50,6 +51,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/security", securityRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/locker-qr", lockerQRRoutes);
 
 
 

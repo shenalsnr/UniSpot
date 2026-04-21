@@ -13,14 +13,18 @@ const UnifiedNavbar = ({ title = "", moduleName, links = [], leftActions, rightA
             {leftActions}
           </div>
         )}
-        <div className="flex items-center gap-3 bg-gradient-to-r from-white/90 via-white/95 to-white/90 backdrop-blur-sm rounded-full px-6 py-3 border border-white/30 shadow-lg">
+        <div className="flex items-center gap-3">
           <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-all duration-300 group">
             <div className="relative">
-              <img src={logo} alt="Logo" className="h-16 md:h-20 w-auto object-contain drop-shadow-lg transition-transform duration-300 group-hover:scale-105" />
+              <img 
+                src={logo} 
+                alt="Logo" 
+                className="h-14 md:h-20 w-14 md:w-20 rounded-full object-cover shadow-2xl transition-transform duration-300 group-hover:scale-105 border-2 border-white/20" 
+              />
               <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
             </div>
             {title && (
-              <span className="font-black text-xl md:text-2xl tracking-wider text-slate-800 drop-shadow-sm">
+              <span className="font-black text-xl md:text-2xl tracking-wider text-white drop-shadow-sm">
                 {title}
               </span>
             )}
@@ -45,13 +49,12 @@ const UnifiedNavbar = ({ title = "", moduleName, links = [], leftActions, rightA
             {links.map((link, idx) => {
               // Support active state for hash links by checking window.location.hash
               const isHash = link.to.startsWith('#');
-              const isActive = isHash 
-                 ? location.hash === link.to || (link.to === '#home' && !location.hash) 
-                 : location.pathname === link.to;
+              const isActive = isHash
+                ? location.hash === link.to || (link.to === '#home' && !location.hash)
+                : location.pathname === link.to;
 
-              const linkClasses = `text-lg font-black tracking-wide transition-all duration-300 relative group pb-2 ${
-                isActive ? "text-white" : "text-white/80 hover:text-white"
-              }`;
+              const linkClasses = `text-lg font-black tracking-wide transition-all duration-300 relative group pb-2 ${isActive ? "text-white" : "text-white/80 hover:text-white"
+                }`;
 
               if (isHash) {
                 return (

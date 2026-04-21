@@ -59,20 +59,28 @@ const MapDisplay = ({ map }) => {
             if (maintenanceMap[locker.id] === 'maintenance') {
               return { ...locker, status: 'maintenance', selected: false, isMine: false, date: '', startTime: '', endTime: '' };
             }
-            // Booking status
-            const booking = bookings.find(b => b.lockerId === locker.id);
-            if (booking) {
-              // Handle different formats of studentId (string, ObjectId, or nested object)
-              const bookingStudentId = typeof booking.studentId === 'object' && booking.studentId._id ? booking.studentId._id.toString() : booking.studentId?.toString?.() || booking.studentId;
+            // Find ALL bookings for this locker (not just the first)
+            const lockerBookings = bookings.filter(b => b.lockerId === locker.id);
+            if (lockerBookings.length > 0) {
+              // Check if current user has any booking for this locker
+              const myBooking = lockerBookings.find(b => {
+                const bookingStudentId = typeof b.studentId === 'object' && b.studentId._id ? b.studentId._id.toString() : b.studentId?.toString?.() || b.studentId;
+                return bookingStudentId === currentStudentId || bookingStudentId === currentStudentId?.toString?.();
+              });
+              // Use the user's own booking for display if it exists, otherwise the first booking
+              const displayBooking = myBooking || lockerBookings[0];
+              const bookingStudentId = typeof displayBooking.studentId === 'object' && displayBooking.studentId._id ? displayBooking.studentId._id.toString() : displayBooking.studentId?.toString?.() || displayBooking.studentId;
               const isMyBooking = bookingStudentId === currentStudentId || bookingStudentId === currentStudentId?.toString?.();
               return {
                 ...locker,
                 status: 'available',
                 selected: true,
                 isMine: isMyBooking,
-                date: booking.date,
-                startTime: booking.startTime,
-                endTime: booking.endTime
+                hasOtherBookings: lockerBookings.length > (myBooking ? 1 : 0),
+                totalBookings: lockerBookings.length,
+                date: displayBooking.date,
+                startTime: displayBooking.startTime,
+                endTime: displayBooking.endTime
               };
             }
             return { ...locker, status: 'available', selected: false, isMine: false, date: '', startTime: '', endTime: '' };
@@ -100,11 +108,8 @@ const MapDisplay = ({ map }) => {
       return;
     }
 
-    if (locker.selected) {
-      if (!locker.isMine) {
-        showAlert('error', 'You can only cancel your own booking.', 'Action Blocked');
-        return;
-      }
+    if (locker.selected && locker.isMine) {
+      // Only the owner can cancel — proceed to cancel flow
 
       const confirmed = await showConfirm({
         title: 'Cancel Booking',
@@ -135,39 +140,23 @@ const MapDisplay = ({ map }) => {
         showAlert('error', 'Error cancelling booking.');
       }
     } else {
+      // Locker is either not booked, or booked by someone else.
+      // Allow user to attempt a new booking — the backend will check for time overlaps.
       console.log("🔍 Debug - Opening booking modal for:", id);
 
-      // Check if student already has any booking before allowing new selection
-      try {
-        const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || '{}');
-        const token = studentInfo.token;
-        console.log("🔍 Debug - Student info from localStorage:", studentInfo);
-        console.log("🔍 Debug - Token exists:", !!token);
+      // Verify student is authenticated before opening booking modal
+      const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || '{}');
+      const token = studentInfo.token;
+      console.log("🔍 Debug - Student info from localStorage:", studentInfo);
+      console.log("🔍 Debug - Token exists:", !!token);
 
-        if (!token) {
-          console.log("❌ Debug - No token found, showing login required");
-          showAlert('error', 'Please login to book a locker', 'Authentication Required');
-          return;
-        }
-
-        console.log("🔍 Debug - Checking student current booking...");
-        const response = await axios.get(`http://localhost:5000/api/locker/bookings/student/current`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        console.log("🔍 Debug - Student booking check response:", response.data);
-
-        if (response.data && response.data.hasBooking) {
-          console.log("❌ Debug - Student already has booking, blocking");
-          showAlert('warning', 'You have already booked a locker. Only one locker is allowed per student.');
-          return;
-        }
-
-        console.log("✅ Debug - No existing booking, opening modal");
-      } catch (error) {
-        console.error("❌ Debug - Error checking student booking:", error);
-        // If endpoint fails, proceed with normal flow (backend will handle validation)
-        console.log("🔍 Debug - Proceeding with booking modal due to endpoint error");
+      if (!token) {
+        console.log("❌ Debug - No token found, showing login required");
+        showAlert('error', 'Please login to book a locker', 'Authentication Required');
+        return;
       }
+
+      console.log("✅ Debug - Student authenticated, opening booking modal");
 
       // Use the new BeautifulBooking popup
       try {
@@ -249,19 +238,27 @@ const MapDisplay = ({ map }) => {
       const bookings = bookingsResponse.data;
       setLockers((prev) =>
         prev.map((locker) => {
-          const booking = bookings.find(b => b.lockerId === locker.id);
-          if (booking) {
-            // Handle different formats of studentId (string, ObjectId, or nested object)
-            const bookingStudentId = typeof booking.studentId === 'object' && booking.studentId._id ? booking.studentId._id.toString() : booking.studentId?.toString?.() || booking.studentId;
+          // Find ALL bookings for this locker
+          const lockerBookings = bookings.filter(b => b.lockerId === locker.id);
+          if (lockerBookings.length > 0) {
             const studentInfoId = studentInfo._id?.toString?.() || studentInfo._id;
+            // Check if current user has any booking for this locker
+            const myBooking = lockerBookings.find(b => {
+              const bookingStudentId = typeof b.studentId === 'object' && b.studentId._id ? b.studentId._id.toString() : b.studentId?.toString?.() || b.studentId;
+              return bookingStudentId === studentInfoId || bookingStudentId === studentInfo._id;
+            });
+            const displayBooking = myBooking || lockerBookings[0];
+            const bookingStudentId = typeof displayBooking.studentId === 'object' && displayBooking.studentId._id ? displayBooking.studentId._id.toString() : displayBooking.studentId?.toString?.() || displayBooking.studentId;
             const isMyBooking = bookingStudentId === studentInfoId || bookingStudentId === studentInfo._id;
             return {
               ...locker,
               selected: true,
               isMine: isMyBooking,
-              date: booking.date,
-              startTime: booking.startTime,
-              endTime: booking.endTime
+              hasOtherBookings: lockerBookings.length > (myBooking ? 1 : 0),
+              totalBookings: lockerBookings.length,
+              date: displayBooking.date,
+              startTime: displayBooking.startTime,
+              endTime: displayBooking.endTime
             };
           }
           return { ...locker, selected: false, isMine: false, date: "", startTime: "", endTime: "" };
@@ -352,8 +349,11 @@ const MapDisplay = ({ map }) => {
                       Cancel Booking
                     </button>
                   ) : (
-                    <button disabled className="w-full py-3 rounded-xl bg-slate-200 text-slate-400 text-sm font-bold cursor-not-allowed flex items-center justify-center gap-1">
-                      Booked
+                    <button
+                      onClick={() => handleSelect(locker.id)}
+                      className="w-full py-3 rounded-xl bg-linear-to-r from-blue-500 to-blue-500 text-white text-sm font-bold hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 hover:scale-105 shadow-md shadow-blue-300/40 flex items-center justify-center gap-1"
+                    >
+                      Book Another Slot
                     </button>
                   )
                 ) : (
