@@ -35,6 +35,7 @@ import ErrorBoundary from "./components/Shared/ErrorBoundary";
 import StaffRegister from "./components/SecurityPortal/StaffRegister";
 import WaitingSlotPanel from "./components/SecurityPortal/WaitingSlotPanel";
 import AdminLayout from "./components/Admin/AdminLayout";
+import LockerQR from "./components/Staff/LockerQR";
 
 const App = () => {
   const location = useLocation();
@@ -98,8 +99,12 @@ const App = () => {
           <Route index element={<StaffDashboard />} />
           <Route path="scanner" element={<QRScanner />} />
           <Route path="waiting-queue" element={<WaitingSlotPanel />} />
+          
         </Route>
 
+
+
+        <Route path="/locker_qr" element={<LockerQR />} />
 
         {/* Locker Management */}
         <Route path="/AdminLockerMap" element={<AdminLockerMap />} />
