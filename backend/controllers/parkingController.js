@@ -715,12 +715,60 @@ export const securityScanQR = async (req, res, next) => {
         });
       }
 
-      // ── C. ARRIVAL AFTER EXPIRY ──────────────────────────────────────────
+      // ── C. EXPIRED WITHOUT ARRIVAL — force-complete to release the slot ──
+      // Student never arrived (no arrival scan), booking has now expired.
+      // Security scanning confirms the slot is empty → mark as completed & release.
       if (bookingEnd && now > bookingEnd) {
-        return res.status(400).json({
-          success: false,
-          scanType: "rejected",
-          message: `Booking has expired. ${student.name}'s booking for slot ${booking.slotNumber} ended at ${booking.leavingTime}.`,
+        const forceComplete = await ParkingBooking.findOneAndUpdate(
+          { _id: booking._id, actualDepartureTime: null },
+          {
+            $set: {
+              status: "completed",
+              actualDepartureTime: now,
+              departureScannedBy: staffId || null,
+            },
+          },
+          { new: true }
+        );
+
+        // Release physical spot occupancy if it was set
+        try {
+          const spot = await ParkingSpot.findById(booking.spotId);
+          if (spot && spot.isOccupied && spot.reservedBy === normalizedId) {
+            spot.isOccupied = false;
+            spot.reservedBy = null;
+            spot.bookingDate = null;
+            spot.arrivalTime = null;
+            spot.leavingTime = null;
+            spot.vehicleNumber = null;
+            await spot.save();
+          }
+        } catch (spotErr) {
+          console.error("[SecurityScan] Failed to release spot on expired no-arrival:", spotErr.message);
+        }
+
+        try {
+          await createStudentNotification(
+            normalizedId,
+            "Parking Slot Released (No Arrival) ℹ️",
+            `Your parking slot ${booking.slotNumber} (${booking.zone}) has been released by security. No arrival was recorded within your booking window (${booking.arrivalTime}–${booking.leavingTime}).`,
+            "departure_confirmed",
+            {
+              slotNumber: booking.slotNumber,
+              zone: booking.zone,
+              arrivalTime: booking.arrivalTime,
+              leavingTime: booking.leavingTime,
+              isOverstay: false,
+            }
+          );
+        } catch (notifErr) {
+          console.error("[Notification] Failed to send no-arrival release notification:", notifErr.message);
+        }
+
+        return res.status(200).json({
+          success: true,
+          scanType: "departure",
+          message: `Slot ${booking.slotNumber} released. ${student.name} never arrived — booking is now closed.`,
           data: {
             studentName: student.name,
             studentId: normalizedId,
@@ -728,6 +776,8 @@ export const securityScanQR = async (req, res, next) => {
             zone: booking.zone,
             arrivalTime: booking.arrivalTime,
             leavingTime: booking.leavingTime,
+            actualArrivalTime: null,
+            actualDepartureTime: now,
           },
         });
       }
