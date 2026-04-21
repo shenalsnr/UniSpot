@@ -52,7 +52,7 @@ const parkingBookingSchema = new mongoose.Schema(
     // Lifecycle status
     status: {
       type: String,
-      enum: ["active", "completed", "expired", "cancelled", "waiting_for_slot"],
+      enum: ["active", "completed", "expired", "delayed", "cancelled", "waiting_for_slot"],
       default: "active",
     },
 
@@ -63,6 +63,16 @@ const parkingBookingSchema = new mongoose.Schema(
     },
     actualDepartureTime: {
       type: Date,
+      default: null,
+    },
+
+    // Security staff who performed the scan
+    arrivalScannedBy: {
+      type: String,
+      default: null,
+    },
+    departureScannedBy: {
+      type: String,
       default: null,
     },
 
