@@ -39,16 +39,29 @@ const MyParkingBooking = () => {
         const curStudent = profileRes.data;
         setStudent(curStudent);
 
-        // Fetch active booking (slot stays occupied even when expired)
+        // Fetch active/expired booking — now returns ParkingBooking record directly
         try {
           const timestamp = Date.now();
           const bookingRes = await studentApi.get(`/parking/my-active?t=${timestamp}`, {
             headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' },
             timeout: 10000
           });
-          setBooking(bookingRes.data.data);
-          setBookingStatus(bookingRes.data.bookingStatus || 'active');
-          setActualArrivalTime(bookingRes.data.actualArrivalTime || null);
+
+          // data is now the ParkingBooking document (has slotNumber, zone,
+          // vehicleType, vehicleNumber, arrivalTime, leavingTime, bookingDate)
+          const fetchedBooking = bookingRes.data.data;
+
+          // If the departure has already been recorded, treat this as no active booking.
+          // Covers the overstay case where status stays 'expired' but car has left.
+          if (fetchedBooking?.actualDepartureTime) {
+            setBooking(null);
+            setBookingStatus('active');
+            setActualArrivalTime(null);
+          } else {
+            setBooking(fetchedBooking);
+            setBookingStatus(bookingRes.data.bookingStatus || 'active');
+            setActualArrivalTime(bookingRes.data.actualArrivalTime || null);
+          }
         } catch (bookingErr) {
           console.error('Primary booking fetch failed:', bookingErr);
           
@@ -67,9 +80,16 @@ const MyParkingBooking = () => {
                 },
                 timeout: 10000
               });
-              setBooking(directRes.data.data);
-              setBookingStatus(directRes.data.bookingStatus || 'active');
-              setActualArrivalTime(directRes.data.actualArrivalTime || null);
+              const fetchedBookingFallback = directRes.data.data;
+              if (fetchedBookingFallback?.actualDepartureTime) {
+                setBooking(null);
+                setBookingStatus('active');
+                setActualArrivalTime(null);
+              } else {
+                setBooking(fetchedBookingFallback);
+                setBookingStatus(directRes.data.bookingStatus || 'active');
+                setActualArrivalTime(directRes.data.actualArrivalTime || null);
+              }
             } else {
               console.log('No token found in localStorage');
               setBooking(null);
@@ -99,8 +119,13 @@ const MyParkingBooking = () => {
       alert("This booking has expired. Cancellation is not available. Please contact security or administration.");
       return;
     }
+    if (bookingStatus === 'waiting_for_slot') {
+      alert("Your booking is awaiting slot reassignment by security. You cannot cancel at this time.");
+      return;
+    }
     if (window.confirm("Are you sure you want to cancel this parking booking?")) {
       try {
+        // Pass booking._id (ParkingBooking record id) so the backend cancels the right record
         const res = await studentApi.put(`/parking/${booking._id}/cancel`);
         if (res.data?.success) {
           setBooking(null);
@@ -128,7 +153,7 @@ const MyParkingBooking = () => {
       <>
         
           <div className="p-8 text-center font-bold text-white text-lg bg-black/20 rounded-2xl backdrop-blur-sm">Loading booking details...</div>
-    
+      
       </>
     );
   }
@@ -154,7 +179,7 @@ const MyParkingBooking = () => {
         <div className="max-w-3xl mx-auto">
           <div className="mb-8">
             <h1 className="text-4xl font-extrabold text-blue-900 drop-shadow-sm mb-2">My Parking Booking</h1>
-            <p className="text-blue-100 font-medium">Manage and view your currently active parking spot</p>
+            <p className="text-blue-100 font-medium">Manage and view your currently active parking slot</p>
           </div>
 
           {!booking ? (
@@ -175,10 +200,16 @@ const MyParkingBooking = () => {
             </div>
           ) : (
             <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/60">
-              <div className={`p-6 text-white flex justify-between items-center relative overflow-hidden ${bookingStatus === 'expired' ? 'bg-gradient-to-r from-orange-600 to-red-500' : 'bg-gradient-to-r from-blue-600 to-[oklch(48.8%_0.243_264.376)]'}`}>
+              <div className={`p-6 text-white flex justify-between items-center relative overflow-hidden ${
+                bookingStatus === 'expired'
+                  ? 'bg-gradient-to-r from-orange-600 to-red-500'
+                  : bookingStatus === 'waiting_for_slot'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500'
+                  : 'bg-gradient-to-r from-blue-600 to-[oklch(48.8%_0.243_264.376)]'
+              }`}>
                 <div className="z-10">
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-2 ${bookingStatus === 'expired' ? 'bg-white/20' : 'bg-white/20'}`}>
-                    Status: {bookingStatus === 'expired' ? 'Expired ⚠️' : 'Active'}
+                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-2 bg-white/20`}>
+                    Status: {bookingStatus === 'expired' ? 'Expired ⚠️' : bookingStatus === 'waiting_for_slot' ? 'Waiting for Slot ⏳' : 'Active'}
                   </span>
                   <h2 className="text-3xl font-extrabold tracking-tight">Slot {booking.slotNumber}</h2>
                   <p className="text-blue-100 font-medium opacity-90">{booking.zone}</p>
@@ -187,11 +218,41 @@ const MyParkingBooking = () => {
                   <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
                     {bookingStatus === 'expired'
                       ? <span className="text-3xl">⏰</span>
+                      : bookingStatus === 'waiting_for_slot'
+                      ? <span className="text-3xl">⏳</span>
                       : <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
                     }
                   </div>
                 </div>
               </div>
+
+              {/* Waiting for slot banner */}
+              {bookingStatus === 'waiting_for_slot' && (
+                <div className="bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-start gap-3">
+                  <span className="text-amber-500 text-xl flex-shrink-0 mt-0.5">⏳</span>
+                  <div>
+                    <p className="text-amber-800 font-bold text-sm">Slot occupied — waiting for reassignment</p>
+                    <p className="text-amber-600 text-xs mt-0.5">
+                      Your reserved slot is currently occupied due to overstay. Security has been notified and will reassign you to an available slot shortly. Please remain near the parking area.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Reassigned slot banner */}
+              {booking.isReassigned && booking.newSlotNumber && (
+                <div className="bg-teal-50 border-b border-teal-200 px-6 py-3 flex items-start gap-3">
+                  <span className="text-teal-500 text-xl flex-shrink-0 mt-0.5">🔄</span>
+                  <div>
+                    <p className="text-teal-800 font-bold text-sm">Slot reassigned by security</p>
+                    <p className="text-teal-600 text-xs mt-0.5">
+                      You were moved from <strong>{booking.originalSlotNumber}</strong> to{' '}
+                      <strong>{booking.newSlotNumber}</strong> ({booking.zone}) due to overstay at your original slot.
+                      Please proceed to your new slot.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Expired warning banner */}
               {bookingStatus === 'expired' && (
@@ -244,7 +305,7 @@ const MyParkingBooking = () => {
                 <div className="bg-blue-50/50 rounded-2xl p-6 border border-blue-100 mb-8 flex justify-between items-center">
                   <div>
                     <p className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">Booking Reference</p>
-                    <p className="font-mono text-lg font-black text-blue-900 tracking-wider">REF-ACTIVE</p>
+                    <p className="font-mono text-sm font-black text-blue-900 tracking-wider">{booking._id?.toString().slice(-8).toUpperCase() || 'N/A'}</p>
                   </div>
                   <div>
                     <p className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">Assigned Student ID</p>
