@@ -3,6 +3,7 @@ import ParkingBooking from "../models/ParkingBooking.js";
 import Notification from "../models/Notification.js";
 import Student from "../models/Student.js";
 import mongoose from "mongoose";
+import { createStudentNotification } from "../utils/notificationHelper.js";
 
 
 // ─── Helper: convert "HH:MM" string to total minutes ────────────────────────
@@ -243,15 +244,15 @@ export const reserveParkingSpot = async (req, res, next) => {
       }
     }
 
-    // ── Create booking_success notification ───────────────────────────────────
+    // ── Create booking_success notification (real-time + DB) ────────────────────
     if (userId !== "Anonymous") {
       try {
-        await Notification.create({
+        await createStudentNotification(
           userId,
-          title: "Parking Slot Booked Successfully 🚗",
-          message: `Your parking slot ${spot.slotNumber} (${spot.zone}) has been booked for ${arrivalTime}–${leavingTime}.`,
-          type: "booking_success",
-          metadata: {
+          "Parking Slot Booked Successfully 🚗",
+          `Your parking slot ${spot.slotNumber} (${spot.zone}) has been booked for ${arrivalTime}–${leavingTime}.`,
+          "booking_success",
+          {
             slotNumber: spot.slotNumber,
             zone: spot.zone,
             vehicleType: spot.vehicleType,
@@ -259,8 +260,8 @@ export const reserveParkingSpot = async (req, res, next) => {
             bookingDate,
             arrivalTime,
             leavingTime,
-          },
-        });
+          }
+        );
       } catch (notifErr) {
         console.error("[Notification] Failed to create booking_success notification:", notifErr.message);
       }
@@ -506,13 +507,13 @@ export const cancelParkingSpot = async (req, res, next) => {
     // ── Create booking_cancelled notification ─────────────────────────────────
     if (studentId && studentId !== "Anonymous") {
       try {
-        await Notification.create({
-          userId: studentId,
-          title: "Parking Booking Cancelled",
-          message: `Your booking for slot ${slotNumber} (${zone}) has been cancelled.`,
-          type: "booking_cancelled",
-          metadata: { slotNumber, zone },
-        });
+        await createStudentNotification(
+          studentId,
+          "Parking Booking Cancelled",
+          `Your booking for slot ${slotNumber} (${zone}) has been cancelled.`,
+          "booking_cancelled",
+          { slotNumber, zone }
+        );
       } catch (notifErr) {
         console.error("[Notification] Failed to create booking_cancelled notification:", notifErr.message);
       }
@@ -650,20 +651,20 @@ export const securityScanQR = async (req, res, next) => {
         booking.status = "waiting_for_slot";
         await booking.save();
 
-        // Notify User B
+        // Notify User B — slot occupied due to overstay (real-time + DB)
         try {
-          await Notification.create({
-            userId: normalizedId,
-            title: "Slot Occupied — Please Contact Security 🚧",
-            message: `Your reserved parking slot ${booking.slotNumber} (${booking.zone}) is currently occupied due to overstay. Security has been alerted and will reassign you to an available slot.`,
-            type: "slot_conflict",
-            metadata: {
+          await createStudentNotification(
+            normalizedId,
+            "Slot Occupied — Please Contact Security 🚧",
+            `Your reserved parking slot ${booking.slotNumber} (${booking.zone}) is currently occupied due to overstay. Please approach security — they will reassign you to an available slot immediately.`,
+            "slot_conflict",
+            {
               slotNumber: booking.slotNumber,
               zone: booking.zone,
               arrivalTime: booking.arrivalTime,
               leavingTime: booking.leavingTime,
-            },
-          });
+            }
+          );
         } catch (notifErr) {
           console.error("[Notification] Failed to create slot_conflict notification:", notifErr.message);
         }
@@ -762,19 +763,20 @@ export const securityScanQR = async (req, res, next) => {
       }
 
       // Create departure_confirmed notification
+      // Departure confirmed — notify student in real-time
       try {
-        await Notification.create({
-          userId: normalizedId,
-          title: "Departure Confirmed ✅",
-          message: `Your departure from slot ${booking.slotNumber} (${booking.zone}) has been recorded successfully.`,
-          type: "departure_confirmed",
-          metadata: {
+        await createStudentNotification(
+          normalizedId,
+          "Departure Confirmed ✅",
+          `Your departure from slot ${booking.slotNumber} (${booking.zone}) has been recorded successfully.`,
+          "departure_confirmed",
+          {
             slotNumber: booking.slotNumber,
             zone: booking.zone,
             actualArrivalTime: booking.actualArrivalTime,
             actualDepartureTime: now,
-          },
-        });
+          }
+        );
       } catch (notifErr) {
         console.error("[Notification] Failed to create departure_confirmed notification:", notifErr.message);
       }
@@ -941,21 +943,21 @@ export const reassignWaitingBooking = async (req, res, next) => {
 
     await booking.save();
 
-    // ── Notify User B of the reassignment ────────────────────────────────────
+    // ── Notify User B of the reassignment (real-time + DB) ─────────────────────────
     try {
-      await Notification.create({
-        userId: booking.studentId,
-        title: "Parking Slot Reassigned 🔄",
-        message: `Your parking slot has been reassigned to ${newSpot.slotNumber} (${newSpot.zone}) by security due to overstay at your original slot. Please proceed to your new slot.`,
-        type: "slot_reassigned",
-        metadata: {
+      await createStudentNotification(
+        booking.studentId,
+        "Parking Slot Reassigned 🔄",
+        `Your parking slot has been reassigned to Slot ${newSpot.slotNumber} (${newSpot.zone}) by security due to overstay at your original slot (${booking.originalSlotNumber}). Please proceed to your new slot.`,
+        "slot_reassigned",
+        {
           originalSlotNumber: booking.originalSlotNumber,
           newSlotNumber: newSpot.slotNumber,
           newZone: newSpot.zone,
           reassignedBy: staffId,
           reassignedAt: now,
-        },
-      });
+        }
+      );
     } catch (notifErr) {
       console.error("[Notification] Failed to create slot_reassigned notification:", notifErr.message);
     }

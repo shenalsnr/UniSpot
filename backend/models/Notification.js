@@ -29,6 +29,9 @@ const notificationSchema = new mongoose.Schema(
         "departure_confirmed",
         "penalty_applied",
         "student_blocked",
+        // Overstay / reassignment types (parking module)
+        "slot_conflict",
+        "slot_reassigned",
       ],
       required: true,
     },

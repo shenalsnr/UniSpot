@@ -58,13 +58,6 @@ const App = () => {
           moduleName="Reserve Parking Spot"
           links={[
             { to: "/parking/zones", label: "Select Zone" },
-            ...(!location.pathname.startsWith("/parking/book") &&
-              location.pathname !== "/parking" &&
-              location.pathname !== "/parking/zones" &&
-              location.pathname !== "/parking/my-booking"
-              ? [{ to: "/parking/admin", label: "Admin Records" }]
-              : [])
-
           ]}
 
           rightActions={
