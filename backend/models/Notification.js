@@ -32,6 +32,12 @@ const notificationSchema = new mongoose.Schema(
         // Overstay / reassignment types (parking module)
         "slot_conflict",
         "slot_reassigned",
+        // Locker-specific types
+        "locker_booking_success",
+        "locker_booking_reminder",
+        "locker_booking_expired",
+        "locker_booking_cancelled",
+        "locker_booking_verified",
       ],
       required: true,
     },

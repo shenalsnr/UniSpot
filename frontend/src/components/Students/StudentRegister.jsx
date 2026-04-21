@@ -193,7 +193,7 @@ const StudentRegister = () => {
 
   return (
     <>
-      <PublicNavbar />
+      <PublicNavbar links={[{ to: "/", label: "Home" }]} />
       
         <form className="w-full max-w-130 p-8 bg-white/80 backdrop-blur-md border border-white/65 rounded-3xl shadow-xl flex flex-col gap-4 animate-fade-in transition-all duration-300 relative z-10 mx-auto my-8" onSubmit={submitHandler}>
           <h2 className="mb-2 text-3xl md:text-4xl text-center text-slate-900 font-extrabold">Create Student Account</h2>

@@ -1,0 +1,524 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LockerQR.css — Locker Access page styles.
+   Matches Staff Dashboard blue theme. All classes use 'lqr-' prefix.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.lqr-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+  animation: lqr-fadeIn 0.5s ease-out;
+}
+
+@keyframes lqr-fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Cards ─────────────────────────────────────────────────────────────────── */
+.lqr-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
+}
+
+.lqr-card h3 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Input + Form ──────────────────────────────────────────────────────────── */
+.lqr-input-row {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.lqr-input-row .lqr-input {
+  flex: 1;
+}
+
+.lqr-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.lqr-form-group label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.lqr-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.lqr-input:focus {
+  border-color: #3b82f6;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+}
+
+.lqr-input::placeholder {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
+.lqr-btn {
+  padding: 14px 24px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.lqr-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.lqr-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.lqr-btn-primary {
+  background: linear-gradient(135deg, #0052a3, #003d7a);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 82, 163, 0.25);
+}
+
+.lqr-btn-success {
+  background: linear-gradient(135deg, #059669, #047857);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(5, 150, 105, 0.25);
+}
+
+.lqr-btn-danger {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.2);
+}
+
+.lqr-btn-outline {
+  background: #ffffff;
+  color: #0052a3;
+  border: 2px solid #0052a3;
+}
+
+.lqr-btn-full {
+  width: 100%;
+}
+
+/* ── Mode toggle (Camera / Manual) ─────────────────────────────────────────── */
+.lqr-mode-toggle {
+  display: flex;
+  gap: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid #e2e8f0;
+  margin-bottom: 20px;
+}
+
+.lqr-mode-btn {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  background: #ffffff;
+  color: #475569;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lqr-mode-btn.active {
+  background: linear-gradient(135deg, #0052a3, #003d7a);
+  color: #ffffff;
+}
+
+.lqr-mode-btn:not(.active):hover {
+  background: #f1f5f9;
+}
+
+/* ── Student info card ─────────────────────────────────────────────────────── */
+.lqr-student-card {
+  animation: lqr-slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes lqr-slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.lqr-student-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.lqr-student-photo {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  object-fit: cover;
+  border: 3px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.lqr-student-photo-placeholder {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.lqr-student-info h4 {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.lqr-student-meta {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.lqr-student-meta span {
+  margin-right: 16px;
+}
+
+/* ── Detail boxes ──────────────────────────────────────────────────────────── */
+.lqr-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.lqr-detail-box {
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border-radius: 14px;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.lqr-detail-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.lqr-detail-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* ── Status badges ─────────────────────────────────────────────────────────── */
+.lqr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.lqr-badge-available {
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #166534;
+}
+
+.lqr-badge-assigned {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #1e40af;
+}
+
+.lqr-badge-expired {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #991b1b;
+}
+
+.lqr-badge-no-locker {
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  color: #475569;
+}
+
+/* ── Alerts ─────────────────────────────────────────────────────────────────── */
+.lqr-alert {
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: lqr-slideDown 0.3s ease-out;
+}
+
+@keyframes lqr-slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.lqr-alert-success {
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.lqr-alert-error {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* ── Scanner ───────────────────────────────────────────────────────────────── */
+.lqr-scanner-box {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid #e2e8f0;
+  background: #000000;
+  min-height: 300px;
+  position: relative;
+}
+
+.lqr-scanner-box video {
+  border-radius: 16px !important;
+}
+
+.lqr-scanner-hint {
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+/* ── Action buttons row ────────────────────────────────────────────────────── */
+.lqr-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.lqr-actions .lqr-btn {
+  flex: 1;
+}
+
+/* ── Assign form inline ────────────────────────────────────────────────────── */
+.lqr-assign-form {
+  padding-top: 16px;
+  border-top: 2px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lqr-assign-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.lqr-assign-row > .lqr-form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* ── Empty state ───────────────────────────────────────────────────────────── */
+.lqr-empty {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.lqr-empty-icon {
+  font-size: 52px;
+  margin-bottom: 10px;
+}
+
+.lqr-empty h4 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #334155;
+  margin: 0 0 6px;
+}
+
+.lqr-empty p {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ── Spinner ───────────────────────────────────────────────────────────────── */
+.lqr-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: lqr-spin 0.6s linear infinite;
+}
+
+@keyframes lqr-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── All lockers grid ──────────────────────────────────────────────────────── */
+.lqr-lockers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.lqr-locker-mini {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.lqr-locker-mini:hover {
+  border-color: #93c5fd;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+.lqr-locker-mini-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.lqr-locker-mini-id {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.lqr-locker-mini-location {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.lqr-locker-mini-user {
+  font-size: 13px;
+  color: #334155;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+/* ── Tabs ──────────────────────────────────────────────────────────────────── */
+.lqr-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.lqr-tab {
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lqr-tab:hover {
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+
+.lqr-tab.active {
+  background: linear-gradient(135deg, #0052a3, #003d7a);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(0, 82, 163, 0.25);
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .lqr-input-row {
+    flex-direction: column;
+  }
+
+  .lqr-actions {
+    flex-direction: column;
+  }
+
+  .lqr-assign-row {
+    flex-direction: column;
+  }
+
+  .lqr-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lqr-lockers-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lqr-student-header {
+    flex-direction: column;
+    text-align: center;
+  }
+}

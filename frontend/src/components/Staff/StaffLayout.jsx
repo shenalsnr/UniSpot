@@ -35,10 +35,10 @@ const StaffLayout = ({ children }) => {
         >
           <div>
             <h1 style={{ fontSize: "28px", fontWeight: "bold", margin: "0", letterSpacing: "0.5px" }}>
-              VEHICLE ENTRY SCANNER
+              VEHICLE & LOCKER ENTRY SCANNER 
             </h1>
             <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.8)", margin: "4px 0 0 0" }}>
-              Parking Entry & Departure Management
+              Parking & Locker Entry Departure Management
             </p>
           </div>
         </div>

@@ -20,6 +20,23 @@ const getTypeIcon = (type, title = "") => {
     );
   }
 
+  // Handle specific locker types that might not have "locker" in title but use these specific keys
+  if (type === "locker_booking_cancelled") {
+    return (
+      <span className="notif-type-icon notif-type-cancelled" title="Locker Cancelled">
+        ❌
+      </span>
+    );
+  }
+
+  if (type === "locker_booking_verified") {
+    return (
+      <span className="notif-type-icon notif-type-success" title="Locker Verified">
+        ✅
+      </span>
+    );
+  }
+
   switch (type) {
     case "booking_success":
       return (
@@ -709,7 +726,7 @@ const NotificationBell = () => {
                 <div className="notif-empty-icon">🔔</div>
                 <div className="notif-empty-text">No notifications yet</div>
                 <div className="notif-empty-sub">
-                  You'll see parking updates here
+                  Your notifications will appear here
                 </div>
               </div>
             ) : (
