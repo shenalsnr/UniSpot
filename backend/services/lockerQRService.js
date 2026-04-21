@@ -1,6 +1,7 @@
 import LockerStation from "../models/LockerQR/LockerQRModel.js";
 import LockerAssignmentLog from "../models/LockerQR/LockerQRBookingModel.js";
 import Student from "../models/Student.js";
+import { createStudentNotification } from "../utils/notificationHelper.js";
 
 /**
  * LockerQR Service — student-ID-based locker assignment.
@@ -115,6 +116,19 @@ export const assignLocker = async (studentId, durationHours = 4) => {
     lockerNumber: availableLocker.lockerNumber,
     action: "assigned"
   });
+
+  // Send QR verification notification to the student
+  try {
+    await createStudentNotification(
+      sid,
+      "Locker Booking Verified",
+      "Your locker booking has been verified via QR scan.",
+      "locker_booking_verified",
+      { lockerNumber: availableLocker.lockerNumber, assignedAt: now, expiresAt }
+    );
+  } catch (notifErr) {
+    console.error("❌ Error sending QR verification notification:", notifErr);
+  }
 
   return { student, locker: availableLocker.toObject() };
 };

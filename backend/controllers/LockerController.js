@@ -388,8 +388,28 @@ export const deleteBookingById = async (req, res, next) => {
       });
     }
 
+    // Capture booking details before deletion for the notification
+    const { lockerId, date, startTime, endTime } = booking;
+
     await LockerBooking.findByIdAndDelete(bookingId);
     console.log(`Booking ${bookingId} cancelled successfully by student ${studentId}`);
+
+    // Send cancellation notification
+    try {
+      const student = await Student.findById(studentId);
+      if (student) {
+        await createStudentNotification(
+          student.studentId,
+          "Locker Booking Cancelled",
+          "Your locker booking has been cancelled successfully.",
+          "locker_booking_cancelled",
+          { lockerId, date, startTime, endTime, bookingId }
+        );
+      }
+    } catch (notifErr) {
+      console.error("❌ Error sending cancellation notification:", notifErr);
+    }
+
     res.json({ message: "Booking cancelled successfully" });
   } catch (error) {
     console.error("Error cancelling booking:", error);
@@ -423,9 +443,31 @@ export const deleteBooking = async (req, res, next) => {
       });
     }
 
+    // Capture booking details before deletion for the notification
+    const bookingDate = booking.date;
+    const bookingStartTime = booking.startTime;
+    const bookingEndTime = booking.endTime;
+
     console.log("Found booking to delete:", booking);
     await LockerBooking.findByIdAndDelete(booking._id);
     console.log("Booking deleted successfully");
+
+    // Send cancellation notification
+    try {
+      const student = await Student.findById(studentId);
+      if (student) {
+        await createStudentNotification(
+          student.studentId,
+          "Locker Booking Cancelled",
+          "Your locker booking has been cancelled successfully.",
+          "locker_booking_cancelled",
+          { lockerId, date: bookingDate, startTime: bookingStartTime, endTime: bookingEndTime }
+        );
+      }
+    } catch (notifErr) {
+      console.error("❌ Error sending cancellation notification:", notifErr);
+    }
+
     res.json({ message: "Booking cancelled successfully" });
   } catch (error) {
     console.error("Error deleting booking:", error);
