@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import StaffRegister from './StaffRegister';
 import QRScanner from './QRScanner';
+import WaitingSlotPanel from './WaitingSlotPanel';
 
 const SecurityPortal = () => {
   const [activeTab, setActiveTab] = useState('staff');
@@ -51,6 +52,16 @@ const SecurityPortal = () => {
             >
               📱 QR Scanner
             </button>
+            <button
+              onClick={() => setActiveTab('waiting')}
+              className={`py-6 px-8 font-bold text-lg transition-all duration-300 border-b-4 rounded-t-lg ${
+                activeTab === 'waiting'
+                  ? 'border-amber-500 text-amber-700 bg-gradient-to-b from-amber-50 to-transparent'
+                  : 'border-transparent text-slate-600 hover:text-amber-600'
+              }`}
+            >
+              ⏳ Waiting Queue
+            </button>
           </div>
         </div>
       </div>
@@ -59,6 +70,7 @@ const SecurityPortal = () => {
       <div className="max-w-7xl mx-auto px-6 py-12">
         {activeTab === 'staff' && <StaffRegister />}
         {activeTab === 'scanner' && <QRScanner />}
+        {activeTab === 'waiting' && <WaitingSlotPanel />}
       </div>
     </div>
   );
