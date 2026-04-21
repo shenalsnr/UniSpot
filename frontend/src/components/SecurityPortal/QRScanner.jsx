@@ -214,6 +214,8 @@ const QRScanner = () => {
         setSuccess(`✓ Arrival recorded for ${data.data?.studentName || qrData}`);
       } else if (data.scanType === 'departure') {
         setSuccess(`✓ Departure confirmed for ${data.data?.studentName || qrData}`);
+      } else if (data.scanType === 'waiting_for_slot') {
+        // No success toast — the result card handles guidance
       } else {
         setSuccess(data.message || '✓ Scan processed');
       }
@@ -341,6 +343,62 @@ const QRScanner = () => {
             </div>
           </div>
           <button onClick={resetScan} className="w-full mt-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+            🔄 Scan Next
+          </button>
+        </div>
+      );
+    }
+
+    // already_completed or other
+    if (scanType === 'waiting_for_slot') {
+      return (
+        <div className="mb-8 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 rounded-2xl shadow-xl border-2 border-amber-400 p-8 backdrop-blur-xl">
+          <div className="text-center mb-6">
+            <div className="text-6xl mb-3">⏳</div>
+            <h3 className="text-3xl font-black text-amber-800">Slot Occupied — Overstay</h3>
+            <p className="text-amber-700 text-sm font-semibold mt-1">Student placed in Waiting Queue</p>
+          </div>
+          <div className="space-y-3">
+            <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-amber-200">
+              <p className="text-xs font-bold text-slate-600 mb-1">STUDENT</p>
+              <p className="text-xl font-bold text-slate-800">
+                {data?.studentName}{' '}
+                <span className="text-sm text-slate-500 font-mono">({data?.studentId})</span>
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-amber-200">
+                <p className="text-xs font-bold text-slate-600 mb-1">ORIGINAL SLOT</p>
+                <p className="text-lg font-black text-amber-700">{data?.slotNumber}</p>
+              </div>
+              <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-amber-200">
+                <p className="text-xs font-bold text-slate-600 mb-1">ZONE</p>
+                <p className="text-sm font-bold text-slate-700">{data?.zone}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-amber-200">
+                <p className="text-xs font-bold text-slate-600 mb-1">BOOKED ARRIVAL</p>
+                <p className="text-sm font-bold text-slate-700">{data?.arrivalTime}</p>
+              </div>
+              <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-amber-200">
+                <p className="text-xs font-bold text-slate-600 mb-1">BOOKED LEAVING</p>
+                <p className="text-sm font-bold text-slate-700">{data?.leavingTime}</p>
+              </div>
+            </div>
+            <div className="bg-amber-200/60 rounded-xl p-4 border border-amber-300 text-center">
+              <p className="text-amber-900 font-black text-sm">
+                ⚠️ Tell the student their slot is occupied due to overstay.
+              </p>
+              <p className="text-amber-800 font-semibold text-xs mt-1">
+                Go to <strong>⏳ Waiting Queue</strong> tab → select this student → reassign to a free slot.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={resetScan}
+            className="w-full mt-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+          >
             🔄 Scan Next
           </button>
         </div>
