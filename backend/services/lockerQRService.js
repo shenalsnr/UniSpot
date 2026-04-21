@@ -1,6 +1,7 @@
 import LockerStation from "../models/LockerQR/LockerQRModel.js";
 import LockerAssignmentLog from "../models/LockerQR/LockerQRBookingModel.js";
 import Student from "../models/Student.js";
+import LockerBooking from "../models/LockerM/BookingModel.js";
 import { createStudentNotification } from "../utils/notificationHelper.js";
 
 /**
@@ -14,6 +15,23 @@ export const findStudent = async (studentId) => {
     studentId: studentId.toUpperCase().trim()
   }).select("name studentId faculty email photo phone status").lean();
   return student;
+};
+
+/**
+ * Helper to mark associated map bookings as 'expired' when a QR locker is released or expires
+ */
+const syncMapBookingStatus = async (studentIdString) => {
+  try {
+    const student = await Student.findOne({ studentId: studentIdString.toUpperCase().trim() }).select('_id').lean();
+    if (student) {
+      await LockerBooking.updateMany(
+        { studentId: student._id, status: "active" },
+        { $set: { status: "expired" } }
+      );
+    }
+  } catch (err) {
+    console.error("❌ Error syncing map booking status:", err);
+  }
 };
 
 // ─── Get locker assignment for a student ─────────────────────────────────────
@@ -51,6 +69,9 @@ export const getStudentLocker = async (studentId) => {
       lockerNumber: expiredLocker.lockerNumber,
       action: "expired"
     });
+
+    // Sync with map booking
+    await syncMapBookingStatus(sid);
   }
 
   // Check for active assignment
@@ -144,6 +165,9 @@ export const releaseLocker = async (studentId) => {
 
   if (!locker) throw new Error("No locker found for this student");
 
+  // Mark associated map booking as 'expired' (released from map) 
+  await syncMapBookingStatus(sid);
+
   const studentName = locker.assignedStudentName || sid;
 
   locker.status = "available";
@@ -182,6 +206,9 @@ export const getAllLockers = async () => {
       action: "expired"
     });
 
+    // Sync with map booking
+    await syncMapBookingStatus(locker.assignedTo);
+
     locker.status = "available";
     locker.assignedTo = null;
     locker.assignedStudentName = null;
@@ -211,6 +238,9 @@ export const getActiveLockers = async () => {
       lockerNumber: locker.lockerNumber,
       action: "expired"
     });
+
+    // Sync with map booking
+    await syncMapBookingStatus(locker.assignedTo);
 
     locker.status = "available";
     locker.assignedTo = null;
