@@ -29,9 +29,21 @@ const notificationSchema = new mongoose.Schema(
         "departure_confirmed",
         "penalty_applied",
         "student_blocked",
+
         "locker_booking_success",
         "locker_booking_reminder",
         "locker_booking_expired",
+
+        // Overstay / reassignment types (parking module)
+        "slot_conflict",
+        "slot_reassigned",
+        // Locker-specific types
+        "locker_booking_success",
+        "locker_booking_reminder",
+        "locker_booking_expired",
+        "locker_booking_cancelled",
+        "locker_booking_verified",
+
       ],
       required: true,
     },

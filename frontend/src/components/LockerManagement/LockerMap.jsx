@@ -6,7 +6,7 @@ import { MapPin, ArrowLeft } from "lucide-react";
 import UnifiedNavbar from "../Shared/UnifiedNavbar";
 
 
-const LockerMap = () => {
+const LockerMap = ({ isEmbedded = false }) => {
   const navigate = useNavigate();
   const [maps, setMaps] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,18 +31,20 @@ const LockerMap = () => {
 
   return (
     <>
-      <UnifiedNavbar
-        moduleName="LOCKER MAPS"
-        centerModule={true}
-        rightActions={
-          <button
-            onClick={() => navigate(-1)}
-            className="px-4 py-2 bg-blue-500 text-white font-bold rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_20px_rgba(59,130,246,0.8)] border border-blue-300 transition-all duration-300 hover:scale-105 flex items-center gap-2"
-          >
-            <ArrowLeft size={16} /> Back
-          </button>
-        }
-      />
+      {!isEmbedded && (
+        <UnifiedNavbar
+          moduleName="LOCKER MAPS"
+          centerModule={true}
+          rightActions={
+            <button
+              onClick={() => navigate(-1)}
+              className="px-4 py-2 bg-blue-500 text-white font-bold rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_20px_rgba(59,130,246,0.8)] border border-blue-300 transition-all duration-300 hover:scale-105 flex items-center gap-2"
+            >
+              <ArrowLeft size={16} /> Back
+            </button>
+          }
+        />
+      )}
 
       <div className="relative min-h-screen bg-white">
         <div className="fixed inset-0 bg-linear-to-br from-white via-slate-50 to-slate-100"></div>

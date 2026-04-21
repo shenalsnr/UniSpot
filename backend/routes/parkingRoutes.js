@@ -12,7 +12,10 @@ import {
   cancelParkingSpot,
   toggleMaintenance,
   securityScanQR,
-  getNextSlotNumber
+  getNextSlotNumber,
+  getSlotBookings,
+  getWaitingBookings,
+  reassignWaitingBooking,
 } from "../controllers/parkingController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -39,21 +42,34 @@ router.route("/my-booking/:studentId")
 router.route("/security/scan-qr")
   .post(securityScanQR);
 
+// Waiting queue — all booking in waiting_for_slot status
+router.route("/waiting")
+  .get(getWaitingBookings);
+
 // Route to reserve a specific parking spot
 router.route("/:id/reserve")
   .put(reserveParkingSpot);
 
-// Route to release a specific parking spot
+// Route to release a specific parking spot (admin force-release)
 router.route("/:id/release")
   .put(releaseParkingSpot);
 
-// Route to cancel a specific parking spot booking (student side)
+// Route to cancel a specific booking (student side)
 router.route("/:id/cancel")
   .put(cancelParkingSpot);
 
 // Route to toggle maintenance status for a specific spot
 router.route("/:id/maintain")
   .put(toggleMaintenance);
+
+// Security: manually reassign a waiting_for_slot booking to a new slot
+router.route("/:id/reassign")
+  .put(reassignWaitingBooking);
+
+// Route to get all active bookings (time blocks) for a slot on a given date
+// GET /api/parking/:id/bookings?date=YYYY-MM-DD
+router.route("/:id/bookings")
+  .get(getSlotBookings);
 
 // Route to get, update and delete a specific parking spot
 router.route("/:id")

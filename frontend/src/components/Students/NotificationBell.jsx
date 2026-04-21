@@ -15,6 +15,25 @@ const getTypeIcon = (type, title = "") => {
       <span className="notif-type-icon notif-type-locker" title="Locker Update">
         📦
       </span>
+
+
+    );
+  }
+
+  // Handle specific locker types that might not have "locker" in title but use these specific keys
+  if (type === "locker_booking_cancelled") {
+    return (
+      <span className="notif-type-icon notif-type-cancelled" title="Locker Cancelled">
+        ❌
+      </span>
+    );
+  }
+
+  if (type === "locker_booking_verified") {
+    return (
+      <span className="notif-type-icon notif-type-success" title="Locker Verified">
+        ✅
+      </span>
     );
   }
 
@@ -67,6 +86,18 @@ const getTypeIcon = (type, title = "") => {
           🚫
         </span>
       );
+    case "slot_conflict":
+      return (
+        <span className="notif-type-icon notif-type-expired" title="Slot Occupied">
+          🚧
+        </span>
+      );
+    case "slot_reassigned":
+      return (
+        <span className="notif-type-icon notif-type-success" title="Slot Reassigned">
+          🔄
+        </span>
+      );
     default:
       return (
         <span className="notif-type-icon notif-type-default" title="Notification">
@@ -99,6 +130,7 @@ const NotificationBell = () => {
   const [loading, setLoading] = useState(false);
   const [markingId, setMarkingId] = useState(null);
   const [markingAll, setMarkingAll] = useState(false);
+  const [clearingAll, setClearingAll] = useState(false);
   const panelRef = useRef(null);
   const bellRef = useRef(null);
 
@@ -122,39 +154,85 @@ const NotificationBell = () => {
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 
+  // ── Clear state when the logged-in user changes (logout / switch accounts) ─────
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === "studentInfo") {
+        // studentInfo changed — user logged out or a different user logged in
+        // Wipe notification state so we never show another user's notifications
+        setNotifications([]);
+        setUnreadCount(0);
+        setOpen(false);
+
+        // If a new user just logged in, re-fetch their notifications
+        if (e.newValue) {
+          fetchNotifications();
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [fetchNotifications]);
+
   // ── Real-time notifications via Socket.io ──────────────────────────────────
   useEffect(() => {
-    // Get student info for the room name
     const studentInfo = JSON.parse(localStorage.getItem("studentInfo") || "{}");
-    const studentId = studentInfo.studentId;
+    const token = studentInfo?.token;
+    const currentStudentId = studentInfo?.studentId?.toUpperCase();
 
-    if (!studentId) return;
+    // Don't connect if no token (not logged in)
+    if (!token || !currentStudentId) return;
 
+<<<<<<< HEAD
     const upperStudentId = studentId.toUpperCase();
 
     // Connect to backend (using the same base URL as the API, minus /api)
+=======
+>>>>>>> 53aff9ac7ff89149d32433b8ea9b9f86bcf0754d
     const socket = io("http://localhost:5000");
 
     socket.on("connect", () => {
       console.log("[Socket] Connected to server");
+<<<<<<< HEAD
       // Join the private student room
       socket.emit("join_student", upperStudentId);
+=======
+      // Send the JWT token — server will verify it and derive the studentId
+      // Never send raw studentId to prevent spoofing another user's room
+      socket.emit("join_student", token);
+    });
+
+    // Server confirms which room we joined
+    socket.on("room_joined", ({ studentId }) => {
+      console.log(`[Socket] Joined verified notification room for ${studentId}`);
+>>>>>>> 53aff9ac7ff89149d32433b8ea9b9f86bcf0754d
     });
 
     socket.on("new_notification", (notif) => {
+      // ── OWNERSHIP CHECK: only accept notifications that belong to this user ──
+      // This is the final client-side safety net. The server already only emits
+      // to `student_${verifiedStudentId}` rooms, but this guards against any
+      // future misconfiguration or race condition.
+      if (!notif?.userId || notif.userId.toUpperCase() !== currentStudentId) {
+        console.warn(
+          `[Socket] Blocked notification for ${notif?.userId} — current user is ${currentStudentId}`
+        );
+        return;
+      }
+
       console.log("[Socket] New notification received:", notif);
-      
-      // Add to state instantly
+
+      // Add to state instantly (deduplicate)
       setNotifications((prev) => {
-        // Prevent duplicates (just in case)
-        if (prev.some(n => n._id === notif._id)) return prev;
+        if (prev.some((n) => n._id === notif._id)) return prev;
         return [notif, ...prev];
       });
-      
+
       // Increment unread count
       setUnreadCount((prev) => prev + 1);
 
-      // Play a subtle sound or trigger browser notification if desired
+      // Browser push notification if permitted
       if ("Notification" in window && Notification.permission === "granted") {
         new Notification(notif.title, { body: notif.message });
       }
@@ -167,6 +245,8 @@ const NotificationBell = () => {
     return () => {
       socket.disconnect();
     };
+  // Re-run if the logged-in user changes (e.g., logout then login as different user)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Close on outside click ─────────────────────────────────────────────────
@@ -213,6 +293,21 @@ const NotificationBell = () => {
       // silent
     } finally {
       setMarkingAll(false);
+    }
+  };
+
+  // ── Clear all notifications ────────────────────────────────────────────────
+  const handleClearAll = async () => {
+    if (!window.confirm("Are you sure you want to clear all notifications?")) return;
+    setClearingAll(true);
+    try {
+      await studentApi.delete("/notifications");
+      setNotifications([]);
+      setUnreadCount(0);
+    } catch {
+      // silent
+    } finally {
+      setClearingAll(false);
     }
   };
 
@@ -606,16 +701,29 @@ const NotificationBell = () => {
                 )}
               </span>
 
-              {unreadCount > 0 && (
-                <button
-                  className="notif-mark-all-btn"
-                  onClick={handleMarkAllRead}
-                  disabled={markingAll}
-                  title="Mark all as read"
-                >
-                  {markingAll ? "Marking..." : "Mark all read"}
-                </button>
-              )}
+              <div className="flex gap-2">
+                {unreadCount > 0 && (
+                  <button
+                    className="notif-mark-all-btn"
+                    onClick={handleMarkAllRead}
+                    disabled={markingAll || clearingAll}
+                    title="Mark all as read"
+                  >
+                    {markingAll ? "..." : "Read all"}
+                  </button>
+                )}
+                {notifications.length > 0 && (
+                  <button
+                    className="notif-mark-all-btn"
+                    style={{ background: "rgba(239, 68, 68, 0.2)", borderColor: "rgba(239, 68, 68, 0.4)" }}
+                    onClick={handleClearAll}
+                    disabled={clearingAll}
+                    title="Clear all notifications"
+                  >
+                    {clearingAll ? "..." : "Clear all"}
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Body */}
@@ -629,7 +737,7 @@ const NotificationBell = () => {
                 <div className="notif-empty-icon">🔔</div>
                 <div className="notif-empty-text">No notifications yet</div>
                 <div className="notif-empty-sub">
-                  You'll see parking updates here
+                  Your notifications will appear here
                 </div>
               </div>
             ) : (

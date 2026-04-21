@@ -9,6 +9,8 @@ import {
   requestPasswordOtp,
   resetPasswordWithOtp,
   getStudentByQr,
+  deleteStudentProfile,
+  checkEmailExists,
 } from "../controllers/studentController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
@@ -21,6 +23,7 @@ router.post("/register", upload.single("photo"), registerStudent);
 router.post("/login", loginStudent);
 router.post("/request-password-otp", requestPasswordOtp);
 router.post("/reset-password-with-otp", resetPasswordWithOtp);
+router.post("/check-email", checkEmailExists);
 router.get("/qr/:studentId", getStudentByQr);
 
 // Protected routes
@@ -28,5 +31,6 @@ router.get("/profile", protect, getStudentProfile);
 router.put("/profile", protect, upload.single("photo"), updateStudentProfile);
 router.put("/vehicle", protect, addOrUpdateVehicle);
 router.delete("/vehicle", protect, removeVehicle);
+router.delete("/profile", protect, deleteStudentProfile);
 
 export default router;

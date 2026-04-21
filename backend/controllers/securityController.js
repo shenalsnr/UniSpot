@@ -174,6 +174,57 @@ const verifyQRCode = async (req, res) => {
   }
 };
 
+// STAFF LOGIN - Authenticate staff with ID, Name, and NIC
+const loginStaff = async (req, res) => {
+  try {
+    const { staffID, name, nic } = req.body;
+
+    // Validation
+    if (!staffID || !name || !nic) {
+      return res.status(400).json({ message: 'Staff ID, Name, and NIC are required' });
+    }
+
+    // Find staff by ID and verify name and NIC
+    const staff = await SecurityStaff.findOne({
+      staffID: staffID.toUpperCase(),
+      name: { $regex: name.trim(), $options: 'i' }, // Case-insensitive name match
+      nic: nic.toString(),
+    });
+
+    if (!staff) {
+      return res.status(401).json({
+        message: 'Invalid Staff ID, Name, or NIC. Please check your credentials.',
+      });
+    }
+
+    // Check if staff is active
+    if (staff.status !== 'Active') {
+      return res.status(403).json({
+        message: 'Your account is not active. Please contact administration.',
+      });
+    }
+
+    // Generate a simple token (in production, use JWT)
+    const token = Buffer.from(`${staff.staffID}:${Date.now()}`).toString('base64');
+
+    res.status(200).json({
+      message: 'Staff login successful',
+      token,
+      data: {
+        staffID: staff.staffID,
+        name: staff.name,
+        designation: staff.designation,
+        shift: staff.shift,
+        gate: staff.gate,
+        phone: staff.phone,
+        status: staff.status,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export default {
   createStaff,
   getAllStaff,
@@ -181,4 +232,5 @@ export default {
   updateStaff,
   deleteStaff,
   verifyQRCode,
+  loginStaff,
 };

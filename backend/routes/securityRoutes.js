@@ -3,6 +3,9 @@ import securityController from '../controllers/securityController.js';
 
 const router = express.Router();
 
+// Authentication Endpoint
+router.post('/login', securityController.loginStaff); // Staff login
+
 // CRUD Endpoints
 router.post('/staff', securityController.createStaff); // Create staff
 router.get('/staff', securityController.getAllStaff); // Get all staff

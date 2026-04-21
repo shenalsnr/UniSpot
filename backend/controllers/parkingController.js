@@ -3,17 +3,20 @@ import ParkingBooking from "../models/ParkingBooking.js";
 import Notification from "../models/Notification.js";
 import Student from "../models/Student.js";
 import mongoose from "mongoose";
+import { createStudentNotification } from "../utils/notificationHelper.js";
 
 
-// ─── Shared helper: release a spot's booking fields ─────────────────────────
-const releaseSpotFields = (spot) => {
-  spot.isOccupied = false;
-  spot.reservedBy = null;
-  spot.bookingDate = null;
-  spot.arrivalTime = null;
-  spot.leavingTime = null;
-  spot.vehicleNumber = null;
+// ─── Helper: convert "HH:MM" string to total minutes ────────────────────────
+const timeToMinutes = (t) => {
+  if (!t) return null;
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
 };
+
+// ─── Helper: check if two [start, end) intervals overlap ────────────────────
+// Overlap condition: newStart < existingEnd AND newEnd > existingStart
+const intervalsOverlap = (newStart, newEnd, exStart, exEnd) =>
+  newStart < exEnd && newEnd > exStart;
 
 
 export const getParkingSpots = async (req, res, next) => {
@@ -76,7 +79,6 @@ export const getNextSlotNumber = async (req, res, next) => {
     const spots = await ParkingSpot.find({ zone });
     
     // Prefix for the slot number (e.g., "Zone 01" -> "Z01", "Zone 03.02" -> "Z03.02")
-    // Using simple replace for consistency, keeping dots if present
     const zonePart = zone.replace("Zone ", "Z");
     
     const existingNumbers = spots.map(s => {
@@ -106,6 +108,14 @@ export const getNextSlotNumber = async (req, res, next) => {
 };
 
 
+/**
+ * PUT /api/parking/:id/reserve
+ *
+ * Time-based booking: a slot can be booked multiple times per day by different
+ * students as long as their time intervals do not overlap.
+ *
+ * Overlap condition:  newStart < existingEnd  AND  newEnd > existingStart
+ */
 export const reserveParkingSpot = async (req, res, next) => {
   try {
     const spot = await ParkingSpot.findById(req.params.id);
@@ -122,9 +132,9 @@ export const reserveParkingSpot = async (req, res, next) => {
         .json({ success: false, message: "This parking slot is currently under maintenance" });
     }
 
-    // Blocked student check — enforced before anything else
-    const userId = req.body.userId || 'Anonymous';
-    if (userId !== 'Anonymous') {
+    // ── Blocked student check ─────────────────────────────────────────────────
+    const userId = req.body.userId || "Anonymous";
+    if (userId !== "Anonymous") {
       const studentRecord = await Student.findOne({ studentId: userId }).select("status marks");
       if (studentRecord && studentRecord.status === "blocked") {
         return res.status(403).json({
@@ -135,93 +145,185 @@ export const reserveParkingSpot = async (req, res, next) => {
       }
     }
 
-    // Single active booking check
-    if (userId !== 'Anonymous') {
-      const existingBooking = await ParkingSpot.findOne({ reservedBy: userId, isOccupied: true });
-      if (existingBooking) {
-        return res
-          .status(400)
-          .json({ success: false, message: "You already have an active parking booking." });
-      }
-    }
+    // ── Required fields validation ────────────────────────────────────────────
+    const { bookingDate, arrivalTime, leavingTime } = req.body;
 
-    if (spot.isOccupied) {
-      return res
-        .status(400)
-        .json({ success: false, message: "This parking slot is no longer available for the selected time. Another booking already exists for this time range." });
-    }
-
-    if (!req.body.bookingDate || !req.body.arrivalTime || !req.body.leavingTime) {
+    if (!bookingDate || !arrivalTime || !leavingTime) {
       return res
         .status(400)
         .json({ success: false, message: "Booking date, arrival time, and leaving time are required" });
     }
 
-    if (req.body.leavingTime <= req.body.arrivalTime) {
+    if (leavingTime <= arrivalTime) {
       return res
         .status(400)
         .json({ success: false, message: "Leaving time must be after arrival time" });
     }
 
-    spot.isOccupied = true;
-    spot.reservedBy = req.body.userId || 'Anonymous';
-    spot.bookingDate = req.body.bookingDate;
-    spot.arrivalTime = req.body.arrivalTime;
-    spot.leavingTime = req.body.leavingTime;
-    spot.vehicleNumber = req.body.vehicleNumber || null;
+    // ── Time-overlap conflict check ───────────────────────────────────────────
+    // Normalise the booking date to midnight UTC for consistent comparison
+    const bookingDateNorm = new Date(bookingDate);
+    bookingDateNorm.setUTCHours(0, 0, 0, 0);
 
-    const updatedSpot = await spot.save();
+    const newStartMins = timeToMinutes(arrivalTime);
+    const newEndMins   = timeToMinutes(leavingTime);
 
-    // ── Create ParkingBooking history record ──────────────────────────────────
-    if (userId !== 'Anonymous') {
+    // Fetch all active/expired bookings for this slot on this date
+    const existingBookings = await ParkingBooking.find({
+      spotId: spot._id,
+      status: { $in: ["active", "expired"] },
+      bookingDate: {
+        $gte: bookingDateNorm,
+        $lt: new Date(bookingDateNorm.getTime() + 24 * 60 * 60 * 1000),
+      },
+    }).lean();
+
+    for (const booking of existingBookings) {
+      const exStart = timeToMinutes(booking.arrivalTime);
+      const exEnd   = timeToMinutes(booking.leavingTime);
+
+      if (exStart === null || exEnd === null) continue;
+
+      if (intervalsOverlap(newStartMins, newEndMins, exStart, exEnd)) {
+        return res.status(409).json({
+          success: false,
+          message: `This slot is already booked from ${booking.arrivalTime} to ${booking.leavingTime} on that date. Please choose a different time slot.`,
+          conflict: {
+            existingArrival: booking.arrivalTime,
+            existingLeaving: booking.leavingTime,
+          },
+        });
+      }
+    }
+
+    // ── Check if the student already has an overlapping booking (any slot) ────
+    if (userId !== "Anonymous") {
+      const studentExisting = await ParkingBooking.find({
+        studentId: userId,
+        status: { $in: ["active", "expired"] },
+        bookingDate: {
+          $gte: bookingDateNorm,
+          $lt: new Date(bookingDateNorm.getTime() + 24 * 60 * 60 * 1000),
+        },
+      }).lean();
+
+      for (const booking of studentExisting) {
+        const exStart = timeToMinutes(booking.arrivalTime);
+        const exEnd   = timeToMinutes(booking.leavingTime);
+
+        if (exStart === null || exEnd === null) continue;
+
+        if (intervalsOverlap(newStartMins, newEndMins, exStart, exEnd)) {
+          return res.status(409).json({
+            success: false,
+            message: `You already have a booking for slot ${booking.slotNumber} from ${booking.arrivalTime} to ${booking.leavingTime} on that date. Bookings cannot overlap.`,
+          });
+        }
+      }
+    }
+
+    // ── Create ParkingBooking record ──────────────────────────────────────────
+    let createdBooking = null;
+    if (userId !== "Anonymous") {
       try {
-        await ParkingBooking.create({
+        createdBooking = await ParkingBooking.create({
           studentId: userId,
           spotId: spot._id,
           slotNumber: spot.slotNumber,
           zone: spot.zone,
           vehicleType: spot.vehicleType,
           vehicleNumber: req.body.vehicleNumber || null,
-          bookingDate: req.body.bookingDate,
-          arrivalTime: req.body.arrivalTime,
-          leavingTime: req.body.leavingTime,
+          bookingDate: bookingDateNorm,
+          arrivalTime,
+          leavingTime,
           status: "active",
         });
       } catch (bookingErr) {
         console.error("[ParkingBooking] Failed to create booking record:", bookingErr.message);
+        return res.status(500).json({ success: false, message: "Failed to save booking record." });
       }
     }
 
-    // ── Create booking_success notification ───────────────────────────────────
-    if (userId !== 'Anonymous') {
+    // ── Create booking_success notification (real-time + DB) ────────────────────
+    if (userId !== "Anonymous") {
       try {
-        await Notification.create({
-          userId: userId,
-          title: "Parking Slot Booked Successfully 🚗",
-          message: `Your parking slot ${spot.slotNumber} (${spot.zone}) has been booked successfully.`,
-          type: "booking_success",
-          metadata: {
+        await createStudentNotification(
+          userId,
+          "Parking Slot Booked Successfully 🚗",
+          `Your parking slot ${spot.slotNumber} (${spot.zone}) has been booked for ${arrivalTime}–${leavingTime}.`,
+          "booking_success",
+          {
             slotNumber: spot.slotNumber,
             zone: spot.zone,
             vehicleType: spot.vehicleType,
             vehicleNumber: req.body.vehicleNumber || null,
-            bookingDate: req.body.bookingDate,
-            arrivalTime: req.body.arrivalTime,
-            leavingTime: req.body.leavingTime,
-          },
-        });
+            bookingDate,
+            arrivalTime,
+            leavingTime,
+          }
+        );
       } catch (notifErr) {
         console.error("[Notification] Failed to create booking_success notification:", notifErr.message);
       }
     }
 
-    res.status(200).json({ success: true, data: updatedSpot });
+    res.status(200).json({
+      success: true,
+      data: {
+        _id: createdBooking?._id,
+        slotNumber: spot.slotNumber,
+        zone: spot.zone,
+        vehicleType: spot.vehicleType,
+        vehicleNumber: req.body.vehicleNumber || null,
+        bookingDate,
+        arrivalTime,
+        leavingTime,
+        status: "active",
+      },
+    });
   } catch (error) {
     next(error);
   }
 };
 
 
+/**
+ * GET /api/parking/:id/bookings?date=YYYY-MM-DD
+ *
+ * Returns all active bookings for a given slot on a specific date.
+ * Used by the frontend to display occupied time blocks on the slot map.
+ */
+export const getSlotBookings = async (req, res, next) => {
+  try {
+    const { date } = req.query;
+    const spotId = req.params.id;
+
+    if (!date) {
+      return res.status(400).json({ success: false, message: "date query param is required (YYYY-MM-DD)" });
+    }
+
+    const dateNorm = new Date(date);
+    dateNorm.setUTCHours(0, 0, 0, 0);
+
+    const bookings = await ParkingBooking.find({
+      spotId,
+      status: { $in: ["active", "expired"] },
+      bookingDate: {
+        $gte: dateNorm,
+        $lt: new Date(dateNorm.getTime() + 24 * 60 * 60 * 1000),
+      },
+    })
+      .select("arrivalTime leavingTime studentId")
+      .lean();
+
+    res.status(200).json({ success: true, count: bookings.length, data: bookings });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// ─── Admin: force-release a spot (clears isOccupied for physical state) ──────
 export const releaseParkingSpot = async (req, res, next) => {
   try {
     const spot = await ParkingSpot.findById(req.params.id);
@@ -232,9 +334,13 @@ export const releaseParkingSpot = async (req, res, next) => {
         .json({ success: false, message: "Parking spot not found" });
     }
 
-    releaseSpotFields(spot);
-
-    // Clear maintenance state if applicable
+    // Clear physical occupancy flags
+    spot.isOccupied = false;
+    spot.reservedBy = null;
+    spot.bookingDate = null;
+    spot.arrivalTime = null;
+    spot.leavingTime = null;
+    spot.vehicleNumber = null;
     spot.isUnderMaintenance = false;
 
     const updatedSpot = await spot.save();
@@ -293,6 +399,12 @@ export const updateParkingSpot = async (req, res, next) => {
 };
 
 
+/**
+ * GET /api/parking/my-active  (protected)
+ *
+ * Returns the student's most recent active or expired ParkingBooking.
+ * No longer reads from ParkingSpot — booking data lives in ParkingBooking.
+ */
 export const getMyActiveBooking = async (req, res, next) => {
   try {
     const studentId = req.student.studentId;
@@ -301,27 +413,20 @@ export const getMyActiveBooking = async (req, res, next) => {
       return res.status(401).json({ success: false, message: "Not authorized" });
     }
 
-    // The slot may still be occupied even after booking expires (no auto-release)
-    const occupiedSpot = await ParkingSpot.findOne({
-      reservedBy: studentId,
-      isOccupied: true
-    });
+    const bookingRecord = await ParkingBooking.findOne({
+      studentId,
+      status: { $in: ["active", "expired", "waiting_for_slot"] },
+    }).sort({ createdAt: -1 }).lean();
 
-    if (!occupiedSpot) {
+    if (!bookingRecord) {
       return res.status(404).json({ success: false, message: "No active parking booking found." });
     }
 
-    // Look up the ParkingBooking record — could be 'active' or 'expired'
-    const bookingRecord = await ParkingBooking.findOne({
-      studentId,
-      status: { $in: ["active", "expired"] },
-    }).sort({ createdAt: -1 }).lean();
-
     res.status(200).json({
       success: true,
-      data: occupiedSpot,
-      bookingStatus: bookingRecord?.status || "active",
-      actualArrivalTime: bookingRecord?.actualArrivalTime || null,
+      data: bookingRecord,
+      bookingStatus: bookingRecord.status,
+      actualArrivalTime: bookingRecord.actualArrivalTime || null,
     });
   } catch (error) {
     next(error);
@@ -329,6 +434,11 @@ export const getMyActiveBooking = async (req, res, next) => {
 };
 
 
+/**
+ * GET /api/parking/my-booking/:studentId
+ *
+ * Returns the most recent active/expired booking for a student (used by security portal).
+ */
 export const getActiveBookingByStudent = async (req, res, next) => {
   try {
     const { studentId } = req.params;
@@ -337,69 +447,79 @@ export const getActiveBookingByStudent = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Student ID is required" });
     }
 
-    const activeBooking = await ParkingSpot.findOne({
-      reservedBy: studentId,
-      isOccupied: true
-    });
+    const bookingRecord = await ParkingBooking.findOne({
+      studentId: studentId.toUpperCase(),
+      status: { $in: ["active", "expired"] },
+    }).sort({ createdAt: -1 }).lean();
 
-    if (!activeBooking) {
+    if (!bookingRecord) {
       return res.status(404).json({ success: false, message: "No active parking booking found." });
     }
 
-    res.status(200).json({ success: true, data: activeBooking });
+    res.status(200).json({ success: true, data: bookingRecord });
   } catch (error) {
     next(error);
   }
 };
 
 
+/**
+ * PUT /api/parking/:id/cancel
+ *
+ * Student cancels their own active booking.
+ * Marks the ParkingBooking record as cancelled.
+ * Does NOT modify ParkingSpot — availability is derived from bookings, not spot state.
+ */
 export const cancelParkingSpot = async (req, res, next) => {
   try {
-    const spot = await ParkingSpot.findById(req.params.id);
+    const spotId = req.params.id;
 
-    if (!spot) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Parking spot not found" });
-    }
+    // Attempt to find and cancel the active booking for this spot
+    // The spotId in the URL is actually the ParkingBooking _id when the student cancels
+    // Try by booking _id first, then by spotId
+    let bookingRecord = null;
 
-    // Capture before clearing
-    const reservedByStudent = spot.reservedBy;
-    const slotNumber = spot.slotNumber;
-    const zone = spot.zone;
+    if (mongoose.Types.ObjectId.isValid(spotId)) {
+      // Try as ParkingBooking _id (new flow: frontend passes booking._id)
+      bookingRecord = await ParkingBooking.findOne({
+        _id: spotId,
+        status: "active",
+      });
 
-    releaseSpotFields(spot);
-    const updatedSpot = await spot.save();
-
-    // ── Update ParkingBooking record to cancelled ─────────────────────────────
-    if (reservedByStudent && reservedByStudent !== 'Anonymous') {
-      try {
-        await ParkingBooking.findOneAndUpdate(
-          { studentId: reservedByStudent, spotId: spot._id, status: "active" },
-          { $set: { status: "cancelled" } },
-          { sort: { createdAt: -1 } }
-        );
-      } catch (bookingErr) {
-        console.error("[ParkingBooking] Failed to update booking status:", bookingErr.message);
+      // Fallback: treat as spotId (old flow)
+      if (!bookingRecord) {
+        bookingRecord = await ParkingBooking.findOne({
+          spotId,
+          status: "active",
+        }).sort({ createdAt: -1 });
       }
     }
 
+    if (!bookingRecord) {
+      return res.status(404).json({ success: false, message: "No active booking found to cancel." });
+    }
+
+    const { studentId, slotNumber, zone } = bookingRecord;
+
+    bookingRecord.status = "cancelled";
+    await bookingRecord.save();
+
     // ── Create booking_cancelled notification ─────────────────────────────────
-    if (reservedByStudent && reservedByStudent !== 'Anonymous') {
+    if (studentId && studentId !== "Anonymous") {
       try {
-        await Notification.create({
-          userId: reservedByStudent,
-          title: "Parking Booking Cancelled",
-          message: `Your booking for slot ${slotNumber} (${zone}) has been cancelled.`,
-          type: "booking_cancelled",
-          metadata: { slotNumber, zone },
-        });
+        await createStudentNotification(
+          studentId,
+          "Parking Booking Cancelled",
+          `Your booking for slot ${slotNumber} (${zone}) has been cancelled.`,
+          "booking_cancelled",
+          { slotNumber, zone }
+        );
       } catch (notifErr) {
         console.error("[Notification] Failed to create booking_cancelled notification:", notifErr.message);
       }
     }
 
-    res.status(200).json({ success: true, data: updatedSpot, status: 'cancelled' });
+    res.status(200).json({ success: true, data: bookingRecord, status: "cancelled" });
   } catch (error) {
     next(error);
   }
@@ -427,11 +547,9 @@ export const toggleMaintenance = async (req, res, next) => {
 
     const updatedSpot = await spot.save();
 
-    // ── Create maintenance_notice when toggling maintenance ON ────────────────
-    // Notify students with active bookings in the same zone as a heads-up
+    // ── Notify students with active bookings in this zone ─────────────────────
     if (!wasMaintenance && spot.isUnderMaintenance) {
       try {
-        // Find students with active bookings in this zone
         const activeInZone = await ParkingBooking.find({
           zone: spot.zone,
           status: "active",
@@ -470,14 +588,9 @@ export const toggleMaintenance = async (req, res, next) => {
  * POST /api/parking/security/scan-qr
  *
  * Security staff scans a student's QR code (which contains the studentId).
- * This endpoint handles both ARRIVAL and DEPARTURE in sequence:
  *
- * 1st scan → records actualArrivalTime
- * 2nd scan → records actualDepartureTime, marks booking COMPLETED, releases slot,
- *            creates departure_confirmed notification
- *
- * Auth: Open endpoint mirroring existing security verifyQRCode pattern.
- *       The qrData must match a valid student ID in the system.
+ * 1st scan → records actualArrivalTime; sets ParkingSpot.isOccupied = true (physical state)
+ * 2nd scan → records actualDepartureTime, marks booking COMPLETED, releases physical spot
  */
 export const securityScanQR = async (req, res, next) => {
   try {
@@ -501,15 +614,13 @@ export const securityScanQR = async (req, res, next) => {
       });
     }
 
-    // Find the student's booking — active OR expired (security can still
-    // confirm departure after expiry; the slot is still physically occupied)
+    // Find the student's most recent active/expired/waiting booking
     const booking = await ParkingBooking.findOne({
       studentId: normalizedId,
-      status: { $in: ["active", "expired"] },
+      status: { $in: ["active", "expired", "waiting_for_slot"] },
     }).sort({ createdAt: -1 });
 
     if (!booking) {
-      // Check if there is a recently completed booking (for feedback)
       const recent = await ParkingBooking.findOne({
         studentId: normalizedId,
         status: { $in: ["completed", "cancelled"] },
@@ -530,10 +641,68 @@ export const securityScanQR = async (req, res, next) => {
       });
     }
 
-    // ── ARRIVAL scan (first scan) ─────────────────────────────────────────────
-    if (!booking.actualArrivalTime) {
+    // ── ARRIVAL scan ──────────────────────────────────────────────────────────
+    if (!booking.actualArrivalTime && booking.status !== "waiting_for_slot") {
+      // Check if the physical slot is still occupied by an overstayor
+      const spot = await ParkingSpot.findById(booking.spotId);
+
+      if (spot && spot.isOccupied && spot.reservedBy !== normalizedId) {
+        // ── OVERSTAY CONFLICT: move booking to waiting_for_slot ───────────────
+        booking.status = "waiting_for_slot";
+        await booking.save();
+
+        // Notify User B — slot occupied due to overstay (real-time + DB)
+        try {
+          await createStudentNotification(
+            normalizedId,
+            "Slot Occupied — Please Contact Security 🚧",
+            `Your reserved parking slot ${booking.slotNumber} (${booking.zone}) is currently occupied due to overstay. Please approach security — they will reassign you to an available slot immediately.`,
+            "slot_conflict",
+            {
+              slotNumber: booking.slotNumber,
+              zone: booking.zone,
+              arrivalTime: booking.arrivalTime,
+              leavingTime: booking.leavingTime,
+            }
+          );
+        } catch (notifErr) {
+          console.error("[Notification] Failed to create slot_conflict notification:", notifErr.message);
+        }
+
+        return res.status(200).json({
+          success: true,
+          scanType: "waiting_for_slot",
+          message: `Slot ${booking.slotNumber} is occupied due to overstay. ${student.name}'s booking has been placed in the waiting queue. Please reassign via the Waiting Queue panel.`,
+          data: {
+            studentName: student.name,
+            studentId: normalizedId,
+            slotNumber: booking.slotNumber,
+            zone: booking.zone,
+            arrivalTime: booking.arrivalTime,
+            leavingTime: booking.leavingTime,
+            bookingId: booking._id,
+          },
+        });
+      }
+
+      // Slot is free — record arrival normally
       booking.actualArrivalTime = new Date();
       await booking.save();
+
+      // Mark the ParkingSpot as physically occupied
+      try {
+        if (spot) {
+          spot.isOccupied = true;
+          spot.reservedBy = normalizedId;
+          spot.bookingDate = booking.bookingDate;
+          spot.arrivalTime = booking.arrivalTime;
+          spot.leavingTime = booking.leavingTime;
+          spot.vehicleNumber = booking.vehicleNumber || null;
+          await spot.save();
+        }
+      } catch (spotErr) {
+        console.error("[SecurityScan] Failed to update spot occupancy on arrival:", spotErr.message);
+      }
 
       return res.status(200).json({
         success: true,
@@ -551,36 +720,63 @@ export const securityScanQR = async (req, res, next) => {
       });
     }
 
-    // ── DEPARTURE scan (second scan) ──────────────────────────────────────────
+    // ── Already in waiting_for_slot — remind security ─────────────────────────
+    if (booking.status === "waiting_for_slot") {
+      return res.status(200).json({
+        success: true,
+        scanType: "waiting_for_slot",
+        message: `${student.name} is already in the waiting queue for slot ${booking.slotNumber}. Please reassign via the Waiting Queue panel.`,
+        data: {
+          studentName: student.name,
+          studentId: normalizedId,
+          slotNumber: booking.slotNumber,
+          zone: booking.zone,
+          arrivalTime: booking.arrivalTime,
+          leavingTime: booking.leavingTime,
+          bookingId: booking._id,
+        },
+      });
+    }
+
+    // ── DEPARTURE scan ────────────────────────────────────────────────────────
     if (booking.actualArrivalTime && !booking.actualDepartureTime) {
       const now = new Date();
 
-      // Update booking record
       booking.actualDepartureTime = now;
       booking.status = "completed";
       await booking.save();
 
-      // Release the parking spot
-      const spot = await ParkingSpot.findById(booking.spotId);
-      if (spot && spot.isOccupied) {
-        releaseSpotFields(spot);
-        await spot.save();
+      // Release physical spot occupancy
+      try {
+        const spot = await ParkingSpot.findById(booking.spotId);
+        if (spot && spot.isOccupied) {
+          spot.isOccupied = false;
+          spot.reservedBy = null;
+          spot.bookingDate = null;
+          spot.arrivalTime = null;
+          spot.leavingTime = null;
+          spot.vehicleNumber = null;
+          await spot.save();
+        }
+      } catch (spotErr) {
+        console.error("[SecurityScan] Failed to release spot on departure:", spotErr.message);
       }
 
       // Create departure_confirmed notification
+      // Departure confirmed — notify student in real-time
       try {
-        await Notification.create({
-          userId: normalizedId,
-          title: "Departure Confirmed ✅",
-          message: `Your departure from slot ${booking.slotNumber} (${booking.zone}) has been recorded successfully.`,
-          type: "departure_confirmed",
-          metadata: {
+        await createStudentNotification(
+          normalizedId,
+          "Departure Confirmed ✅",
+          `Your departure from slot ${booking.slotNumber} (${booking.zone}) has been recorded successfully.`,
+          "departure_confirmed",
+          {
             slotNumber: booking.slotNumber,
             zone: booking.zone,
             actualArrivalTime: booking.actualArrivalTime,
             actualDepartureTime: now,
-          },
-        });
+          }
+        );
       } catch (notifErr) {
         console.error("[Notification] Failed to create departure_confirmed notification:", notifErr.message);
       }
@@ -606,6 +802,170 @@ export const securityScanQR = async (req, res, next) => {
       success: true,
       scanType: "already_completed",
       message: `Both arrival and departure have already been recorded for ${student.name}.`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+/**
+ * GET /api/parking/waiting
+ *
+ * Returns all ParkingBooking records with status = "waiting_for_slot".
+ * Used by the Security Portal Waiting Queue panel.
+ */
+export const getWaitingBookings = async (req, res, next) => {
+  try {
+    const waitingBookings = await ParkingBooking.find({
+      status: "waiting_for_slot",
+    })
+      .sort({ createdAt: 1 }) // oldest first — FIFO queue
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      count: waitingBookings.length,
+      data: waitingBookings,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+/**
+ * PUT /api/parking/:id/reassign
+ *
+ * Security manually reassigns a waiting_for_slot booking to a new available slot.
+ *
+ * Body: { newSpotId, staffId }
+ *
+ * Guards:
+ *  - Booking must be in waiting_for_slot status
+ *  - Only one reassignment per booking (isReassigned must be false)
+ *  - New spot must not be occupied or under maintenance
+ *  - New spot must have no time-overlap with existing active bookings
+ */
+export const reassignWaitingBooking = async (req, res, next) => {
+  try {
+    const bookingId = req.params.id;
+    const { newSpotId, staffId } = req.body;
+
+    if (!newSpotId || !staffId) {
+      return res.status(400).json({
+        success: false,
+        message: "newSpotId and staffId are required.",
+      });
+    }
+
+    // Load the waiting booking
+    const booking = await ParkingBooking.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found." });
+    }
+
+    if (booking.status !== "waiting_for_slot") {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot reassign a booking with status '${booking.status}'. Only waiting_for_slot bookings can be reassigned.`,
+      });
+    }
+
+    if (booking.isReassigned) {
+      return res.status(400).json({
+        success: false,
+        message: "This booking has already been reassigned. Only one reassignment is allowed per booking.",
+      });
+    }
+
+    // Load the new spot
+    const newSpot = await ParkingSpot.findById(newSpotId);
+    if (!newSpot) {
+      return res.status(404).json({ success: false, message: "New parking spot not found." });
+    }
+
+    if (newSpot.isOccupied) {
+      return res.status(409).json({
+        success: false,
+        message: `Slot ${newSpot.slotNumber} is currently physically occupied. Choose a different slot.`,
+      });
+    }
+
+    if (newSpot.isUnderMaintenance) {
+      return res.status(409).json({
+        success: false,
+        message: `Slot ${newSpot.slotNumber} is under maintenance. Choose a different slot.`,
+      });
+    }
+
+    // Time-overlap check on new spot
+    const bookingDateNorm = new Date(booking.bookingDate);
+    bookingDateNorm.setUTCHours(0, 0, 0, 0);
+
+    const newStartMins = timeToMinutes(booking.arrivalTime);
+    const newEndMins   = timeToMinutes(booking.leavingTime);
+
+    const conflictingBookings = await ParkingBooking.find({
+      spotId: newSpotId,
+      status: { $in: ["active", "expired"] },
+      bookingDate: {
+        $gte: bookingDateNorm,
+        $lt: new Date(bookingDateNorm.getTime() + 24 * 60 * 60 * 1000),
+      },
+    }).lean();
+
+    for (const cb of conflictingBookings) {
+      const exStart = timeToMinutes(cb.arrivalTime);
+      const exEnd   = timeToMinutes(cb.leavingTime);
+      if (exStart !== null && exEnd !== null && intervalsOverlap(newStartMins, newEndMins, exStart, exEnd)) {
+        return res.status(409).json({
+          success: false,
+          message: `Slot ${newSpot.slotNumber} has a conflicting booking from ${cb.arrivalTime} to ${cb.leavingTime}. Choose another slot or time window.`,
+        });
+      }
+    }
+
+    // ── Perform the reassignment ──────────────────────────────────────────────
+    const now = new Date();
+
+    booking.originalSpotId     = booking.spotId;
+    booking.originalSlotNumber = booking.slotNumber;
+    booking.spotId             = newSpot._id;
+    booking.slotNumber         = newSpot.slotNumber;
+    booking.zone               = newSpot.zone;
+    booking.newSlotId          = newSpot._id;
+    booking.newSlotNumber      = newSpot.slotNumber;
+    booking.status             = "active";
+    booking.isReassigned       = true;
+    booking.reassignedBy       = staffId;
+    booking.reassignedAt       = now;
+
+    await booking.save();
+
+    // ── Notify User B of the reassignment (real-time + DB) ─────────────────────────
+    try {
+      await createStudentNotification(
+        booking.studentId,
+        "Parking Slot Reassigned 🔄",
+        `Your parking slot has been reassigned to Slot ${newSpot.slotNumber} (${newSpot.zone}) by security due to overstay at your original slot (${booking.originalSlotNumber}). Please proceed to your new slot.`,
+        "slot_reassigned",
+        {
+          originalSlotNumber: booking.originalSlotNumber,
+          newSlotNumber: newSpot.slotNumber,
+          newZone: newSpot.zone,
+          reassignedBy: staffId,
+          reassignedAt: now,
+        }
+      );
+    } catch (notifErr) {
+      console.error("[Notification] Failed to create slot_reassigned notification:", notifErr.message);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Booking successfully reassigned from ${booking.originalSlotNumber} to ${newSpot.slotNumber}.`,
+      data: booking,
     });
   } catch (error) {
     next(error);
