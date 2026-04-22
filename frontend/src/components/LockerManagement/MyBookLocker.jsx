@@ -225,7 +225,7 @@ const MyBookLocker = () => {
         rightActions={
           <button
             onClick={() => navigate('/student-dashboard')}
-            className="px-5 py-2.5 bg-blue-500 text-white font-bold rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_20px_rgba(59,130,246,0.8)] border border-blue-300 transition-all duration-300 hover:scale-105 flex items-center gap-2"
+            className="px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-full shadow-[0_0_15px_rgba(79,70,229,0.5)] hover:shadow-[0_0_20px_rgba(79,70,229,0.8)] border border-indigo-300 transition-all duration-300 hover:scale-105 flex items-center gap-2"
           >
             <ArrowLeft size={18} /> Back to Dashboard
           </button>
@@ -233,8 +233,8 @@ const MyBookLocker = () => {
       />
       <div className="max-w-4xl mx-auto pt-10">
         <div className="mb-8">
-          <h1 className="text-4xl font-extrabold text-blue-900 drop-shadow-sm mb-2">My Locker Bookings</h1>
-          <p className="text-blue-100 font-medium">View and manage your current locker bookings</p>
+          <h1 className="text-4xl font-extrabold text-indigo-900 drop-shadow-sm mb-2">My Locker Bookings</h1>
+          <p className="text-indigo-600 font-medium opacity-80">View and manage your current locker bookings</p>
         </div>
 
         {bookings.length === 0 ? (
@@ -247,7 +247,7 @@ const MyBookLocker = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/lockers">
                 <button
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-transform hover:-translate-y-1 w-full sm:w-auto"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-transform hover:-translate-y-1 w-full sm:w-auto"
                 >
                   Book a Locker
                 </button>
@@ -269,7 +269,7 @@ const MyBookLocker = () => {
 
               return (
                 <div key={booking._id} className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/60">
-                  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white flex justify-between items-center relative overflow-hidden">
+                  <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 p-6 text-white flex justify-between items-center relative overflow-hidden">
                     <div className="z-10">
                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-2 ${booking.status === 'active'
                           ? 'bg-green-500/30 text-green-100'
@@ -278,7 +278,7 @@ const MyBookLocker = () => {
                         Status: {booking.status}
                       </span>
                       <h2 className="text-3xl font-extrabold tracking-tight">Locker {booking.lockerId}</h2>
-                      <p className="text-blue-100 font-medium opacity-90">{booking.locationName || 'Main Campus'}</p>
+                      <p className="text-indigo-100 font-medium opacity-90">{booking.locationName || 'Main Campus'}</p>
                     </div>
                     <div className="z-10">
                       <div className={`w-16 h-16 rounded-2xl flex items-center justify-center backdrop-blur-sm ${booking.status === 'active'
@@ -298,8 +298,8 @@ const MyBookLocker = () => {
                           Booking Date
                         </h3>
                         <p className="text-lg font-bold text-gray-800 mb-1">{displayDate}</p>
-                        <p className="text-gray-600 font-medium inline-flex items-center gap-2">
-                          <Clock size={16} className="text-blue-500" />
+                        <p className="text-indigo-600 font-medium inline-flex items-center gap-2">
+                          <Clock size={16} className="text-indigo-500" />
                           {booking.startTime} - {booking.endTime}
                         </p>
                       </div>
@@ -311,14 +311,14 @@ const MyBookLocker = () => {
                       </div>
                     </div>
 
-                    <div className="bg-blue-50/50 rounded-2xl p-6 border border-blue-100 mb-8">
+                    <div className="bg-indigo-50/50 rounded-2xl p-6 border border-indigo-100 mb-8">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <p className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">Booking Reference</p>
-                          <p className="font-mono text-lg font-black text-blue-900 tracking-wider">{booking._id.slice(-8).toUpperCase()}</p>
+                          <p className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Booking Reference</p>
+                          <p className="font-mono text-lg font-black text-indigo-900 tracking-wider">{booking._id.slice(-8).toUpperCase()}</p>
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">Student ID</p>
+                          <p className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Student ID</p>
                           <p className="font-mono text-gray-600 font-bold">{student?.studentId}</p>
                         </div>
                       </div>
@@ -327,7 +327,7 @@ const MyBookLocker = () => {
                     <div className="flex gap-4 mb-4">
                       <button
                         onClick={() => downloadReceipt(booking)}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl shadow-md transition-all hover:shadow-lg flex items-center justify-center gap-2"
+                        className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-6 rounded-xl shadow-md transition-all hover:shadow-lg flex items-center justify-center gap-2"
                       >
                         <Download size={20} />
                         Download Receipt

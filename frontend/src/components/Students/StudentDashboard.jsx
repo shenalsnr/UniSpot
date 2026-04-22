@@ -111,9 +111,9 @@ const StudentDashboard = () => {
           </div>
         </div>
 
-        {/* Dashboard Grid */}
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* Information Card */}
+          
           <div className="group p-6 bg-white rounded-3xl border border-black shadow-sm hover:shadow-xl hover:border-indigo-600 transition-all duration-300">
             <div className="flex items-center space-x-3 mb-6">
               <div className="p-3 rounded-2xl bg-blue-50 text-blue-600 group-hover:scale-110 transition-transform">

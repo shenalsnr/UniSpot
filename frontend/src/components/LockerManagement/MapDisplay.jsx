@@ -292,18 +292,18 @@ const MapDisplay = ({ map }) => {
             if (locker.selected)
               return {
                 card: locker.isMine
-                  ? 'border-blue-200 bg-blue-50/80 shadow-blue-100'
+                  ? 'border-indigo-200 bg-indigo-50/80 shadow-indigo-100'
                   : 'border-red-200 bg-red-50/80 shadow-red-100',
                 badge: locker.isMine
-                  ? 'bg-blue-100 text-blue-800 border border-blue-300'
+                  ? 'bg-indigo-100 text-indigo-800 border border-indigo-300'
                   : 'bg-red-100 text-red-700 border border-red-300',
                 icon: '',
                 label: locker.isMine ? 'My Booking' : 'Booked',
                 glow: ''
               };
             return {
-              card: 'border-blue-200 bg-blue-50/80 shadow-blue-100',
-              badge: 'bg-blue-100 text-blue-700 border border-blue-300',
+              card: 'border-indigo-200 bg-indigo-50/80 shadow-indigo-100',
+              badge: 'bg-indigo-100 text-indigo-700 border border-indigo-300',
               icon: '',
               label: 'Available',
               glow: ''
@@ -328,7 +328,7 @@ const MapDisplay = ({ map }) => {
 
               {/* Booking details */}
               {locker.selected && locker.isMine && (
-                <div className="text-sm text-blue-700 bg-blue-100 rounded-lg px-2 py-1 leading-snug">
+                <div className="text-sm text-indigo-700 bg-indigo-100 rounded-lg px-2 py-1 leading-snug">
                   <div>Date: {locker.date}</div>
                   <div>Time: {locker.startTime} - {locker.endTime}</div>
                 </div>
@@ -351,7 +351,7 @@ const MapDisplay = ({ map }) => {
                   ) : (
                     <button
                       onClick={() => handleSelect(locker.id)}
-                      className="w-full py-3 rounded-xl bg-linear-to-r from-blue-500 to-blue-500 text-white text-sm font-bold hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 hover:scale-105 shadow-md shadow-blue-300/40 flex items-center justify-center gap-1"
+                      className="w-full py-3 rounded-xl bg-linear-to-r from-indigo-600 to-indigo-600 text-white text-sm font-bold hover:from-indigo-700 hover:to-violet-700 transition-all duration-300 hover:scale-105 shadow-md shadow-indigo-300/40 flex items-center justify-center gap-1"
                     >
                       Book Another Slot
                     </button>
@@ -359,7 +359,7 @@ const MapDisplay = ({ map }) => {
                 ) : (
                   <button
                     onClick={() => handleSelect(locker.id)}
-                    className="w-full py-3 rounded-xl bg-linear-to-r from-blue-500 to-blue-500 text-white text-sm font-bold hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 hover:scale-105 shadow-md shadow-blue-300/40 flex items-center justify-center gap-1"
+                    className="w-full py-3 rounded-xl bg-linear-to-r from-indigo-600 to-indigo-600 text-white text-sm font-bold hover:from-indigo-700 hover:to-violet-700 transition-all duration-300 hover:scale-105 shadow-md shadow-indigo-300/40 flex items-center justify-center gap-1"
                   >
                     Book Locker
                   </button>

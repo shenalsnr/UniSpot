@@ -278,7 +278,7 @@ const AdminParkingRecords = () => {
       <div className="max-w-7xl mx-auto">
         {/* Main Header Topic */}
         <div className="mb-10 relative z-10">
-          <div className="bg-[oklch(48.8%_0.243_264.376)] text-white rounded-[26px] p-8 shadow-xl shadow-blue-500/20 border border-white/10 overflow-hidden relative">
+          <div className="bg-indigo-900 text-white rounded-[26px] p-8 shadow-xl shadow-indigo-900/20 border border-white/10 overflow-hidden relative">
             <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
             <div className="relative z-10">
               <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2 uppercase">Parking Records</h1>
@@ -291,12 +291,12 @@ const AdminParkingRecords = () => {
         </div>
 
         <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100">
-          <div className="p-6 border-b border-gray-100 bg-blue-50/40">
+          <div className="p-6 border-b border-gray-100 bg-indigo-50/40">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-              <h2 className="text-xl font-bold text-blue-900">System Records</h2>
+              <h2 className="text-xl font-bold text-indigo-900">System Records</h2>
               <button 
                 onClick={openAddModal}
-                className="bg-white text-blue-600 border border-blue-200 px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-[oklch(48.8%_0.243_264.376)] hover:text-white transition-colors whitespace-nowrap"
+                className="bg-white text-indigo-600 border border-indigo-200 px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-indigo-900 hover:text-white transition-colors whitespace-nowrap"
               >
                 + Add New Spot
               </button>
@@ -311,13 +311,13 @@ const AdminParkingRecords = () => {
                 <input
                   type="text"
                   placeholder="Search by Spot ID, Status, or Student ID..."
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[oklch(48.8%_0.243_264.376)] text-sm font-medium"
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
               <select 
-                className="border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-bold bg-white focus:outline-none focus:ring-2 focus:ring-[oklch(48.8%_0.243_264.376)] text-gray-700 min-w-[150px]"
+                className="border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-bold bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700 min-w-[150px]"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
               >
@@ -331,7 +331,7 @@ const AdminParkingRecords = () => {
           
           <div className="overflow-x-auto">
             {loading ? (
-              <div className="p-16 text-center text-blue-500 font-bold animate-pulse text-lg">Fetching records...</div>
+              <div className="p-16 text-center text-indigo-600 font-bold animate-pulse text-lg">Fetching records...</div>
             ) : (
               <table className="w-full text-left border-collapse">
                 <thead className="bg-gray-50 text-gray-500 text-xs font-extrabold uppercase tracking-widest border-b-2 border-gray-200">
@@ -344,8 +344,8 @@ const AdminParkingRecords = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {filteredSpots.map((spot) => (
-                    <tr key={spot._id} onClick={() => handleViewClick(spot)} className="hover:bg-blue-50/60 transition-colors duration-150 cursor-pointer">
-                      <td className="py-5 px-6 font-bold text-blue-900 text-lg">
+                    <tr key={spot._id} onClick={() => handleViewClick(spot)} className="hover:bg-indigo-50/60 transition-colors duration-150 cursor-pointer">
+                      <td className="py-5 px-6 font-bold text-indigo-900 text-lg">
                         {spot.slotNumber}
                       </td>
 
@@ -359,8 +359,8 @@ const AdminParkingRecords = () => {
                             <span className="w-2 h-2 rounded-full bg-green-500"></span> Occupied
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
-                            <span className="w-2 h-2 rounded-full bg-blue-500"></span> Available
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700">
+                            <span className="w-2 h-2 rounded-full bg-indigo-500"></span> Available
                           </span>
                         )}
                       </td>
@@ -378,7 +378,7 @@ const AdminParkingRecords = () => {
                         </button>
                         <button 
                           onClick={(e) => handleEditClick(spot, e)}
-                          className="text-blue-500 hover:text-blue-700 hover:bg-blue-100 px-3 py-1.5 rounded text-sm font-bold transition-colors"
+                          className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-100 px-3 py-1.5 rounded text-sm font-bold transition-colors"
                           title="Edit Spot"
                         >
                           Edit
@@ -435,7 +435,7 @@ const AdminParkingRecords = () => {
                   required
                   value={newSpot.zone} 
                   onChange={e => handleZoneChange(e.target.value)} 
-                  className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full border p-2 rounded focus:ring-2 focus:ring-indigo-500 outline-none"
                 >
                   <option value="">Select a Zone</option>
                   {AVAILABLE_ZONES.map(z => (
@@ -467,7 +467,7 @@ const AdminParkingRecords = () => {
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Vehicle Type</label>
-                <select value={newSpot.vehicleType} onChange={e => setNewSpot({...newSpot, vehicleType: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                <select value={newSpot.vehicleType} onChange={e => setNewSpot({...newSpot, vehicleType: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-indigo-500 outline-none">
                   <option value="Car">Car</option>
                   <option value="Motorcycle">Motorcycle</option>
                   <option value="Bicycle">Bicycle</option>
@@ -478,7 +478,7 @@ const AdminParkingRecords = () => {
                 <button 
                   type="submit" 
                   disabled={!newSpot.zone || !newSpot.slotNumber}
-                  className="px-5 py-2 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold rounded hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-5 py-2 bg-indigo-900 text-white font-bold rounded hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Save Spot
                 </button>
@@ -493,7 +493,7 @@ const AdminParkingRecords = () => {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="bg-white p-8 rounded-xl shadow-2xl max-w-lg w-full my-8">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-blue-900">Booking Details</h2>
+              <h2 className="text-2xl font-bold text-indigo-600">Booking Details</h2>
               <button onClick={() => setViewModalOpen(false)} className="text-gray-400 hover:text-gray-600">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
               </button>
@@ -552,7 +552,7 @@ const AdminParkingRecords = () => {
             </div>
             <div className="flex justify-end gap-3 mt-8 pt-4 border-t">
               <button onClick={() => setViewModalOpen(false)} className="px-5 py-2 text-gray-500 font-bold hover:bg-gray-100 rounded transition-colors">Close</button>
-              <button onClick={(e) => handleEditClick(selectedSpot, e)} className="px-5 py-2 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold rounded hover:opacity-90 transition-colors">Edit Record</button>
+              <button onClick={(e) => handleEditClick(selectedSpot, e)} className="px-5 py-2 bg-indigo-900 text-white font-bold rounded hover:opacity-90 transition-colors">Edit Record</button>
             </div>
           </div>
         </div>
@@ -571,20 +571,20 @@ const AdminParkingRecords = () => {
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Vehicle Number</label>
-                <input type="text" value={editForm.vehicleNumber} onChange={(e) => setEditForm({...editForm, vehicleNumber: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" placeholder="e.g. ABC 1234" />
+                <input type="text" value={editForm.vehicleNumber} onChange={(e) => setEditForm({...editForm, vehicleNumber: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="e.g. ABC 1234" />
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Reserved By (User ID)</label>
-                <input type="text" value={editForm.reservedBy} onChange={(e) => setEditForm({...editForm, reservedBy: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" required={editForm.isOccupied} />
+                <input type="text" value={editForm.reservedBy} onChange={(e) => setEditForm({...editForm, reservedBy: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-indigo-500 outline-none" required={editForm.isOccupied} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Arrival Time</label>
-                  <input type="time" value={editForm.arrivalTime} onChange={(e) => setEditForm({...editForm, arrivalTime: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" required={editForm.isOccupied} />
+                  <input type="time" value={editForm.arrivalTime} onChange={(e) => setEditForm({...editForm, arrivalTime: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-indigo-500 outline-none" required={editForm.isOccupied} />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Leaving Time</label>
-                  <input type="time" value={editForm.leavingTime} onChange={(e) => setEditForm({...editForm, leavingTime: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none" required={editForm.isOccupied} />
+                  <input type="time" value={editForm.leavingTime} onChange={(e) => setEditForm({...editForm, leavingTime: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-indigo-500 outline-none" required={editForm.isOccupied} />
                 </div>
               </div>
               <div>
@@ -595,7 +595,7 @@ const AdminParkingRecords = () => {
               </div>
               <div className="flex justify-end gap-3 mt-8 pt-4 border-t">
                 <button type="button" onClick={() => setEditModalOpen(false)} className="px-5 py-2 text-gray-500 font-bold hover:bg-gray-100 rounded transition-colors">Cancel</button>
-                <button type="submit" className="px-5 py-2 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold rounded hover:opacity-90 transition-colors">Save Changes</button>
+                <button type="submit" className="px-5 py-2 bg-indigo-900 text-white font-bold rounded hover:opacity-90 transition-colors">Save Changes</button>
               </div>
             </form>
           </div>
