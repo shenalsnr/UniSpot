@@ -3,6 +3,7 @@ import {
   getMyNotifications,
   markOneRead,
   markAllRead,
+  clearMyNotifications,
 } from "../controllers/notificationController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -10,7 +11,7 @@ const router = express.Router();
 
 // All notification routes require authentication
 // GET /api/notifications/ — get all notifications for logged-in student
-router.route("/").get(protect, getMyNotifications);
+router.route("/").get(protect, getMyNotifications).delete(protect, clearMyNotifications);
 
 // PUT /api/notifications/mark-all-read — mark all as read
 // IMPORTANT: This must be defined BEFORE /:id/read to avoid route conflicts

@@ -52,7 +52,7 @@ const parkingBookingSchema = new mongoose.Schema(
     // Lifecycle status
     status: {
       type: String,
-      enum: ["active", "completed", "expired", "cancelled"],
+      enum: ["active", "completed", "expired", "delayed", "cancelled", "waiting_for_slot"],
       default: "active",
     },
 
@@ -63,6 +63,16 @@ const parkingBookingSchema = new mongoose.Schema(
     },
     actualDepartureTime: {
       type: Date,
+      default: null,
+    },
+
+    // Security staff who performed the scan
+    arrivalScannedBy: {
+      type: String,
+      default: null,
+    },
+    departureScannedBy: {
+      type: String,
       default: null,
     },
 
@@ -79,6 +89,39 @@ const parkingBookingSchema = new mongoose.Schema(
     penaltyApplied: {
       type: Boolean,
       default: false,
+    },
+
+    // ── Overstay reassignment audit trail ──────────────────────────────────────
+    // Populated when security manually reassigns due to overstay conflict
+    originalSpotId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ParkingSpot",
+      default: null,
+    },
+    originalSlotNumber: {
+      type: String,
+      default: null,
+    },
+    isReassigned: {
+      type: Boolean,
+      default: false,
+    },
+    reassignedBy: {
+      type: String,   // staffID of the security officer
+      default: null,
+    },
+    reassignedAt: {
+      type: Date,
+      default: null,
+    },
+    newSlotId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ParkingSpot",
+      default: null,
+    },
+    newSlotNumber: {
+      type: String,
+      default: null,
     },
   },
   { timestamps: true }

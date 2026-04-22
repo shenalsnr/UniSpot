@@ -15,6 +15,30 @@ const navItems = [
       </svg>
     ),
   },
+  {
+    label: "Waiting Queue",
+    to: "/staff-dashboard/waiting-queue",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+    ),
+  },
+  {
+    label: "Locker Access",
+    to: "/staff-dashboard/lockerQR",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+        <rect x="3" y="3" width="7" height="7" />
+        <rect x="14" y="3" width="7" height="7" />
+        <rect x="3" y="14" width="7" height="7" />
+        <rect x="14" y="14" width="3" height="3" />
+        <line x1="21" y1="14" x2="21" y2="21" />
+        <line x1="14" y1="21" x2="21" y2="21" />
+      </svg>
+    ),
+  },
 ];
 
 const StaffSidebar = ({ collapsed, onToggle }) => {
@@ -34,7 +58,11 @@ const StaffSidebar = ({ collapsed, onToggle }) => {
           width: collapsed ? "72px" : "240px",
           transition: "width 0.3s cubic-bezier(0.4,0,0.2,1)",
           minHeight: "100vh",
-          background: "linear-gradient(180deg, oklch(48.8% 0.243 264.376) 0%, oklch(40% 0.22 264.376) 100%)",
+
+          background: "#1e1b4b", // Indigo 900 matching student dashboard theme
+
+          background: "linear-gradient(180deg, #312e81 0%, #1e1b4b 100%)",
+
           display: "flex",
           flexDirection: "column",
           position: "fixed",
@@ -58,30 +86,22 @@ const StaffSidebar = ({ collapsed, onToggle }) => {
             transition: "all 0.3s",
           }}
         >
-          {/* Logo in white circle — visible in both states */}
+          {/* Masked circle logo — visible in both states */}
           <div
             style={{
-              width: collapsed ? "40px" : "44px",
-              height: collapsed ? "40px" : "44px",
-              borderRadius: "50%",
-              background: "white",
+              width: collapsed ? "44px" : "48px",
+              height: collapsed ? "44px" : "48px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
-              boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
               transition: "all 0.3s",
             }}
           >
             <img
               src={logo}
               alt="UniSpot"
-              style={{
-                width: collapsed ? "28px" : "32px",
-                height: collapsed ? "28px" : "32px",
-                objectFit: "contain",
-                transition: "all 0.3s",
-              }}
+              className="w-full h-full rounded-full object-cover shadow-2xl border-2 border-white/30 transition-all duration-300 hover:scale-105"
             />
           </div>
 

@@ -11,6 +11,9 @@ const ParkingBookingForm = () => {
   
   const [spot, setSpot] = useState(location.state?.spot || null);
   const [loadingSpot, setLoadingSpot] = useState(!location.state?.spot);
+
+  // Pre-fill date from ParkingMap if passed through state
+  const preselectedDate = location.state?.preselectedDate || '';
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -19,7 +22,7 @@ const ParkingBookingForm = () => {
     studentId: '',
     phone: '',
     vehicleNumber: '',
-    bookingDate: '',
+    bookingDate: preselectedDate,
     arrivalTime: '',
     leavingTime: '',
     spotId: spotId || ''
@@ -29,6 +32,8 @@ const ParkingBookingForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [studentProfile, setStudentProfile] = useState(null);
+  // Stores existing time blocks for this slot on the chosen date (for user guidance)
+  const [existingBookings, setExistingBookings] = useState([]);
 
   useEffect(() => {
     if (!spot && spotId) {
@@ -93,10 +98,31 @@ const ParkingBookingForm = () => {
     }
   }, [spotId, formData.spotId]);
 
+  // Fetch existing bookings for this slot on the selected date (for guidance only)
+  useEffect(() => {
+    const fetchSlotBookings = async () => {
+      if (!formData.spotId || !formData.bookingDate) {
+        setExistingBookings([]);
+        return;
+      }
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/parking/${formData.spotId}/bookings?date=${formData.bookingDate}`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setExistingBookings(data.data || []);
+        }
+      } catch {
+        setExistingBookings([]);
+      }
+    };
+    fetchSlotBookings();
+  }, [formData.spotId, formData.bookingDate]);
+
   const downloadReceipt = () => {
     if (!studentProfile) return;
     
-    // Construct booking data object since this receipt hasn't been saved locally in the exact format yet
     const bookingData = {
       slotNumber: spot?.slotNumber,
       zone: spot?.zone,
@@ -144,12 +170,10 @@ const ParkingBookingForm = () => {
 
     if (!formData.spotId.trim()) newErrors.spotId = "Spot ID is required. Please select a spot from the map.";
     
-    // Student ID Validation (non-empty here)
     if (!formData.studentId.trim()) {
       newErrors.studentId = "Student ID is required.";
     }
 
-    // Email Validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email) {
       newErrors.email = "Email Address is required.";
@@ -157,7 +181,6 @@ const ParkingBookingForm = () => {
       newErrors.email = "Please enter a valid email address.";
     }
 
-    // Phone Validation(10 digits)
     const phoneRegex = /^[0-9]{10}$/;
     if (!formData.phone) {
       newErrors.phone = "Phone Number is required.";
@@ -182,7 +205,6 @@ const ParkingBookingForm = () => {
     setIsSubmitting(true);
     
     try {
-      // API call to backend
       const res = await fetch(`http://localhost:5000/api/parking/${formData.spotId}/reserve`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -193,7 +215,17 @@ const ParkingBookingForm = () => {
         setSuccess(true);
       } else {
         const errorData = await res.json();
-        setErrors({ submit: errorData.message || "Failed to book the spot. It may already be occupied." });
+        
+        if (res.status === 409) {
+          // Time overlap conflict — show specific message with conflict details
+          let conflictMsg = errorData.message || "This time slot conflicts with an existing booking.";
+          if (errorData.conflict) {
+            conflictMsg = `⏱ Time Conflict: This slot is already booked from ${errorData.conflict.existingArrival} to ${errorData.conflict.existingLeaving}. Please choose a different time window.`;
+          }
+          setErrors({ submit: conflictMsg });
+        } else {
+          setErrors({ submit: errorData.message || "Failed to book the spot. Please try again." });
+        }
       }
     } catch (err) {
       setErrors({ submit: "Server connection failed. Is the backend running?" });
@@ -218,7 +250,10 @@ const ParkingBookingForm = () => {
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
           </div>
           <h2 className="text-3xl font-extrabold text-blue-800 mb-2">Booking Confirmed!</h2>
-          <p className="text-gray-600 mb-6 font-medium">Your parking spot has been successfully secured.</p>
+          <p className="text-gray-600 mb-2 font-medium">Your parking slot has been successfully secured.</p>
+          <p className="text-sm text-gray-500 mb-6">
+            🕐 {formData.arrivalTime} – {formData.leavingTime} &nbsp;|&nbsp; 📅 {formData.bookingDate}
+          </p>
           <div className="flex flex-col gap-3">
             <button onClick={downloadReceipt} className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors w-full">Download Receipt PDF</button>
             <button onClick={() => navigate('/parking/zones')} className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-lg transition-colors w-full">Return to Map</button>
@@ -233,7 +268,7 @@ const ParkingBookingForm = () => {
       <div className="w-full max-w-xl bg-white rounded-xl shadow-xl p-8 border border-gray-100 mt-10">
         <div className="text-center mb-8 border-b border-gray-100 pb-5">
           <h1 className="text-3xl font-bold text-blue-700 tracking-tight">Booking Form</h1>
-          <p className="text-gray-500 text-sm mt-1 font-medium">Verify your details to secure your spot</p>
+          <p className="text-gray-500 text-sm mt-1 font-medium">Verify your details to secure your time slot</p>
         </div>
 
         {errors.submit && (
@@ -298,6 +333,21 @@ const ParkingBookingForm = () => {
                 {errors.leavingTime && <p className="text-red-500 text-xs font-bold mt-2">{errors.leavingTime}</p>}
               </div>
             </div>
+
+            {/* Existing bookings guidance panel */}
+            {existingBookings.length > 0 && (
+              <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-amber-800 text-xs font-bold mb-1">⚠️ Booked windows for this slot on {formData.bookingDate}:</p>
+                <div className="flex flex-wrap gap-2">
+                  {existingBookings.map((b, i) => (
+                    <span key={i} className="inline-block bg-amber-100 text-amber-800 text-xs font-mono font-bold px-2 py-1 rounded border border-amber-200">
+                      {b.arrivalTime} – {b.leavingTime}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-amber-600 text-xs mt-1">Your chosen time must not overlap with any of the above.</p>
+              </div>
+            )}
           </div>
 
           <div>

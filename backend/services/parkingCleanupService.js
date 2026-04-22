@@ -2,6 +2,7 @@ import ParkingSpot from "../models/ParkingSpot.js";
 import ParkingBooking from "../models/ParkingBooking.js";
 import Notification from "../models/Notification.js";
 import Student from "../models/Student.js";
+import { createStudentNotification } from "../utils/notificationHelper.js";
 
 /**
  * Parking Cleanup Service
@@ -70,18 +71,18 @@ export const startParkingCleanupJob = () => {
             //   b) Admin manually releases     (releaseParkingSpot controller)
             // ─────────────────────────────────────────────────────────────────
 
-            // Notify student: booking expired
-            await Notification.create({
-              userId: booking.studentId,
-              title: "Parking Booking Expired ⏰",
-              message: `Your parking booking for slot ${booking.slotNumber} (${booking.zone}) has expired without confirmed departure. The slot will remain reserved until Security confirms your departure.`,
-              type: "booking_expired",
-              metadata: {
+            // Notify student: booking expired (real-time)
+            await createStudentNotification(
+              booking.studentId,
+              "Parking Booking Expired ⏰",
+              `Your parking booking for slot ${booking.slotNumber} (${booking.zone}) has expired without confirmed departure. The slot will remain reserved until Security confirms your departure.`,
+              "booking_expired",
+              {
                 slotNumber: booking.slotNumber,
                 zone: booking.zone,
                 scheduledEnd: endTime,
-              },
-            });
+              }
+            );
 
             // ── PENALTY: deduct points (only once per booking) ────────────────
             if (!booking.penaltyApplied) {
@@ -106,31 +107,28 @@ export const startParkingCleanupJob = () => {
                   { $set: updateData }
                 );
 
-                // Notify: penalty applied
-                await Notification.create({
-                  userId: booking.studentId,
-                  title: "Parking Penalty Applied ⚠️",
-                  message: `${PENALTY_POINTS} parking points have been deducted due to expired parking without departure confirmation. Remaining points: ${newPoints}/10.`,
-                  type: "penalty_applied",
-                  metadata: {
+                // Notify: penalty applied (real-time)
+                await createStudentNotification(
+                  booking.studentId,
+                  "Parking Penalty Applied ⚠️",
+                  `${PENALTY_POINTS} parking points have been deducted due to expired parking without departure confirmation. Remaining points: ${newPoints}/10.`,
+                  "penalty_applied",
+                  {
                     slotNumber: booking.slotNumber,
                     zone: booking.zone,
                     pointsDeducted: PENALTY_POINTS,
                     remainingPoints: newPoints,
-                  },
-                });
+                  }
+                );
 
-                // Notify: student blocked (if points hit 0)
                 if (willBeBlocked) {
-                  await Notification.create({
-                    userId: booking.studentId,
-                    title: "Parking Access Suspended 🚫",
-                    message: "Your parking privileges have been suspended because your parking points have reached 0. Please contact administration to restore access.",
-                    type: "student_blocked",
-                    metadata: {
-                      remainingPoints: 0,
-                    },
-                  });
+                  await createStudentNotification(
+                    booking.studentId,
+                    "Parking Access Suspended 🚫",
+                    "Your parking privileges have been suspended because your parking points have reached 0. Please contact administration to restore access.",
+                    "student_blocked",
+                    { remainingPoints: 0 }
+                  );
                 }
 
                 console.log(
@@ -159,18 +157,19 @@ export const startParkingCleanupJob = () => {
               $set: { reminderSent: true },
             });
 
-            await Notification.create({
-              userId: booking.studentId,
-              title: "Parking Reminder ⏳",
-              message: `Reminder: Your parking booking for slot ${booking.slotNumber} (${booking.zone}) will end soon. Please show your QR to security when departing.`,
-              type: "booking_reminder",
-              metadata: {
+            // Pre-expiry reminder (real-time)
+            await createStudentNotification(
+              booking.studentId,
+              "Parking Reminder ⏳",
+              `Reminder: Your parking booking for slot ${booking.slotNumber} (${booking.zone}) will end soon. Please show your QR to security when departing.`,
+              "booking_reminder",
+              {
                 subtype: "expiring_soon",
                 slotNumber: booking.slotNumber,
                 zone: booking.zone,
                 scheduledEnd: endTime,
-              },
-            });
+              }
+            );
 
             console.log(`[Parking Service] Reminder sent: ${booking.slotNumber} | Student: ${booking.studentId}`);
           } catch (err) {

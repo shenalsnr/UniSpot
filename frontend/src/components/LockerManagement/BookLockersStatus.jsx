@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Lock } from "lucide-react";
 import AdminLayout from "../Admin/AdminLayout";
 
 const BookLockersStatus = () => {
@@ -32,22 +32,30 @@ const BookLockersStatus = () => {
   }, []);
 
   // Filter bookings based on search term
-  const filteredBookings = bookings.filter((booking) => {
-    const studentName = booking.student?.name || (booking.studentId && typeof booking.studentId === 'string' ? `Student ${booking.studentId.slice(-6)}` : "Student Not Found");
-    const studentId = booking.student?.studentId || (booking.studentId && typeof booking.studentId === 'string' ? booking.studentId : "N/A");
+  const filteredBookings = Array.isArray(bookings) ? bookings.filter((booking) => {
+    if (!booking) return false;
     
-    const searchLower = searchTerm.toLowerCase();
+    // Safely extract student details with fallbacks
+    const studentName = booking.student?.name || 
+                        (typeof booking.studentId === 'string' ? `Student ${booking.studentId.slice(-6)}` : "Student Not Found");
+    const studentId = booking.student?.studentId || 
+                      (typeof booking.studentId === 'string' ? booking.studentId : "N/A");
+    
+    const searchLower = (searchTerm || "").toLowerCase();
+    
     return (
-      studentName.toLowerCase().includes(searchLower) ||
-      studentId.toLowerCase().includes(searchLower)
+      String(studentName).toLowerCase().includes(searchLower) ||
+      String(studentId).toLowerCase().includes(searchLower)
     );
-  });
+  }) : [];
 
   if (loading) {
     return (
-      <div className="p-10 text-center font-semibold text-gray-500">
-        Loading all booking details...
-      </div>
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[60vh] text-gray-500 font-semibold">
+          Loading all booking details...
+        </div>
+      </AdminLayout>
     );
   }
 
@@ -60,18 +68,18 @@ const BookLockersStatus = () => {
         {/* Subtle Geometric Pattern */}
         <div className="fixed inset-0 opacity-3 pointer-events-none">
           <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 25% 25%, #3b82f6 0%, transparent 50%), radial-gradient(circle at 75% 75%, #6366f1 0%, transparent 50%)`,
+            backgroundImage: `radial-gradient(circle at 25% 25%, #6366f1 0%, transparent 50%), radial-gradient(circle at 75% 75%, #4f46e5 0%, transparent 50%)`,
             backgroundSize: '400px 400px, 400px 400px'
           }}></div>
         </div>
         
         {/* Professional Border Accents */}
-        <div className="fixed top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-blue-500 to-transparent opacity-20"></div>
-        <div className="fixed bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-indigo-500 to-transparent opacity-20"></div>
+        <div className="fixed top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-indigo-400 to-transparent opacity-20"></div>
+        <div className="fixed bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-indigo-400 to-transparent opacity-20"></div>
 
         {/* Main Header Topic */}
         <div className="w-full max-w-7xl mx-auto px-8 mt-10 mb-8 relative z-10">
-          <div className="bg-[oklch(48.8%_0.243_264.376)] text-white rounded-[26px] p-8 shadow-xl shadow-blue-500/20 border border-white/10 overflow-hidden relative">
+          <div className="bg-indigo-900 text-white rounded-[26px] p-8 shadow-xl shadow-indigo-900/20 border border-white/10 overflow-hidden relative">
             <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
             <div className="relative z-10">
               <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2 uppercase">Booking Status</h1>
@@ -98,9 +106,9 @@ const BookLockersStatus = () => {
             <div className="bg-white rounded-3xl shadow-xl p-8 mb-6 border border-slate-200/60">
               <h3 className="text-2xl font-bold text-slate-900 mb-5">Booking Statistics</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-blue-50/90 rounded-3xl p-5 border border-blue-100 shadow-sm">
-                  <div className="text-2xl font-black text-blue-700">{filteredBookings.length}</div>
-                  <div className="text-sm text-blue-800 mt-2">
+                <div className="bg-indigo-50/90 rounded-3xl p-5 border border-indigo-100 shadow-sm">
+                  <div className="text-2xl font-black text-indigo-700">{filteredBookings.length}</div>
+                  <div className="text-sm text-indigo-800 mt-2">
                     {searchTerm ? 'Filtered Bookings' : 'Total Bookings'}
                   </div>
                 </div>
@@ -139,11 +147,11 @@ const BookLockersStatus = () => {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => window.location.reload()}
-                    className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors"
+                    className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
                   >
                     Refresh Data
                   </button>
-                  <span className="inline-flex items-center rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]">
+                  <span className="inline-flex items-center rounded-full bg-indigo-50 text-indigo-700 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]">
                     {filteredBookings.length} {searchTerm ? 'Filtered' : 'Total'} Bookings
                   </span>
                 </div>
@@ -163,7 +171,7 @@ const BookLockersStatus = () => {
                       placeholder="Search by student name or ID..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm text-sm"
+                      className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm text-sm"
                     />
                     {searchTerm && (
                       <button

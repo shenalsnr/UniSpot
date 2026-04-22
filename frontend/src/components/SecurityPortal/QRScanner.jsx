@@ -214,13 +214,24 @@ const QRScanner = () => {
         setSuccess(`✓ Arrival recorded for ${data.data?.studentName || qrData}`);
       } else if (data.scanType === 'departure') {
         setSuccess(`✓ Departure confirmed for ${data.data?.studentName || qrData}`);
+      } else if (data.scanType === 'departure_overstay') {
+        setSuccess(`⚠️ Late departure recorded for ${data.data?.studentName || qrData}`);
+      } else if (data.scanType === 'waiting_for_slot') {
+        // No success toast — the result card handles guidance
       } else {
         setSuccess(data.message || '✓ Scan processed');
       }
       setManualInput('');
     } catch (err) {
-      setParkingScanResult(null);
-      setError(err.response?.data?.message || 'Error processing parking scan. Please try again.');
+      // Handle 400 rejections (early arrival, expired booking) — show as result card
+      const errData = err.response?.data;
+      if (errData && errData.scanType === 'rejected') {
+        setParkingScanResult(errData);
+        setError(errData.message);
+      } else {
+        setParkingScanResult(null);
+        setError(errData?.message || 'Error processing parking scan. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -237,7 +248,7 @@ const QRScanner = () => {
     setManualInput('');
     setError('');
     setSuccess('');
-    
+
     // Reset the cooldown flag to allow immediate next scan
     scanCooldownRef.current = false;
 
@@ -245,7 +256,7 @@ const QRScanner = () => {
     if (scanMode === 'camera') {
       // Stop the current scanner first
       await stopScanning();
-      
+
       // Give a small delay for cleanup to complete
       setTimeout(() => {
         startScanning();
@@ -347,6 +358,155 @@ const QRScanner = () => {
       );
     }
 
+    // ── OVERSTAY DEPARTURE ─────────────────────────────────────────────────
+    if (scanType === 'departure_overstay') {
+      return (
+        <div className="mb-8 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 rounded-2xl shadow-xl border-2 border-amber-400 p-8 backdrop-blur-xl">
+          <div className="text-center mb-6">
+            <div className="text-6xl mb-3">⚠️</div>
+            <h3 className="text-3xl font-black text-amber-800">Late Departure (Overstay)</h3>
+            <p className="text-amber-700 text-sm font-semibold mt-1">Slot Released — Departed After Scheduled Time</p>
+          </div>
+          <div className="space-y-3">
+            <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-amber-200">
+              <p className="text-xs font-bold text-slate-600 mb-1">STUDENT</p>
+              <p className="text-xl font-bold text-slate-800">{data?.studentName} <span className="text-sm text-slate-500 font-mono">({data?.studentId})</span></p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-amber-200">
+                <p className="text-xs font-bold text-slate-600 mb-1">SLOT RELEASED</p>
+                <p className="text-lg font-black text-amber-700">{data?.slotNumber}</p>
+              </div>
+              <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-amber-200">
+                <p className="text-xs font-bold text-slate-600 mb-1">ZONE</p>
+                <p className="text-sm font-bold text-slate-700">{data?.zone}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-amber-200">
+                <p className="text-xs font-bold text-slate-600 mb-1">SCHEDULED LEAVING</p>
+                <p className="text-sm font-bold text-red-600">{data?.leavingTime}</p>
+              </div>
+              <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-amber-200">
+                <p className="text-xs font-bold text-slate-600 mb-1">ACTUAL DEPARTURE</p>
+                <p className="text-sm font-bold text-amber-700">{data?.actualDepartureTime ? new Date(data.actualDepartureTime).toLocaleTimeString() : 'N/A'}</p>
+              </div>
+            </div>
+            <div className="bg-amber-200/60 rounded-xl p-4 border border-amber-300 text-center">
+              <p className="text-amber-900 font-black text-sm">⚠️ Student departed after scheduled leaving time. Penalty may have been applied.</p>
+            </div>
+          </div>
+          <button onClick={resetScan} className="w-full mt-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+            🔄 Scan Next
+          </button>
+        </div>
+      );
+    }
+
+    // ── REJECTED SCAN (early arrival, expired booking, etc.) ───────────────
+    if (scanType === 'rejected') {
+      return (
+        <div className="mb-8 bg-gradient-to-br from-rose-50 via-red-50 to-pink-50 rounded-2xl shadow-xl border-2 border-rose-400 p-8 backdrop-blur-xl">
+          <div className="text-center mb-6">
+            <div className="text-6xl mb-3">🚫</div>
+            <h3 className="text-3xl font-black text-rose-700">Scan Rejected</h3>
+          </div>
+          <div className="space-y-3">
+            <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-rose-200 text-center">
+              <p className="text-rose-800 font-bold">{message}</p>
+            </div>
+            {data && (
+              <>
+                <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-rose-200">
+                  <p className="text-xs font-bold text-slate-600 mb-1">STUDENT</p>
+                  <p className="text-xl font-bold text-slate-800">{data?.studentName} <span className="text-sm text-slate-500 font-mono">({data?.studentId})</span></p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-rose-200">
+                    <p className="text-xs font-bold text-slate-600 mb-1">SLOT</p>
+                    <p className="text-lg font-black text-rose-700">{data?.slotNumber}</p>
+                  </div>
+                  <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-rose-200">
+                    <p className="text-xs font-bold text-slate-600 mb-1">ZONE</p>
+                    <p className="text-sm font-bold text-slate-700">{data?.zone}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-rose-200">
+                    <p className="text-xs font-bold text-slate-600 mb-1">BOOKED ARRIVAL</p>
+                    <p className="text-sm font-bold text-slate-700">{data?.arrivalTime}</p>
+                  </div>
+                  <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-rose-200">
+                    <p className="text-xs font-bold text-slate-600 mb-1">BOOKED LEAVING</p>
+                    <p className="text-sm font-bold text-slate-700">{data?.leavingTime}</p>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+          <button onClick={resetScan} className="w-full mt-6 py-3 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+            🔄 Scan Next
+          </button>
+        </div>
+      );
+    }
+
+    // already_completed or other
+    if (scanType === 'waiting_for_slot') {
+      return (
+        <div className="mb-8 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 rounded-2xl shadow-xl border-2 border-amber-400 p-8 backdrop-blur-xl">
+          <div className="text-center mb-6">
+            <div className="text-6xl mb-3">⏳</div>
+            <h3 className="text-3xl font-black text-amber-800">Slot Occupied — Overstay</h3>
+            <p className="text-amber-700 text-sm font-semibold mt-1">Student placed in Waiting Queue</p>
+          </div>
+          <div className="space-y-3">
+            <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-amber-200">
+              <p className="text-xs font-bold text-slate-600 mb-1">STUDENT</p>
+              <p className="text-xl font-bold text-slate-800">
+                {data?.studentName}{' '}
+                <span className="text-sm text-slate-500 font-mono">({data?.studentId})</span>
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-amber-200">
+                <p className="text-xs font-bold text-slate-600 mb-1">ORIGINAL SLOT</p>
+                <p className="text-lg font-black text-amber-700">{data?.slotNumber}</p>
+              </div>
+              <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-amber-200">
+                <p className="text-xs font-bold text-slate-600 mb-1">ZONE</p>
+                <p className="text-sm font-bold text-slate-700">{data?.zone}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-amber-200">
+                <p className="text-xs font-bold text-slate-600 mb-1">BOOKED ARRIVAL</p>
+                <p className="text-sm font-bold text-slate-700">{data?.arrivalTime}</p>
+              </div>
+              <div className="bg-white/80 backdrop-blur-lg rounded-xl p-4 border border-amber-200">
+                <p className="text-xs font-bold text-slate-600 mb-1">BOOKED LEAVING</p>
+                <p className="text-sm font-bold text-slate-700">{data?.leavingTime}</p>
+              </div>
+            </div>
+            <div className="bg-amber-200/60 rounded-xl p-4 border border-amber-300 text-center">
+              <p className="text-amber-900 font-black text-sm">
+                ⚠️ Tell the student their slot is occupied due to overstay.
+              </p>
+              <p className="text-amber-800 font-semibold text-xs mt-1">
+                Go to <strong>⏳ Waiting Queue</strong> tab → select this student → reassign to a free slot.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={resetScan}
+            className="w-full mt-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+          >
+            🔄 Scan Next
+          </button>
+        </div>
+      );
+    }
+
     // already_completed or other
     return (
       <div className="mb-8 bg-white/90 rounded-2xl shadow-xl border-2 border-slate-200 p-8">
@@ -388,21 +548,19 @@ const QRScanner = () => {
       <div className="flex justify-center gap-4">
         <button
           onClick={() => setScanMode('camera')}
-          className={`py-3 px-6 rounded-xl font-bold text-base transition-all duration-300 transform hover:scale-105 flex-shrink-0 ${
-            scanMode === 'camera'
-              ? 'bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg'
-              : 'bg-white border-2 border-slate-300 text-slate-800 hover:border-blue-400'
-          }`}
+          className={`py-3 px-6 rounded-xl font-bold text-base transition-all duration-300 transform hover:scale-105 flex-shrink-0 ${scanMode === 'camera'
+              ? 'bg-indigo-600 text-white shadow-lg'
+              : 'bg-white border-2 border-slate-300 text-slate-800 hover:border-indigo-400'
+            }`}
         >
           📷 Camera Scan
         </button>
         <button
           onClick={() => setScanMode('manual')}
-          className={`py-3 px-6 rounded-xl font-bold text-base transition-all duration-300 transform hover:scale-105 flex-shrink-0 ${
-            scanMode === 'manual'
-              ? 'bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg'
-              : 'bg-white border-2 border-slate-300 text-slate-800 hover:border-blue-400'
-          }`}
+          className={`py-3 px-6 rounded-xl font-bold text-base transition-all duration-300 transform hover:scale-105 flex-shrink-0 ${scanMode === 'manual'
+              ? 'bg-indigo-600 text-white shadow-lg'
+              : 'bg-white border-2 border-slate-300 text-slate-800 hover:border-indigo-400'
+            }`}
         >
           ⌨️ Manual Entry
         </button>
@@ -422,10 +580,10 @@ const QRScanner = () => {
                 border-radius: 1rem !important;
               }
             `}</style>
-            
+
             <div
               id="qr-scanner-container"
-              style={{ 
+              style={{
                 minHeight: '400px',
                 background: '#000',
                 borderRadius: '1rem',
@@ -445,29 +603,29 @@ const QRScanner = () => {
       {scanMode === 'manual' && (
         <div className="flex justify-center">
           <div className="bg-white rounded-2xl shadow-md border border-slate-200 p-8 w-full max-w-2xl">
-          <form onSubmit={handleManualSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-bold text-slate-700 mb-2">
-                Student ID (from QR)
-              </label>
-              <input
-                type="text"
-                value={manualInput}
-                onChange={(e) => setManualInput(e.target.value)}
-                placeholder="E.g., IT21345678"
-                disabled={loading}
-                className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 font-semibold text-lg text-slate-800"
-              />
-            </div>
+            <form onSubmit={handleManualSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2">
+                  Student ID (from QR)
+                </label>
+                <input
+                  type="text"
+                  value={manualInput}
+                  onChange={(e) => setManualInput(e.target.value)}
+                  placeholder="E.g., IT21345678"
+                  disabled={loading}
+                  className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 font-semibold text-lg text-slate-800"
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-4 disabled:opacity-50 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 bg-emerald-600 hover:bg-emerald-700"
-            >
-              {loading ? '⏳ Processing...' : '🚗 Scan Parking QR'}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 disabled:opacity-50 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 bg-indigo-900 hover:bg-indigo-800"
+              >
+                {loading ? '⏳ Processing...' : '🚗 Scan Parking QR'}
+              </button>
+            </form>
           </div>
         </div>
       )}

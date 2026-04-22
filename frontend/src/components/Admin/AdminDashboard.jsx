@@ -12,7 +12,7 @@ const getPointsColor = (points) => {
 
 // 🚦 Status badge
 const getStatusBadge = (status) => {
-  if (status === "Blocked") {
+  if (status?.toLowerCase() === "blocked") {
     return (
       <span className="px-2 py-1 text-xs font-bold bg-red-100 text-red-600 rounded-full">
         🚫 Blocked
@@ -52,8 +52,17 @@ const AdminDashboard = () => {
     try {
       const { data } = await adminApi.get(`/admin/students/${id}`);
       setSelectedStudent(data);
-    } catch {
-      setMessage("Failed to load student");
+    } catch (error) {
+      if (error.response?.status === 404) {
+        // Student has been deleted, remove from list
+        setStudents((prev) => prev.filter((s) => s._id !== id));
+        setSelectedStudent(null);
+        setMessageType("error");
+        setMessage("Student account has been deleted");
+      } else {
+        setMessageType("error");
+        setMessage("Failed to load student");
+      }
     }
   };
 
@@ -66,10 +75,16 @@ const AdminDashboard = () => {
       const { data } = await adminApi.put(`/admin/students/block/${id}`, {
         blockReason: reason,
       });
+      setMessageType("success");
       setMessage(data.message);
       fetchStudents();
-    } catch {
-      setMessage("Block failed");
+      // Refresh selected student details if viewing this student
+      if (selectedStudent?._id === id) {
+        viewStudentDetails(id);
+      }
+    } catch (error) {
+      setMessageType("error");
+      setMessage(error.response?.data?.message || "Block failed");
     }
   };
 
@@ -77,10 +92,16 @@ const AdminDashboard = () => {
   const unblockStudent = async (id) => {
     try {
       const { data } = await adminApi.put(`/admin/students/unblock/${id}`);
+      setMessageType("success");
       setMessage(data.message);
       fetchStudents();
-    } catch {
-      setMessage("Unblock failed");
+      // Refresh selected student details if viewing this student
+      if (selectedStudent?._id === id) {
+        viewStudentDetails(id);
+      }
+    } catch (error) {
+      setMessageType("error");
+      setMessage(error.response?.data?.message || "Unblock failed");
     }
   };
 
@@ -91,6 +112,7 @@ const AdminDashboard = () => {
 
     const restoreAmount = parseInt(points, 10);
     if (isNaN(restoreAmount) || restoreAmount < 1 || restoreAmount > 10) {
+      setMessageType("error");
       setMessage("Invalid amount. Please enter a number between 1 and 10");
       return;
     }
@@ -100,10 +122,12 @@ const AdminDashboard = () => {
         `/admin/students/restore-points/${id}`,
         { points: restoreAmount }
       );
+      setMessageType("success");
       setMessage(data.message);
       viewStudentDetails(id); // Refresh selected student
       fetchStudents();
     } catch (error) {
+      setMessageType("error");
       setMessage(
         error.response?.data?.message || "Failed to restore points"
       );
@@ -120,10 +144,12 @@ const AdminDashboard = () => {
       const { data } = await adminApi.put(
         `/admin/students/reset-points/${id}`
       );
+      setMessageType("success");
       setMessage(data.message);
       viewStudentDetails(id); // Refresh selected student
       fetchStudents();
     } catch (error) {
+      setMessageType("error");
       setMessage(error.response?.data?.message || "Failed to reset points");
     }
   };
@@ -138,13 +164,22 @@ const AdminDashboard = () => {
   return (
     <AdminLayout>
       {/* Header */}
-      <div className="bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 text-white rounded-[26px] p-6 md:p-8 shadow-xl shadow-blue-900/20 mb-6">
-        <h1 className="m-0 mb-2 text-3xl md:text-4xl font-extrabold tracking-tight">
-          Admin Dashboard
-        </h1>
-        <p className="m-0 text-blue-50 opacity-95 text-lg">
-          View and manage registered students, parking points, and access.
-        </p>
+      <div className="bg-indigo-900 text-white rounded-[26px] p-6 md:p-8 shadow-xl shadow-indigo-900/20 mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="m-0 mb-2 text-3xl md:text-4xl font-extrabold tracking-tight">
+            Admin Dashboard
+          </h1>
+          <p className="m-0 text-indigo-50 opacity-90 text-lg">
+            View and manage registered students, parking points, and access.
+          </p>
+        </div>
+        <button
+          onClick={fetchStudents}
+          className="bg-white/20 hover:bg-white/30 text-white font-semibold py-2.5 px-4 rounded-xl transition-all shadow-sm whitespace-nowrap"
+          title="Refresh student list"
+        >
+          🔄 Refresh
+        </button>
       </div>
 
       {/* Status message */}
@@ -170,7 +205,7 @@ const AdminDashboard = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name or ID..."
-            className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-blue-400 text-sm font-medium mb-4 transition-colors"
+            className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-sm font-medium mb-4 transition-colors"
           />
 
           <div className="flex flex-col gap-3 max-h-[600px] overflow-y-auto pr-1">
@@ -178,9 +213,9 @@ const AdminDashboard = () => {
               <div
                 key={student._id}
                 className={`p-4 rounded-2xl border shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 flex flex-col gap-2 ${selectedStudent?._id === student._id
-                  ? "bg-blue-50 border-blue-300"
-                  : "bg-slate-50 border-slate-100 hover:bg-white"
-                  }`}
+                   ? "bg-indigo-50 border-indigo-300"
+                   : "bg-slate-50 border-slate-100 hover:bg-white"
+                   }`}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
@@ -197,8 +232,8 @@ const AdminDashboard = () => {
                   </span>
                 </div>
 
-                <button
-                  className="bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 text-white font-semibold py-2 px-5 rounded-xl transition-all shadow-sm mt-1 w-full sm:w-auto text-sm"
+                 <button
+                  className="bg-indigo-900 hover:bg-indigo-800 text-white font-semibold py-2 px-5 rounded-xl transition-all shadow-sm mt-1 w-full sm:w-auto text-sm"
                   onClick={() => viewStudentDetails(student._id)}
                 >
                   View Details
@@ -256,7 +291,7 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
-                {selectedStudent.status === "blocked" && (
+                {selectedStudent.status?.toLowerCase() === "blocked" && (
                   <div className="mt-1 p-3 bg-red-50 border border-red-200 rounded-xl">
                     <p className="text-xs font-bold text-red-700 mb-0.5">🚫 Block Reason</p>
                     <p className="text-xs text-red-600 m-0">{selectedStudent.blockReason || "No reason provided"}</p>
@@ -291,10 +326,10 @@ const AdminDashboard = () => {
               {/* Action buttons */}
               <div className="mt-2 flex flex-col gap-3">
                 {/* Primary: Restore Points */}
-                <button
+                 <button
                   onClick={() => restoreParkingPoints(selectedStudent._id)}
                   disabled={(selectedStudent.marks ?? 10) >= 10}
-                  className="w-full py-3 px-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                  className="w-full py-3 px-5 bg-indigo-900 hover:bg-indigo-800 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
                 >
                   {(selectedStudent.marks ?? 10) >= 10
                     ? "✓ Points at Maximum (10/10)"
@@ -303,7 +338,7 @@ const AdminDashboard = () => {
 
                 {/* Secondary actions */}
                 <div className="flex flex-wrap gap-2">
-                  {selectedStudent.status !== "blocked" ? (
+                  {selectedStudent.status?.toLowerCase() !== "blocked" ? (
                     <button
                       className="flex-1 bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2.5 px-4 rounded-xl transition-colors shadow-sm text-sm"
                       onClick={() => blockStudent(selectedStudent._id)}

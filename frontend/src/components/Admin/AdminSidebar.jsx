@@ -16,7 +16,7 @@ const navItems = [
     ),
   },
   {
-    label: "Locker Map",
+    label: "Add Locker Map",
     to: "/AdminLockerMap",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
@@ -36,7 +36,7 @@ const navItems = [
     ),
   },
   {
-    label: "Locker Bookings",
+    label: "Locker Bookings Status",
     to: "/BookLockersStatus",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
@@ -60,7 +60,7 @@ const navItems = [
   },
   {
     label: "Security Staff",
-    to: "/parking/admin/staff",
+    to: "/staff-register",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -87,7 +87,7 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
           width: collapsed ? "72px" : "240px",
           transition: "width 0.3s cubic-bezier(0.4,0,0.2,1)",
           minHeight: "100vh",
-          background: "linear-gradient(180deg, oklch(48.8% 0.243 264.376) 0%, oklch(40% 0.22 264.376) 100%)",
+          background: "#1e1b4b", // Indigo 900
           display: "flex",
           flexDirection: "column",
           position: "fixed",
@@ -111,30 +111,22 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
             transition: "all 0.3s",
           }}
         >
-          {/* Logo in white circle — visible in both states */}
+          {/* Masked circle logo — visible in both states */}
           <div
             style={{
-              width: collapsed ? "40px" : "44px",
-              height: collapsed ? "40px" : "44px",
-              borderRadius: "50%",
-              background: "white",
+              width: collapsed ? "54px" : "58px",
+              height: collapsed ? "54px" : "58px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
-              boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
               transition: "all 0.3s",
             }}
           >
             <img
               src={logo}
               alt="UniSpot"
-              style={{
-                width: collapsed ? "28px" : "32px",
-                height: collapsed ? "28px" : "32px",
-                objectFit: "contain",
-                transition: "all 0.3s",
-              }}
+              className="w-full h-full rounded-full object-cover shadow-2xl border-2 border-white/30 transition-all duration-300 hover:scale-105"
             />
           </div>
 
@@ -187,11 +179,17 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
         {/* Nav Items */}
         <nav style={{ flex: 1, padding: "16px 8px", display: "flex", flexDirection: "column", gap: "4px" }}>
           {navItems.map((item) => {
-            const isActive = location.pathname === item.to;
+            // Case-insensitive matching with trailing slash safety
+            const currentPath = location.pathname.toLowerCase().replace(/\/$/, "");
+            const itemPath = item.to.toLowerCase().replace(/\/$/, "");
+            const isActive = currentPath === itemPath;
+
             return (
               <button
                 key={item.to}
-                onClick={() => navigate(item.to)}
+                onClick={() => {
+                  if (!isActive) navigate(item.to);
+                }}
                 title={collapsed ? item.label : undefined}
                 style={{
                   display: "flex",
