@@ -315,6 +315,7 @@ const MapDisplay = ({ map }) => {
           return (
             <div
               key={locker.id}
+              data-testid={`locker-${locker.id}`}
               className={`border-2 rounded-3xl p-6 transition-all duration-300 hover:scale-105 hover:-translate-y-1 ${style.card} ${style.glow} flex flex-col gap-3 min-h-50`}
             >
               {/* Locker ID + status badge */}

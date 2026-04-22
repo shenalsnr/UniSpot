@@ -202,12 +202,12 @@ const ParkingMap = () => {
                       onClick={() => handleSpotSelect(spot)}
                       onMouseEnter={() => setHoveredSpot(spot._id)}
                       onMouseLeave={() => setHoveredSpot(null)}
+                      data-testid={`slot-${spot.slotNumber}`}
                       className={`
                         relative h-32 rounded-xl flex flex-col items-center justify-center transition-all duration-200 border-2
-                        ${
-                          state === "maintenance"
-                            ? "bg-red-50 border-red-200 text-red-700 cursor-not-allowed opacity-80"
-                            : state === "partial"
+                        ${state === "maintenance"
+                          ? "bg-red-50 border-red-200 text-red-700 cursor-not-allowed opacity-80"
+                          : state === "partial"
                             ? "bg-amber-50 border-amber-300 text-amber-800 cursor-pointer hover:bg-amber-400 hover:text-white hover:border-amber-400 hover:shadow-lg hover:-translate-y-1"
                             : "bg-blue-50 border-blue-200 text-blue-700 cursor-pointer hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:shadow-lg hover:-translate-y-1"
                         }
@@ -216,8 +216,8 @@ const ParkingMap = () => {
                         state === "maintenance"
                           ? "This slot is under maintenance"
                           : state === "partial"
-                          ? `${bookings.length} booking(s) on this date — other windows available`
-                          : "Click to book this slot"
+                            ? `${bookings.length} booking(s) on this date — other windows available`
+                            : "Click to book this slot"
                       }
                     >
                       <span className="text-2xl font-black">{spot.slotNumber}</span>

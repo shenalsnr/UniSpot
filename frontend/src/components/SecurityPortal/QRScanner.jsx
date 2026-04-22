@@ -272,7 +272,7 @@ const QRScanner = () => {
 
     if (scanType === 'arrival') {
       return (
-        <div className="mb-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50 rounded-2xl shadow-xl border-2 border-blue-300 p-8 backdrop-blur-xl">
+        <div data-testid="arrival-result-card" className="mb-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50 rounded-2xl shadow-xl border-2 border-blue-300 p-8 backdrop-blur-xl">
           <div className="text-center mb-6">
             <div className="text-6xl mb-3">🚗</div>
             <h3 className="text-3xl font-black text-blue-700">Arrival Recorded</h3>
@@ -307,7 +307,7 @@ const QRScanner = () => {
               <p className="text-blue-800 font-bold text-sm">📲 Scan this QR again when student departs to confirm departure</p>
             </div>
           </div>
-          <button onClick={resetScan} className="w-full mt-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+          <button onClick={resetScan} data-testid="scan-next-btn" className="w-full mt-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
             🔄 Scan Next
           </button>
         </div>
@@ -316,7 +316,7 @@ const QRScanner = () => {
 
     if (scanType === 'departure') {
       return (
-        <div className="mb-8 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl shadow-xl border-2 border-emerald-300 p-8 backdrop-blur-xl">
+        <div data-testid="departure-result-card" className="mb-8 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 rounded-2xl shadow-xl border-2 border-emerald-300 p-8 backdrop-blur-xl">
           <div className="text-center mb-6">
             <div className="text-6xl mb-3 animate-bounce">✅</div>
             <h3 className="text-3xl font-black text-emerald-700">Departure Confirmed</h3>
@@ -548,6 +548,7 @@ const QRScanner = () => {
       <div className="flex justify-center gap-4">
         <button
           onClick={() => setScanMode('camera')}
+          data-testid="camera-mode-btn"
           className={`py-3 px-6 rounded-xl font-bold text-base transition-all duration-300 transform hover:scale-105 flex-shrink-0 ${scanMode === 'camera'
               ? 'bg-indigo-600 text-white shadow-lg'
               : 'bg-white border-2 border-slate-300 text-slate-800 hover:border-indigo-400'
@@ -557,6 +558,7 @@ const QRScanner = () => {
         </button>
         <button
           onClick={() => setScanMode('manual')}
+          data-testid="manual-mode-btn"
           className={`py-3 px-6 rounded-xl font-bold text-base transition-all duration-300 transform hover:scale-105 flex-shrink-0 ${scanMode === 'manual'
               ? 'bg-indigo-600 text-white shadow-lg'
               : 'bg-white border-2 border-slate-300 text-slate-800 hover:border-indigo-400'
@@ -611,6 +613,7 @@ const QRScanner = () => {
                 <input
                   type="text"
                   value={manualInput}
+                  data-testid="qr-manual-input"
                   onChange={(e) => setManualInput(e.target.value)}
                   placeholder="E.g., IT21345678"
                   disabled={loading}
@@ -621,6 +624,7 @@ const QRScanner = () => {
               <button
                 type="submit"
                 disabled={loading}
+                data-testid="qr-submit-btn"
                 className="w-full py-4 disabled:opacity-50 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 bg-indigo-900 hover:bg-indigo-800"
               >
                 {loading ? '⏳ Processing...' : '🚗 Scan Parking QR'}

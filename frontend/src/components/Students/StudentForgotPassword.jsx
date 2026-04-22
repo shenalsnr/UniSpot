@@ -77,6 +77,7 @@ const StudentForgotPassword = () => {
               <input
                 type="text"
                 placeholder="Student ID"
+                data-testid="forgot-student-id-input"
                 value={studentId}
                 onChange={(e) => setStudentId(e.target.value)}
                 required
@@ -85,6 +86,7 @@ const StudentForgotPassword = () => {
               <input
                 type="text"
                 placeholder="Registered Phone Number"
+                data-testid="forgot-phone-input"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 required
@@ -92,6 +94,7 @@ const StudentForgotPassword = () => {
               />
               <button
                 type="submit"
+                data-testid="send-otp-button"
                 className="w-full bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-blue-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/30 hover:opacity-90"
               >
                 Send OTP
@@ -102,6 +105,7 @@ const StudentForgotPassword = () => {
               <input
                 type="text"
                 placeholder="Enter OTP"
+                data-testid="forgot-otp-input"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
                 required
@@ -112,6 +116,7 @@ const StudentForgotPassword = () => {
                 <input
                   type={showNewPassword ? "text" : "password"}
                   placeholder="New Password"
+                  data-testid="forgot-new-password-input"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
@@ -128,6 +133,7 @@ const StudentForgotPassword = () => {
 
               <button
                 type="submit"
+                data-testid="reset-password-button"
                 className="w-full bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-blue-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/30 hover:opacity-90"
               >
                 Reset Password

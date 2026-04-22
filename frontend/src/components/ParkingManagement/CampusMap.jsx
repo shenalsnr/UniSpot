@@ -100,6 +100,7 @@ export default function CampusMap() {
                     width={zone.width}
                     height={zone.height}
                     className={zoneClass}
+                    data-testid={zone.id}
                     onClick={() => handleZoneClick(zone)}
                   >
                     <title>{zone.label}</title>
@@ -112,6 +113,7 @@ export default function CampusMap() {
                   key={zone.id}
                   points={zone.points}
                   className={zoneClass}
+                  data-testid={zone.id}
                   onClick={() => handleZoneClick(zone)}
                 >
                   <title>{zone.label}</title>

@@ -30,7 +30,7 @@ const StudentLogin = () => {
   return (
     <>
       <PublicNavbar links={[{ to: "/", label: "Home" }]} hideLogin={true} />
-      
+
       <div className="min-h-[calc(100vh-100px)] flex items-center justify-center p-6 bg-linear-to-br from-slate-50 via-blue-50 to-white relative overflow-hidden">
         {/* Decorative background circles */}
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-600/5 rounded-full blur-3xl"></div>
@@ -56,6 +56,7 @@ const StudentLogin = () => {
                 onChange={(e) => setStudentId(e.target.value)}
                 required
                 className="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50/50 text-base text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/5"
+                data-testid="student-id"
               />
             </div>
 
@@ -69,6 +70,7 @@ const StudentLogin = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   className="w-full px-5 py-4 pr-14 rounded-2xl border border-slate-200 bg-slate-50/50 text-base text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/5"
+                  data-testid="password"
                 />
                 <button
                   type="button"
@@ -85,7 +87,7 @@ const StudentLogin = () => {
             </div>
           </div>
 
-          <button type="submit" className="w-full mt-4 bg-[oklch(48.8%_0.243_264.376)] text-white shadow-xl shadow-blue-600/20 rounded-2xl px-4 py-4 font-black text-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:opacity-95">Login Now</button>
+          <button type="submit" data-testid="login-btn" className="w-full mt-4 bg-[oklch(48.8%_0.243_264.376)] text-white shadow-xl shadow-blue-600/20 rounded-2xl px-4 py-4 font-black text-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:opacity-95">Login Now</button>
 
           <div className="flex flex-col gap-4 mt-2">
             <Link to="/student-register" className="w-full bg-slate-50 text-slate-700 border border-slate-200 shadow-sm rounded-2xl px-4 py-4 font-bold text-center transition-all duration-300 hover:bg-slate-100 hover:text-slate-900 leading-none">
@@ -99,7 +101,7 @@ const StudentLogin = () => {
           </div>
         </form>
       </div>
-      
+
     </>
   );
 };

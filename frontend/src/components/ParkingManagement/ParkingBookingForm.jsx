@@ -8,13 +8,13 @@ const ParkingBookingForm = () => {
   const { spotId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [spot, setSpot] = useState(location.state?.spot || null);
   const [loadingSpot, setLoadingSpot] = useState(!location.state?.spot);
 
   // Pre-fill date from ParkingMap if passed through state
   const preselectedDate = location.state?.preselectedDate || '';
-  
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -68,7 +68,7 @@ const ParkingBookingForm = () => {
           const names = data.name ? data.name.split(' ') : [''];
           const firstName = names[0] || '';
           const lastName = names.length > 1 ? names.slice(1).join(' ') : '';
-          
+
           let curVehicleNumber = '';
           if (data.vehicleRegistered && data.vehicle) {
             curVehicleNumber = `${data.vehicle.regLetters}-${data.vehicle.regNumbers}`;
@@ -122,7 +122,7 @@ const ParkingBookingForm = () => {
 
   const downloadReceipt = () => {
     if (!studentProfile) return;
-    
+
     const bookingData = {
       slotNumber: spot?.slotNumber,
       zone: spot?.zone,
@@ -132,13 +132,13 @@ const ParkingBookingForm = () => {
       arrivalTime: formData.arrivalTime,
       leavingTime: formData.leavingTime,
     };
-    
+
     generateParkingReceipt(bookingData, studentProfile, logoSrc);
   };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    
+
     if (errors[e.target.name]) {
       setErrors({ ...errors, [e.target.name]: null });
     }
@@ -148,7 +148,7 @@ const ParkingBookingForm = () => {
     const newErrors = {};
     if (!formData.firstName.trim()) newErrors.firstName = "First Name is required.";
     if (!formData.lastName.trim()) newErrors.lastName = "Last Name is required.";
-    
+
     if (!formData.bookingDate) {
       newErrors.bookingDate = "Booking date is required.";
     } else {
@@ -157,11 +157,11 @@ const ParkingBookingForm = () => {
         newErrors.bookingDate = "Booking date cannot be in the past.";
       }
     }
-    
+
     if (!formData.arrivalTime) {
       newErrors.arrivalTime = "Arrival time is required.";
     }
-    
+
     if (!formData.leavingTime) {
       newErrors.leavingTime = "Leaving time is required.";
     } else if (formData.arrivalTime && formData.leavingTime <= formData.arrivalTime) {
@@ -169,7 +169,7 @@ const ParkingBookingForm = () => {
     }
 
     if (!formData.spotId.trim()) newErrors.spotId = "Spot ID is required. Please select a spot from the map.";
-    
+
     if (!formData.studentId.trim()) {
       newErrors.studentId = "Student ID is required.";
     }
@@ -201,9 +201,9 @@ const ParkingBookingForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const res = await fetch(`http://localhost:5000/api/parking/${formData.spotId}/reserve`, {
         method: 'PUT',
@@ -215,7 +215,7 @@ const ParkingBookingForm = () => {
         setSuccess(true);
       } else {
         const errorData = await res.json();
-        
+
         if (res.status === 409) {
           // Time overlap conflict — show specific message with conflict details
           let conflictMsg = errorData.message || "This time slot conflicts with an existing booking.";
@@ -230,7 +230,7 @@ const ParkingBookingForm = () => {
     } catch (err) {
       setErrors({ submit: "Server connection failed. Is the backend running?" });
     }
-    
+
     setIsSubmitting(false);
   };
 
@@ -249,7 +249,7 @@ const ParkingBookingForm = () => {
           <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
           </div>
-          <h2 className="text-3xl font-extrabold text-blue-800 mb-2">Booking Confirmed!</h2>
+          <h2 data-testid="booking-success" className="text-3xl font-extrabold text-blue-800 mb-2">Booking Confirmed!</h2>
           <p className="text-gray-600 mb-2 font-medium">Your parking slot has been successfully secured.</p>
           <p className="text-sm text-gray-500 mb-6">
             🕐 {formData.arrivalTime} – {formData.leavingTime} &nbsp;|&nbsp; 📅 {formData.bookingDate}
@@ -272,7 +272,7 @@ const ParkingBookingForm = () => {
         </div>
 
         {errors.submit && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-semibold text-center">
+          <div data-testid="parking-error-msg" className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-semibold text-center">
             {errors.submit}
           </div>
         )}
@@ -290,16 +290,18 @@ const ParkingBookingForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">First Name</label>
-              <input 
+              <input
                 type="text" name="firstName" value={formData.firstName} onChange={handleChange}
+                data-testid="first-name-input"
                 className={`w-full border-2 rounded-lg px-4 py-3 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/20  ${errors.firstName ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
               />
               {errors.firstName && <p className="text-red-500 text-xs font-bold mt-2">{errors.firstName}</p>}
             </div>
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Last Name</label>
-              <input 
+              <input
                 type="text" name="lastName" value={formData.lastName} onChange={handleChange}
+                data-testid="last-name-input"
                 className={`w-full border-2 rounded-lg px-4 py-3 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/20 ${errors.lastName ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
               />
               {errors.lastName && <p className="text-red-500 text-xs font-bold mt-2">{errors.lastName}</p>}
@@ -312,6 +314,7 @@ const ParkingBookingForm = () => {
                 <label className="block text-sm font-bold text-gray-700 mb-2">Booking Date</label>
                 <input
                   type="date" name="bookingDate" value={formData.bookingDate} onChange={handleChange} min={new Date().toISOString().split('T')[0]}
+                  data-testid="booking-date-input"
                   className={`w-full border-2 rounded-lg px-4 py-3 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/20 bg-white ${errors.bookingDate ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
                 />
                 {errors.bookingDate && <p className="text-red-500 text-xs font-bold mt-2">{errors.bookingDate}</p>}
@@ -320,6 +323,7 @@ const ParkingBookingForm = () => {
                 <label className="block text-sm font-bold text-gray-700 mb-2">Arrival Time</label>
                 <input
                   type="time" name="arrivalTime" value={formData.arrivalTime} onChange={handleChange}
+                  data-testid="arrival-time-input"
                   className={`w-full border-2 rounded-lg px-4 py-3 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/20 bg-white ${errors.arrivalTime ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
                 />
                 {errors.arrivalTime && <p className="text-red-500 text-xs font-bold mt-2">{errors.arrivalTime}</p>}
@@ -328,6 +332,7 @@ const ParkingBookingForm = () => {
                 <label className="block text-sm font-bold text-gray-700 mb-2">Leaving Time</label>
                 <input
                   type="time" name="leavingTime" value={formData.leavingTime} onChange={handleChange}
+                  data-testid="leaving-time-input"
                   className={`w-full border-2 rounded-lg px-4 py-3 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/20 bg-white ${errors.leavingTime ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
                 />
                 {errors.leavingTime && <p className="text-red-500 text-xs font-bold mt-2">{errors.leavingTime}</p>}
@@ -352,8 +357,9 @@ const ParkingBookingForm = () => {
 
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Student ID</label>
-            <input 
+            <input
               type="text" name="studentId" value={formData.studentId} onChange={handleChange} placeholder="e.g. IT21345678"
+              data-testid="student-id-input"
               className={`w-full border-2 rounded-lg px-4 py-3 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/20 ${errors.studentId ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
             />
             {errors.studentId && <p className="text-red-500 text-xs font-bold mt-2">{errors.studentId}</p>}
@@ -361,8 +367,9 @@ const ParkingBookingForm = () => {
 
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Email Address</label>
-            <input 
+            <input
               type="text" name="email" value={formData.email} onChange={handleChange} placeholder="student@university.edu"
+              data-testid="email-input"
               className={`w-full border-2 rounded-lg px-4 py-3 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/20 ${errors.email ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
             />
             {errors.email && <p className="text-red-500 text-xs font-bold mt-2">{errors.email}</p>}
@@ -370,8 +377,9 @@ const ParkingBookingForm = () => {
 
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Phone Number</label>
-            <input 
+            <input
               type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="07xxxxxxxx"
+              data-testid="phone-input"
               className={`w-full border-2 rounded-lg px-4 py-3 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/20 ${errors.phone ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
             />
             {errors.phone && <p className="text-red-500 text-xs font-bold mt-2">{errors.phone}</p>}
@@ -379,16 +387,18 @@ const ParkingBookingForm = () => {
 
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Vehicle Number</label>
-            <input 
+            <input
               type="text" name="vehicleNumber" value={formData.vehicleNumber} onChange={handleChange} placeholder="e.g. ABC-1234"
+              data-testid="vehicle-number-input"
               className={`w-full border-2 rounded-lg px-4 py-3 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/20 ${errors.vehicleNumber ? 'border-red-400 focus:border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
             />
             {errors.vehicleNumber && <p className="text-red-500 text-xs font-bold mt-2">{errors.vehicleNumber}</p>}
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={isSubmitting}
+            data-testid="confirm-booking-btn"
             className="w-full bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 text-white font-extrabold text-lg py-4 px-4 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 mt-4"
           >
             {isSubmitting ? 'Confirming...' : 'Confirm Booking'}

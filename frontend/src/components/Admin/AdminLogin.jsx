@@ -133,6 +133,7 @@ const AdminLogin = () => {
                   <input
                     type="email"
                     placeholder="admin@unispot.com"
+                    data-testid="admin-email-input"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -145,6 +146,7 @@ const AdminLogin = () => {
                   <input
                     type="password"
                     placeholder="••••••••"
+                    data-testid="admin-password-input"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -198,6 +200,7 @@ const AdminLogin = () => {
             <button 
               type="submit"
               disabled={isLoading}
+              data-testid="admin-login-submit"
               className="w-full mt-2 bg-slate-900 text-white shadow-xl shadow-slate-900/10 rounded-2xl px-4 py-4 font-black transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:bg-slate-800 text-lg flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
             >
               <span>{isLoading ? "Authenticating..." : "Access Dashboard"}</span>

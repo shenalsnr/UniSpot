@@ -192,7 +192,7 @@ const StaffRegister = () => {
     <div>
       {/* Success Notification */}
       {success && (
-        <div className="mb-6 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 border-l-4 border-emerald-500 rounded-lg shadow-md">
+        <div data-testid="success-alert" className="mb-6 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 border-l-4 border-emerald-500 rounded-lg shadow-md">
           <div className="flex items-center gap-3">
             <span className="text-2xl">✓</span>
             <p className="text-emerald-700 font-bold">{success}</p>
@@ -215,6 +215,7 @@ const StaffRegister = () => {
         <h2 className="text-3xl font-black text-slate-800">System Records</h2>
         <button
           onClick={openAddModal}
+          data-testid="add-staff-btn"
           className="bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
         >
           ➕ Add New Staff
@@ -252,7 +253,7 @@ const StaffRegister = () => {
               </thead>
               <tbody>
                 {staffList.map((staff) => (
-                  <tr key={staff._id} className="border-b border-slate-200 hover:bg-blue-50/50 transition-colors duration-200">
+                  <tr key={staff._id} data-testid="staff-record-row" className="border-b border-slate-200 hover:bg-blue-50/50 transition-colors duration-200">
                     <td className="px-6 py-4">
                       <span className="font-black text-blue-700 bg-blue-100 px-3 py-2 rounded-lg text-sm">
                         {staff.staffID}
@@ -362,6 +363,7 @@ const StaffRegister = () => {
                 <input
                   type="text"
                   name="name"
+                  data-testid="staff-name-input"
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="Enter Full Name"
@@ -384,6 +386,7 @@ const StaffRegister = () => {
                 <input
                   type="text"
                   name="nic"
+                  data-testid="staff-nic-input"
                   value={formData.nic}
                   onChange={handleInputChange}
                   placeholder="E.g., 1234567890"
@@ -405,6 +408,7 @@ const StaffRegister = () => {
                 </label>
                 <select
                   name="designation"
+                  data-testid="staff-designation-select"
                   value={formData.designation}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-semibold text-slate-800"
@@ -422,6 +426,7 @@ const StaffRegister = () => {
                 </label>
                 <select
                   name="shift"
+                  data-testid="staff-shift-select"
                   value={formData.shift}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-semibold text-slate-800"
@@ -438,6 +443,7 @@ const StaffRegister = () => {
                 </label>
                 <select
                   name="gate"
+                  data-testid="staff-gate-select"
                   value={formData.gate}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-semibold text-slate-800"
@@ -456,6 +462,7 @@ const StaffRegister = () => {
                 <input
                   type="tel"
                   name="phone"
+                  data-testid="staff-phone-input"
                   value={formData.phone}
                   onChange={handleInputChange}
                   placeholder="E.g., 0712345678"
@@ -497,6 +504,7 @@ const StaffRegister = () => {
                 </button>
                 <button
                   type="submit"
+                  data-testid="staff-submit-btn"
                   disabled={loading}
                   className="flex-1 px-4 py-3 bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
                 >

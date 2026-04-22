@@ -196,31 +196,21 @@ export const reserveParkingSpot = async (req, res, next) => {
       }
     }
 
-    // ── Check if the student already has an overlapping booking (any slot) ────
+    // ── Check if the student already has any active booking (one booking at a time) ────
     if (userId !== "Anonymous") {
-      const studentExisting = await ParkingBooking.find({
+      const existingActiveBooking = await ParkingBooking.findOne({
         studentId: userId,
-        status: { $in: ["active", "expired"] },
-        bookingDate: {
-          $gte: bookingDateNorm,
-          $lt: new Date(bookingDateNorm.getTime() + 24 * 60 * 60 * 1000),
-        },
+        status: "active",
       }).lean();
 
-      for (const booking of studentExisting) {
-        const exStart = timeToMinutes(booking.arrivalTime);
-        const exEnd   = timeToMinutes(booking.leavingTime);
-
-        if (exStart === null || exEnd === null) continue;
-
-        if (intervalsOverlap(newStartMins, newEndMins, exStart, exEnd)) {
-          return res.status(409).json({
-            success: false,
-            message: `You already have a booking for slot ${booking.slotNumber} from ${booking.arrivalTime} to ${booking.leavingTime} on that date. Bookings cannot overlap.`,
-          });
-        }
+      if (existingActiveBooking) {
+        return res.status(409).json({
+          success: false,
+          message: `You already have an active booking for slot ${existingActiveBooking.slotNumber} on ${new Date(existingActiveBooking.bookingDate).toLocaleDateString()}. Only one parking booking is allowed at a time. Please cancel your existing booking first.`,
+        });
       }
     }
+
 
     // ── Create ParkingBooking record ──────────────────────────────────────────
     let createdBooking = null;

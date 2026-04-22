@@ -69,6 +69,7 @@ const LockerMap = ({ isEmbedded = false }) => {
                   <select
                     value={selectedMap}
                     onChange={(e) => setSelectedMap(e.target.value)}
+                    data-testid="locker-map-select"
                     className="w-full px-4 py-3 border-2 border-slate-200 rounded-3xl focus:outline-none focus:border-blue-400 transition-all bg-white font-medium text-slate-700"
                   >
                     <option value="">Choose a map…</option>

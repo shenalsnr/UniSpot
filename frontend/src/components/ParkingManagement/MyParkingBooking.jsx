@@ -66,19 +66,19 @@ const MyParkingBooking = () => {
           }
         } catch (bookingErr) {
           console.error('Primary booking fetch failed:', bookingErr);
-          
+
           // Fallback: Try direct axios call with explicit auth
           try {
             const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || '{}');
             const token = studentInfo.token;
-            
+
             if (token) {
               const timestamp = Date.now();
               const directRes = await axios.get(`http://localhost:5000/api/parking/my-active?t=${timestamp}`, {
-                headers: { 
+                headers: {
                   'Authorization': `Bearer ${token}`,
-                  'Cache-Control': 'no-cache', 
-                  'Pragma': 'no-cache' 
+                  'Cache-Control': 'no-cache',
+                  'Pragma': 'no-cache'
                 },
                 timeout: 10000
               });
@@ -153,9 +153,9 @@ const MyParkingBooking = () => {
   if (loading) {
     return (
       <>
-        
-          <div className="p-8 text-center font-bold text-white text-lg bg-black/20 rounded-2xl backdrop-blur-sm">Loading booking details...</div>
-      
+
+        <div className="p-8 text-center font-bold text-white text-lg bg-black/20 rounded-2xl backdrop-blur-sm">Loading booking details...</div>
+
       </>
     );
   }
@@ -163,9 +163,9 @@ const MyParkingBooking = () => {
   if (error) {
     return (
       <>
-        
-          <div className="bg-red-100 text-red-700 px-6 py-4 rounded-xl font-semibold shadow-sm">{error}</div>
-        
+
+        <div className="bg-red-100 text-red-700 px-6 py-4 rounded-xl font-semibold shadow-sm">{error}</div>
+
       </>
     );
   }
@@ -177,7 +177,7 @@ const MyParkingBooking = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] via-indigo-50 to-slate-100 pb-12">
-      <UnifiedNavbar 
+      <UnifiedNavbar
         moduleName="Parking Management"
         centerModule={true}
         rightActions={
@@ -185,7 +185,7 @@ const MyParkingBooking = () => {
             onClick={() => navigate('/student-dashboard')}
             className="px-5 py-2.5 bg-white text-indigo-900 font-bold rounded-full shadow-lg hover:shadow-indigo-200 border border-indigo-100 transition-all duration-300 hover:scale-105 flex items-center gap-2 group"
           >
-            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" /> 
+            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
             Back to Dashboard
           </button>
         }
@@ -204,7 +204,7 @@ const MyParkingBooking = () => {
             {/* Background decoration */}
             <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-50 rounded-full blur-3xl opacity-50"></div>
             <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-slate-100 rounded-full blur-3xl opacity-50"></div>
-            
+
             <div className="relative z-10">
               <div className="w-24 h-24 bg-gradient-to-br from-slate-50 to-slate-100 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner border border-slate-200/50">
                 <Ticket size={48} className="text-slate-300" />
@@ -215,6 +215,7 @@ const MyParkingBooking = () => {
               </p>
               <button
                 onClick={() => navigate('/parking/zones')}
+                data-testid="book-slot-btn"
                 className="bg-indigo-900 hover:bg-indigo-800 text-white font-black py-4 px-10 rounded-2xl shadow-xl shadow-indigo-900/20 transition-all duration-300 transform hover:-translate-y-1 active:scale-95 flex items-center gap-3 mx-auto text-lg"
               >
                 Book Your Spot <ChevronRight size={20} />
@@ -226,13 +227,12 @@ const MyParkingBooking = () => {
             {/* Main Booking Card */}
             <div className="bg-white/95 backdrop-blur-md rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/60">
               {/* Card Header Banner */}
-              <div className={`p-8 text-white relative overflow-hidden ${
-                bookingStatus === 'expired'
+              <div className={`p-8 text-white relative overflow-hidden ${bookingStatus === 'expired'
                   ? 'bg-gradient-to-r from-rose-600 to-red-500'
                   : bookingStatus === 'waiting_for_slot'
-                  ? 'bg-gradient-to-r from-amber-500 to-orange-500'
-                  : 'bg-indigo-900'
-              }`}>
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500'
+                    : 'bg-indigo-900'
+                }`}>
                 {/* Visual patterns */}
                 <div className="absolute inset-0 opacity-10 pointer-events-none">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
@@ -377,6 +377,7 @@ const MyParkingBooking = () => {
                   {bookingStatus !== 'expired' && (
                     <button
                       onClick={handleCancelBooking}
+                      data-testid="cancel-booking-btn"
                       className="group bg-rose-50 hover:bg-rose-100 text-rose-600 font-black py-4.5 px-6 rounded-2xl transition-all flex items-center justify-center gap-3 text-lg border border-rose-100"
                     >
                       <X size={22} className="group-hover:rotate-90 transition-transform" />

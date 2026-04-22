@@ -335,6 +335,7 @@ const MyBookLocker = () => {
                       {booking.status === 'active' && (
                         <button
                           onClick={() => handleCancelBooking(booking._id)}
+                          data-testid="cancel-locker-btn"
                           className="flex-1 bg-red-100 hover:bg-red-200 text-red-600 font-bold py-4 px-6 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
                         >
                           <X size={20} />

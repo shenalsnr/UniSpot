@@ -89,6 +89,7 @@ const BeautifulBooking = ({
               min={todayDate}
               value={bookingDate}
               onChange={(e) => setBookingDate(e.target.value)}
+              data-testid="locker-date-input"
               className="w-full border-2 border-sky-200 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all shadow-sm bg-white hover:border-sky-300"
             />
           </div>
@@ -105,6 +106,7 @@ const BeautifulBooking = ({
                 max="22:00"
                 value={bookingStartTime}
                 onChange={(e) => setBookingStartTime(e.target.value)}
+                data-testid="locker-start-input"
                 className="w-full border-2 border-sky-200 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all shadow-sm bg-white hover:border-sky-300"
               />
             </div>
@@ -120,6 +122,7 @@ const BeautifulBooking = ({
                 max="22:00"
                 value={bookingEndTime}
                 onChange={(e) => setBookingEndTime(e.target.value)}
+                data-testid="locker-end-input"
                 className="w-full border-2 border-sky-200 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-all shadow-sm bg-white hover:border-sky-300"
               />
             </div>
@@ -144,6 +147,7 @@ const BeautifulBooking = ({
           
           <button
             onClick={handleConfirm}
+            data-testid="locker-confirm-btn"
             className="flex-1 py-3 px-4 rounded-xl font-semibold transition-all duration-200 transform hover:scale-[1.02] shadow-lg bg-sky-600 hover:bg-sky-700 text-white"
           >
             <div className="flex items-center justify-center gap-2">

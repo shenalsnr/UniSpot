@@ -216,7 +216,7 @@ const AdminLockerMap = () => {
                 </thead>
                 <tbody>
                   {maps.map((map) => (
-                    <tr key={map._id} className={`transition border-b ${editingMapId === map._id ? 'bg-blue-50/50' : 'hover:bg-slate-50'}`}>
+                    <tr key={map._id} data-testid="locker-map-row" className={`transition border-b ${editingMapId === map._id ? 'bg-blue-50/50' : 'hover:bg-slate-50'}`}>
                       <td className="p-4 text-slate-800 font-bold">{map.locationName}</td>
                       <td className="p-4 text-slate-600 font-medium">{map.rows}</td>
                       <td className="p-4 text-slate-600 font-medium">{map.lockersPerRow}</td>
@@ -339,10 +339,11 @@ const AdminLockerMap = () => {
               <div className="flex flex-col gap-5">
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Location Name</label>
-                  <input
+                   <input
                     name="locationName"
                     value={form.locationName}
                     placeholder="e.g. Main Hall"
+                    data-testid="location-name-input"
                     onChange={handleChange}
                     className="w-full bg-white border-2 border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
                   />
@@ -356,6 +357,7 @@ const AdminLockerMap = () => {
                       type="number"
                       min="1"
                       max="10"
+                      data-testid="rows-input"
                       onKeyDown={(e) => { if (['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
                       value={form.rows}
                       placeholder="e.g. 5"
@@ -374,6 +376,7 @@ const AdminLockerMap = () => {
                       type="number"
                       min="1"
                       max="10"
+                      data-testid="lockers-per-row-input"
                       onKeyDown={(e) => { if (['-', '+', 'e', 'E', '.'].includes(e.key)) e.preventDefault(); }}
                       value={form.lockersPerRow}
                       placeholder="e.g. 10"
@@ -387,6 +390,7 @@ const AdminLockerMap = () => {
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
+                  data-testid="create-map-submit"
                   className="mt-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl disabled:opacity-50"
                 >
                   {loading ? "Creating..." : "Create Map"}

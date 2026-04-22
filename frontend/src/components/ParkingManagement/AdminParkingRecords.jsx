@@ -296,6 +296,7 @@ const AdminParkingRecords = () => {
               <h2 className="text-xl font-bold text-blue-900">System Records</h2>
               <button 
                 onClick={openAddModal}
+                data-testid="add-new-spot-btn"
                 className="bg-white text-blue-600 border border-blue-200 px-4 py-2 rounded-lg font-bold text-sm shadow-sm hover:bg-[oklch(48.8%_0.243_264.376)] hover:text-white transition-colors whitespace-nowrap"
               >
                 + Add New Spot
@@ -344,7 +345,7 @@ const AdminParkingRecords = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {filteredSpots.map((spot) => (
-                    <tr key={spot._id} onClick={() => handleViewClick(spot)} className="hover:bg-blue-50/60 transition-colors duration-150 cursor-pointer">
+                    <tr key={spot._id} onClick={() => handleViewClick(spot)} data-testid="parking-record-row" className="hover:bg-blue-50/60 transition-colors duration-150 cursor-pointer">
                       <td className="py-5 px-6 font-bold text-blue-900 text-lg">
                         {spot.slotNumber}
                       </td>
@@ -433,6 +434,7 @@ const AdminParkingRecords = () => {
                 <label className="block text-sm font-bold text-gray-700 mb-1">Zone</label>
                 <select 
                   required
+                  data-testid="zone-select"
                   value={newSpot.zone} 
                   onChange={e => handleZoneChange(e.target.value)} 
                   className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
@@ -449,6 +451,7 @@ const AdminParkingRecords = () => {
                 <input 
                   readOnly 
                   type="text" 
+                  data-testid="slot-number-input"
                   value={newSpot.slotNumber} 
                   placeholder={newSpot.zone ? "Generating..." : "Select zone first"}
                   className="w-full border p-2 rounded bg-gray-100 text-gray-500 cursor-not-allowed font-mono font-bold" 
@@ -467,7 +470,12 @@ const AdminParkingRecords = () => {
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Vehicle Type</label>
-                <select value={newSpot.vehicleType} onChange={e => setNewSpot({...newSpot, vehicleType: e.target.value})} className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none">
+                <select 
+                  data-testid="vehicle-type-select"
+                  value={newSpot.vehicleType} 
+                  onChange={e => setNewSpot({...newSpot, vehicleType: e.target.value})} 
+                  className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                >
                   <option value="Car">Car</option>
                   <option value="Motorcycle">Motorcycle</option>
                   <option value="Bicycle">Bicycle</option>
@@ -477,6 +485,7 @@ const AdminParkingRecords = () => {
                 <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2 text-gray-500 font-bold hover:bg-gray-100 rounded">Cancel</button>
                 <button 
                   type="submit" 
+                  data-testid="save-spot-btn"
                   disabled={!newSpot.zone || !newSpot.slotNumber}
                   className="px-5 py-2 bg-[oklch(48.8%_0.243_264.376)] text-white font-bold rounded hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 >

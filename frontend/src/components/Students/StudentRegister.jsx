@@ -180,9 +180,7 @@ const StudentRegister = () => {
       data.append("password", formData.password);
       data.append("photo", formData.photo);
 
-      const res = await studentApi.post("/students/register", data, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await studentApi.post("/students/register", data);
 
       localStorage.setItem("studentInfo", JSON.stringify(res.data));
       navigate("/student-dashboard");
@@ -202,7 +200,7 @@ const StudentRegister = () => {
           </p>
 
           {message && (
-            <p className="bg-red-100 text-red-700 px-4 py-3 rounded-xl font-semibold text-center">
+            <p data-testid="reg-error-message" className="bg-red-100 text-red-700 px-4 py-3 rounded-xl font-semibold text-center">
               {message}
             </p>
           )}
@@ -219,6 +217,7 @@ const StudentRegister = () => {
             name="name"
             placeholder="Full Name"
             onChange={changeHandler}
+            data-testid="reg-name"
             required
           />
 
@@ -228,6 +227,7 @@ const StudentRegister = () => {
             name="studentId"
             placeholder="Student ID (IT12345678)"
             onChange={changeHandler}
+            data-testid="reg-student-id"
             required
           />
 
@@ -237,6 +237,7 @@ const StudentRegister = () => {
             name="phone"
             placeholder="Phone Number"
             onChange={changeHandler}
+            data-testid="reg-phone"
             required
           />
 
@@ -246,6 +247,7 @@ const StudentRegister = () => {
             name="address"
             placeholder="Address"
             onChange={changeHandler}
+            data-testid="reg-address"
             required
           />
 
@@ -253,6 +255,7 @@ const StudentRegister = () => {
             className="w-full px-4 py-3 rounded-xl border border-blue-100 bg-blue-50/50 text-sm text-slate-900 outline-none transition-all duration-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10"
             name="faculty"
             onChange={changeHandler}
+            data-testid="reg-faculty"
             required
           >
             <option value="">Select Faculty</option>
@@ -271,6 +274,7 @@ const StudentRegister = () => {
                 placeholder="Email (Optional)"
                 value={formData.email}
                 onChange={changeHandler}
+                data-testid="reg-email"
               />
               {isCheckingEmail && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 font-bold">🔄</span>}
               {emailValid === true && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 font-bold">✓</span>}
@@ -290,6 +294,7 @@ const StudentRegister = () => {
               name="password"
               placeholder="Password"
               onChange={changeHandler}
+              data-testid="reg-password"
               required
             />
             <button
@@ -308,6 +313,7 @@ const StudentRegister = () => {
               name="confirmPassword"
               placeholder="Confirm Password"
               onChange={changeHandler}
+              data-testid="reg-confirm-password"
               required
             />
             <button
@@ -331,6 +337,7 @@ const StudentRegister = () => {
               name="photo"
               accept="image/png,image/jpeg,image/jpg"
               onChange={changeHandler}
+              data-testid="reg-photo-input"
               required={!preview}
             />
 
@@ -358,6 +365,7 @@ const StudentRegister = () => {
 
           <button
             type="submit"
+            data-testid="reg-submit-btn"
             className="w-full bg-[oklch(48.8%_0.243_264.376)] text-white shadow-lg shadow-blue-600/20 rounded-xl px-4 py-3 font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-600/30 hover:opacity-90"
           >
             Register Now

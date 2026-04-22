@@ -66,30 +66,30 @@ const StudentDashboard = () => {
                 <span className="flex h-2 w-2 rounded-full bg-indigo-400 animate-pulse"></span>
                 <span>Active Portal</span>
               </div>
-              
+
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight text-left">
-                Welcome back, <br/>
+                Welcome back, <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-indigo-100">
                   {student.name}
                 </span>
               </h1>
-              
+
               <p className="max-w-md text-lg text-indigo-100/80 font-medium leading-relaxed text-left">
-                Streamline your campus experience. Quick access to your bookings, 
+                Streamline your campus experience. Quick access to your bookings,
                 security credentials, and personal records.
               </p>
 
               <div className="grid grid-cols-2 gap-4 pt-2 w-fit">
-                <Link to="/lockers" className="px-6 py-3.5 bg-white text-indigo-900 font-bold rounded-2xl shadow-xl shadow-black/10 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 text-center">
+                <Link to="/lockers" data-testid="book-locker-nav" className="px-6 py-3.5 bg-white text-indigo-900 font-bold rounded-2xl shadow-xl shadow-black/10 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 text-center">
                   Book Locker
                 </Link>
                 <Link to="/parking/zones" className="px-6 py-3.5 bg-white text-indigo-900 font-bold rounded-2xl shadow-xl shadow-black/10 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 text-center">
                   Reserve Parking
                 </Link>
-                <Link to="/MyBookLocker" className="px-6 py-3.5 bg-white text-indigo-900 font-bold rounded-2xl shadow-xl shadow-black/10 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 text-center">
+                <Link to="/MyBookLocker" data-testid="my-locker-nav" className="px-6 py-3.5 bg-white text-indigo-900 font-bold rounded-2xl shadow-xl shadow-black/10 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 text-center">
                   My Locker
                 </Link>
-                <Link to="/my-booking" className="px-6 py-3.5 bg-white text-indigo-900 font-bold rounded-2xl shadow-xl shadow-black/10 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 text-center">
+                <Link to="/my-booking" data-testid="my-parking-nav" className="px-6 py-3.5 bg-white text-indigo-900 font-bold rounded-2xl shadow-xl shadow-black/10 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 text-center">
                   My Parking
                 </Link>
               </div>
@@ -121,7 +121,7 @@ const StudentDashboard = () => {
               </div>
               <h3 className="text-xl font-bold text-slate-800 tracking-tight">My Profile</h3>
             </div>
-            
+
             <div className="space-y-4">
               <div className="flex justify-between items-center py-2 border-b border-slate-50">
                 <span className="text-sm font-semibold text-slate-500">Student ID</span>
@@ -146,7 +146,7 @@ const StudentDashboard = () => {
               </div>
               <h3 className="text-xl font-bold text-slate-800 tracking-tight">Account Overview</h3>
             </div>
-            
+
             <div className="space-y-6 text-left">
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -154,7 +154,7 @@ const StudentDashboard = () => {
                   <span className="text-sm font-bold text-slate-900">{student.marks ?? 10}/10</span>
                 </div>
                 <div className="w-full bg-slate-100 rounded-full h-2 text-left">
-                  <div 
+                  <div
                     className={`h-2 rounded-full transition-all duration-500 ${student.marks >= 7 ? 'bg-green-500' : student.marks >= 4 ? 'bg-yellow-500' : 'bg-red-500'}`}
                     style={{ width: `${(student.marks ?? 10) * 10}%` }}
                   ></div>
@@ -202,7 +202,7 @@ const StudentDashboard = () => {
               <span className="p-2 rounded-xl bg-slate-50 text-slate-600">🚗</span>
               Vehicle Details
             </h3>
-            
+
             {student.vehicleRegistered && student.vehicle ? (
               <div className="space-y-4">
                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-left">
@@ -237,7 +237,7 @@ const StudentDashboard = () => {
               <span className="p-2 rounded-xl bg-slate-50 text-slate-600">📊</span>
               Activity Summary
             </h3>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 { label: 'Member Since', value: formatDate(student.createdAt), icon: '📅' },
@@ -255,7 +255,7 @@ const StudentDashboard = () => {
               ))}
             </div>
 
-            
+
           </div>
         </div>
       </main>
