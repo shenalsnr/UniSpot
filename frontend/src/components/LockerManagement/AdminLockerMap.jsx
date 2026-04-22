@@ -164,18 +164,18 @@ const AdminLockerMap = () => {
         {/* Subtle Geometric Pattern */}
         <div className="fixed inset-0 opacity-3 pointer-events-none">
           <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 25% 25%, #3b82f6 0%, transparent 50%), radial-gradient(circle at 75% 75%, #6366f1 0%, transparent 50%)`,
+            backgroundImage: `radial-gradient(circle at 25% 25%, #6366f1 0%, transparent 50%), radial-gradient(circle at 75% 75%, #4f46e5 0%, transparent 50%)`,
             backgroundSize: '400px 400px, 400px 400px'
           }}></div>
         </div>
         
         {/* Professional Border Accents */}
-        <div className="fixed top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-blue-400 to-transparent opacity-20"></div>
-        <div className="fixed bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-blue-400 to-transparent opacity-20"></div>
+        <div className="fixed top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-indigo-400 to-transparent opacity-20"></div>
+        <div className="fixed bottom-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-indigo-400 to-transparent opacity-20"></div>
 
         {/* Main Header Topic */}
         <div className="w-full max-w-[95%] 2xl:max-w-1400 mx-auto px-8 mt-10 mb-6 relative z-10">
-          <div className="bg-[oklch(48.8%_0.243_264.376)] text-white rounded-2xl p-8 shadow-xl shadow-blue-500/20 border border-white/10 overflow-hidden relative">
+          <div className="bg-indigo-900 text-white rounded-2xl p-8 shadow-xl shadow-indigo-900/20 border border-white/10 overflow-hidden relative">
             {/* Decorative background element */}
             <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
             
@@ -196,17 +196,17 @@ const AdminLockerMap = () => {
         {/* Left Side: Table View */}
         <div className="flex-1 bg-white/95 backdrop-blur-sm border-2 border-slate-200/50 shadow-2xl rounded-2xl p-8 flex flex-col relative overflow-hidden">
           {/* Professional Header */}
-          <div className="absolute top-0 left-0 right-0 h-2 bg-linear-to-r from-blue-400 "></div>
+          <div className="absolute top-0 left-0 right-0 h-2 bg-linear-to-r from-indigo-400 "></div>
           
-          <h2 className="text-2xl font-black bg-linear-to-r from-slate-800 to-blue-400 bg-clip-text text-transparent mb-6 text-center">
-            Configured Maps
-          </h2>
+          <h2 className="text-2xl font-black bg-linear-to-r from-slate-800 to-indigo-500 bg-clip-text text-transparent mb-6 text-center">
+             Configured Maps
+           </h2>
           <p className="text-center text-slate-600 mb-8">Manage and monitor all locker configurations</p>
 
           <div className="flex-1 overflow-x-auto">
             {maps.length > 0 ? (
               <table className="w-full text-left border-collapse min-w-max text-lg">
-                <thead className="sticky top-0 bg-linear-to-r from-slate-50 to-blue-50 shadow-sm z-10 text-slate-700">
+                <thead className="sticky top-0 bg-linear-to-r from-slate-50 to-indigo-50 shadow-sm z-10 text-slate-700">
                   <tr>
                     <th className="p-4 border-b-2 font-bold w-1/3 uppercase tracking-wide text-sm">Location Name</th>
                     <th className="p-4 border-b-2 font-bold w-1/5 uppercase tracking-wide text-sm">Rows</th>
@@ -216,14 +216,14 @@ const AdminLockerMap = () => {
                 </thead>
                 <tbody>
                   {maps.map((map) => (
-                    <tr key={map._id} data-testid="locker-map-row" className={`transition border-b ${editingMapId === map._id ? 'bg-blue-50/50' : 'hover:bg-slate-50'}`}>
+                    <tr key={map._id} className={`transition border-b ${editingMapId === map._id ? 'bg-indigo-50/50' : 'hover:bg-slate-50'}`}>
                       <td className="p-4 text-slate-800 font-bold">{map.locationName}</td>
                       <td className="p-4 text-slate-600 font-medium">{map.rows}</td>
                       <td className="p-4 text-slate-600 font-medium">{map.lockersPerRow}</td>
                       <td className="p-4 text-center space-x-3 whitespace-nowrap">
                         <button
                           onClick={() => startEditing(map)}
-                          className="text-blue-600 hover:text-blue-800 font-bold px-5 py-2 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md"
+                          className="text-indigo-600 hover:text-indigo-800 font-bold px-5 py-2 bg-gradient-to-r from-indigo-50 to-indigo-100 hover:from-indigo-100 hover:to-indigo-200 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md"
                         >
                           Update
                         </button>
@@ -260,7 +260,7 @@ const AdminLockerMap = () => {
           
           {editingMapId ? (
             <>
-              <h2 className="text-2xl font-black bg-gradient-to-r from-slate-800 to-blue-800 bg-clip-text text-transparent mb-6 text-center">
+              <h2 className="text-2xl font-black bg-gradient-to-r from-slate-800 to-indigo-800 bg-clip-text text-transparent mb-6 text-center">
                 Update Map
               </h2>
 
@@ -272,7 +272,7 @@ const AdminLockerMap = () => {
                     value={updateForm.locationName}
                     placeholder="e.g. Main Hall"
                     onChange={handleUpdateChange}
-                    className="w-full bg-white border-2 border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
+                    className="w-full bg-white border-2 border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"
                   />
                 </div>
 
@@ -288,7 +288,7 @@ const AdminLockerMap = () => {
                       value={updateForm.rows}
                       placeholder="e.g. 5"
                       onChange={handleUpdateChange}
-                      className="w-full bg-white border-2 border-slate-200 p-3 pr-24 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
+                      className="w-full bg-white border-2 border-slate-200 p-3 pr-24 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"
                     />
                     <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium pointer-events-none">Max: 10</span>
                   </div>
@@ -306,7 +306,7 @@ const AdminLockerMap = () => {
                       value={updateForm.lockersPerRow}
                       placeholder="e.g. 10"
                       onChange={handleUpdateChange}
-                      className="w-full bg-white border-2 border-slate-200 p-3 pr-24 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
+                      className="w-full bg-white border-2 border-slate-200 p-3 pr-24 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"
                     />
                     <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium pointer-events-none">Max: 10</span>
                   </div>
@@ -316,7 +316,7 @@ const AdminLockerMap = () => {
                   <button
                     onClick={handleUpdateSubmit}
                     disabled={loading}
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl disabled:opacity-50"
+                    className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-3 rounded-xl hover:from-indigo-700 hover:to-indigo-800 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl disabled:opacity-50"
                   >
                     {loading ? "Saving..." : "Save Changes"}
                   </button>
@@ -332,7 +332,7 @@ const AdminLockerMap = () => {
             </>
           ) : (
             <>
-              <h2 className="text-2xl font-black bg-gradient-to-r from-slate-800 to-blue-800 bg-clip-text text-transparent mb-6 text-center">
+              <h2 className="text-2xl font-black bg-gradient-to-r from-slate-800 to-indigo-800 bg-clip-text text-transparent mb-6 text-center">
                 Configure Map Details
               </h2>
 
@@ -345,7 +345,7 @@ const AdminLockerMap = () => {
                     placeholder="e.g. Main Hall"
                     data-testid="location-name-input"
                     onChange={handleChange}
-                    className="w-full bg-white border-2 border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
+                    className="w-full bg-white border-2 border-slate-200 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"
                   />
                 </div>
 
@@ -362,7 +362,7 @@ const AdminLockerMap = () => {
                       value={form.rows}
                       placeholder="e.g. 5"
                       onChange={handleChange}
-                      className="w-full bg-white border-2 border-slate-200 p-3 pr-24 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
+                      className="w-full bg-white border-2 border-slate-200 p-3 pr-24 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"
                     />
                     <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium pointer-events-none">Max: 10</span>
                   </div>
@@ -381,7 +381,7 @@ const AdminLockerMap = () => {
                       value={form.lockersPerRow}
                       placeholder="e.g. 10"
                       onChange={handleChange}
-                      className="w-full bg-white border-2 border-slate-200 p-3 pr-24 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm"
+                      className="w-full bg-white border-2 border-slate-200 p-3 pr-24 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"
                     />
                     <span className="absolute right-8 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium pointer-events-none">Max: 10</span>
                   </div>
@@ -390,8 +390,7 @@ const AdminLockerMap = () => {
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  data-testid="create-map-submit"
-                  className="mt-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl disabled:opacity-50"
+                  className="mt-6 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-3 rounded-xl hover:from-indigo-700 hover:to-indigo-800 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl disabled:opacity-50"
                 >
                   {loading ? "Creating..." : "Create Map"}
                 </button>

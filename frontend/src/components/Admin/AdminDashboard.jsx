@@ -164,12 +164,12 @@ const AdminDashboard = () => {
   return (
     <AdminLayout>
       {/* Header */}
-      <div className="bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 text-white rounded-[26px] p-6 md:p-8 shadow-xl shadow-blue-900/20 mb-6 flex items-start justify-between gap-4">
+      <div className="bg-indigo-900 text-white rounded-[26px] p-6 md:p-8 shadow-xl shadow-indigo-900/20 mb-6 flex items-start justify-between gap-4">
         <div>
           <h1 className="m-0 mb-2 text-3xl md:text-4xl font-extrabold tracking-tight">
             Admin Dashboard
           </h1>
-          <p className="m-0 text-blue-50 opacity-95 text-lg">
+          <p className="m-0 text-indigo-50 opacity-90 text-lg">
             View and manage registered students, parking points, and access.
           </p>
         </div>
@@ -205,8 +205,7 @@ const AdminDashboard = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name or ID..."
-            data-testid="student-search-input"
-            className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-blue-400 text-sm font-medium mb-4 transition-colors"
+            className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-sm font-medium mb-4 transition-colors"
           />
 
           <div className="flex flex-col gap-3 max-h-[600px] overflow-y-auto pr-1">
@@ -214,9 +213,9 @@ const AdminDashboard = () => {
               <div
                 key={student._id}
                 className={`p-4 rounded-2xl border shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 flex flex-col gap-2 ${selectedStudent?._id === student._id
-                  ? "bg-blue-50 border-blue-300"
-                  : "bg-slate-50 border-slate-100 hover:bg-white"
-                  }`}
+                   ? "bg-indigo-50 border-indigo-300"
+                   : "bg-slate-50 border-slate-100 hover:bg-white"
+                   }`}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
@@ -233,9 +232,8 @@ const AdminDashboard = () => {
                   </span>
                 </div>
 
-                <button
-                  className="bg-[oklch(48.8%_0.243_264.376)] hover:opacity-90 text-white font-semibold py-2 px-5 rounded-xl transition-all shadow-sm mt-1 w-full sm:w-auto text-sm"
-                  data-testid={`view-details-btn-${student.studentId}`}
+                 <button
+                  className="bg-indigo-900 hover:bg-indigo-800 text-white font-semibold py-2 px-5 rounded-xl transition-all shadow-sm mt-1 w-full sm:w-auto text-sm"
                   onClick={() => viewStudentDetails(student._id)}
                 >
                   View Details
@@ -328,10 +326,10 @@ const AdminDashboard = () => {
               {/* Action buttons */}
               <div className="mt-2 flex flex-col gap-3">
                 {/* Primary: Restore Points */}
-                <button
+                 <button
                   onClick={() => restoreParkingPoints(selectedStudent._id)}
                   disabled={(selectedStudent.marks ?? 10) >= 10}
-                  className="w-full py-3 px-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                  className="w-full py-3 px-5 bg-indigo-900 hover:bg-indigo-800 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
                 >
                   {(selectedStudent.marks ?? 10) >= 10
                     ? "✓ Points at Maximum (10/10)"
@@ -340,7 +338,7 @@ const AdminDashboard = () => {
 
                 {/* Secondary actions */}
                 <div className="flex flex-wrap gap-2">
-                {selectedStudent.status?.toLowerCase() !== "blocked" ? (
+                  {selectedStudent.status?.toLowerCase() !== "blocked" ? (
                     <button
                       className="flex-1 bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2.5 px-4 rounded-xl transition-colors shadow-sm text-sm"
                       data-testid="block-student-btn"

@@ -276,7 +276,7 @@ const StudentProfile = () => {
           {/* Main Info Column */}
           <div className="lg:col-span-8 space-y-8">
             {/* Identity Card */}
-            <section className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
+            <section className="bg-white rounded-[2rem] border border-black shadow-sm overflow-hidden">
               <div className="p-8 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="p-3 rounded-2xl bg-indigo-50 text-indigo-600">
@@ -367,7 +367,7 @@ const StudentProfile = () => {
             </section>
 
             {/* Vehicle Section */}
-            <section className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden text-left">
+            <section className="bg-white rounded-[2rem] border border-black shadow-sm overflow-hidden text-left">
               <div className="p-8 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="p-3 rounded-2xl bg-slate-50 text-slate-600">
@@ -468,7 +468,7 @@ const StudentProfile = () => {
           {/* Sidebar Area */}
           <div className="lg:col-span-4 space-y-8">
             {/* Profile Photo Card */}
-            <section className="bg-white rounded-[2rem] border border-slate-200 shadow-sm p-8 text-center">
+            <section className="bg-white rounded-[2rem] border border-black shadow-sm p-8 text-center">
               <div className="relative inline-block group">
                 <div className="absolute -inset-2 bg-gradient-to-tr from-indigo-500 to-blue-600 rounded-full blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
                 <div className="relative w-40 h-40 rounded-full border-4 border-white shadow-xl overflow-hidden bg-slate-50 mx-auto">

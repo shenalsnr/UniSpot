@@ -26,10 +26,17 @@ const StaffLayout = ({ children }) => {
         {/* Professional Blue Header Banner */}
         <div 
           style={{
+
+            background: "#1e1b4b", // Indigo 900 matching student dashboard
+            color: "white",
+            padding: "24px 32px",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+
             background: "linear-gradient(135deg, #312e81 0%, #1e1b4b 100%)",
             color: "white",
             padding: "24px 32px",
             boxShadow: "0 4px 12px rgba(49,46,129,0.15)",
+
             borderBottom: "1px solid rgba(255,255,255,0.1)"
           }}
         >
