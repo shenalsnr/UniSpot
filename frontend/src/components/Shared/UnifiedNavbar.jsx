@@ -6,7 +6,7 @@ const UnifiedNavbar = ({ title = "", moduleName, links = [], leftActions, rightA
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-indigo-900 shadow-2xl px-4 md:px-8 py-3 md:py-4 flex justify-between items-center transition-all relative backdrop-blur-sm">
-      {/* Left Area: Logo and Module Name */}
+      
       <div className="flex items-center gap-4">
         {leftActions && (
           <div className="flex items-center">
@@ -38,7 +38,7 @@ const UnifiedNavbar = ({ title = "", moduleName, links = [], leftActions, rightA
         )}
       </div>
 
-      {/* Center Area: Module Name or Links */}
+      
       {moduleName && centerModule ? (
         <h1 className="hidden md:block absolute left-1/2 -translate-x-1/2 text-xl md:text-2xl font-black text-white tracking-widest uppercase whitespace-nowrap drop-shadow-lg">
           {moduleName}
@@ -47,7 +47,8 @@ const UnifiedNavbar = ({ title = "", moduleName, links = [], leftActions, rightA
         links.length > 0 && (
           <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 space-x-8 lg:space-x-12 items-center">
             {links.map((link, idx) => {
-              // Support active state for hash links by checking window.location.hash
+
+              
               const isHash = link.to.startsWith('#');
               const isActive = isHash
                 ? location.hash === link.to || (link.to === '#home' && !location.hash)
